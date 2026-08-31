@@ -359,7 +359,7 @@ message EditGroupTitle {
 message EditGroupAbout {
   struct.GroupOutPeer group_peer = 1;
   int64 rid = 2;
-  string about = 3;
+  struct.StringValue about = 3;
   repeated int32 optimizations = 5;
 }
 

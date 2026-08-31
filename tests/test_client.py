@@ -240,6 +240,25 @@ async def test_inline_callback_and_call_methods_use_recorded_rpc_shapes(
 
 
 @pytest.mark.asyncio
+async def test_call_methods_accept_signed_int64_call_ids(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    await client.get_call_state(-789)
+
+    assert grpc.calls[-1]["payload"] == {"call_id": -789}
+
+
+@pytest.mark.asyncio
+async def test_call_methods_reject_zero_call_id(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match="non-zero"):
+        await client.get_call_state(0)
+
+
+@pytest.mark.asyncio
 async def test_invoke_raw_uses_session_without_a_schema(tmp_path) -> None:
     grpc = FakeGrpc()
     client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
@@ -264,6 +283,7 @@ async def test_balejs_file_group_pin_and_media_methods_use_expected_rpcs(
     client.user = User(42).bind(client)
 
     await client.remove_user_admin("99|2", 7)
+    await client.edit_group_about("99|2", "description")
     await client.edit_group_avatar(
         "99|2",
         {"file_id": 11, "access_hash": 12, "file_storage_version": 2},
@@ -278,11 +298,16 @@ async def test_balejs_file_group_pin_and_media_methods_use_expected_rpcs(
         send_type=1,
     )
     messages = await client.send_multi_media_message(
-        "99|2", [{"random_id": 20, "media": {"caption": {"text": "one"}}}]
+        "99|2",
+        [
+            {"random_id": 20, "media": {"caption": {"text": "one"}}},
+            {"random_id": 21, "media": {"caption": {"text": "two"}}},
+        ],
     )
 
     calls = {call["method"]: call for call in grpc.calls}
     assert calls["RemoveUserAdmin"]["payload"]["user_peer"]["uid"] == 7
+    assert calls["EditGroupAbout"]["payload"]["about"] == {"value": "description"}
     assert calls["EditGroupAvatar"]["payload"]["file_location"] == {
         "file_id": 11,
         "access_hash": 12,
@@ -296,6 +321,37 @@ async def test_balejs_file_group_pin_and_media_methods_use_expected_rpcs(
         "media": {"caption": {"text": "one"}},
     }
     assert messages[0].id == "20|1700000000000"
+
+
+@pytest.mark.asyncio
+async def test_file_location_converts_signed_ids_to_uint64(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    await client.get_file(-1, 12)
+    await client.edit_group_avatar("99|2", {"file_id": -2, "access_hash": 13})
+
+    assert grpc.calls[-2]["payload"]["file"]["file_id"] == (1 << 64) - 1
+    assert grpc.calls[-1]["payload"]["file_location"]["file_id"] == (1 << 64) - 2
+
+
+@pytest.mark.asyncio
+async def test_multi_media_album_validates_server_item_limits(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match="between 2 and 10"):
+        await client.send_multi_media_message(
+            "99|2", [{"media": {"caption": {"text": "one"}}}]
+        )
+
+
+@pytest.mark.asyncio
+async def test_group_title_validates_live_server_limit(tmp_path) -> None:
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=FakeGrpc())  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match="30"):
+        await client.create_group("x" * 31)
 
 
 @pytest.mark.asyncio
@@ -460,3 +516,18 @@ async def test_composable_filters_and_error_handlers(tmp_path) -> None:
 
     assert handled == ["/ping now"]
     assert errors == ["handler failed"]
+
+
+@pytest.mark.asyncio
+async def test_raw_update_handler_receives_every_decoded_update(tmp_path) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=FakeGrpc())  # type: ignore[arg-type]
+    received: list[dict[str, Any]] = []
+
+    @client.on_update
+    async def handler(update: dict[str, Any], _client: Client) -> None:
+        received.append(update)
+
+    update = {"update": {"composed_update": {"message_sent": b"ack"}}}
+    await client._process_update(update)
+
+    assert received == [update]

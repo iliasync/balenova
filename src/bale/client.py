@@ -17,6 +17,7 @@ from bale.dispatcher import (
     LifecycleEvent,
     LifecycleHandler,
     MessageHandler,
+    UpdateHandler,
 )
 from bale.errors import AuthenticationError, BaleRpcError, ClientStateError
 from bale.filters import Filter, command
@@ -153,6 +154,10 @@ class Client:
 
     def on_error(self, callback: ErrorHandler) -> ErrorHandler:
         return self.dispatcher.add_error_handler(callback)
+
+    def on_update(self, callback: UpdateHandler) -> UpdateHandler:
+        """Register a handler for every decoded user-session update."""
+        return self.dispatcher.add_update_handler(callback)
 
     def _lifecycle_decorator(
         self, event: LifecycleEvent, callback: LifecycleHandler
@@ -527,6 +532,11 @@ class Client:
         *,
         group_type: int = 0,
     ) -> Chat:
+        title = title.strip()
+        if not title:
+            raise ValueError("Group title cannot be empty")
+        if len(title) > 30:
+            raise ValueError("Group title cannot be longer than 30 characters")
         normalized_username = username.strip() if username else None
         response = await self.invoke(
             "bale.groups.v1.Groups",
@@ -726,7 +736,7 @@ class Client:
             "response.DefaultResponse",
             {
                 "group_peer": _group_peer(chat_id),
-                "about": about,
+                "about": {"value": about},
                 "rid": WebSocketTransport.create_rid(),
             },
         )
@@ -750,7 +760,7 @@ class Client:
     async def edit_group_avatar(
         self, chat_id: str, file: Mapping[str, Any]
     ) -> dict[str, Any]:
-        file_id = int(file["file_id"])
+        file_id = _unsigned_int64(file["file_id"], field_name="file_id")
         access_hash = int(file["access_hash"])
         storage_version = file.get("file_storage_version")
         return await self.invoke(
@@ -892,7 +902,12 @@ class Client:
             "GetNasimFileUrl",
             "request.GetNasimFileUrl",
             "response.GetNasimFileUrl",
-            {"file": {"file_id": file_id, "access_hash": access_hash}},
+            {
+                "file": {
+                    "file_id": _unsigned_int64(file_id, field_name="file_id"),
+                    "access_hash": access_hash,
+                }
+            },
         )
 
     get_file_url = get_file
@@ -981,8 +996,8 @@ class Client:
                     "media": dict(document),
                 }
             )
-        if not normalized:
-            return []
+        if not 2 <= len(normalized) <= 10:
+            raise ValueError("A media album must contain between 2 and 10 items")
         response = await self.invoke(
             "bale.messaging.v2.Messaging",
             "SendMultiMediaMessage",
@@ -1939,6 +1954,7 @@ class Client:
 
     async def _process_update(self, update: dict[str, Any]) -> None:
         async with self._update_semaphore:
+            await self.dispatcher.dispatch_update(self, update)
             raw = (update.get("update") or {}).get("composed_update", {}).get("message")
             if not isinstance(raw, dict) or int(raw.get("rid", 0)) == 0:
                 return
@@ -2030,9 +2046,23 @@ def _require_call_id(value: int | str) -> int:
         call_id = int(value)
     except (TypeError, ValueError) as error:
         raise ValueError(f"Expected a numeric Bale call id, got {value!r}") from error
-    if call_id <= 0:
-        raise ValueError("Bale call id must be positive")
+    # Bale uses signed int64 call identifiers.  Real responses can therefore
+    # contain negative ids; only zero represents a missing/invalid call id.
+    if call_id == 0:
+        raise ValueError("Bale call id must be non-zero")
     return call_id
+
+
+def _unsigned_int64(value: int | str, *, field_name: str) -> int:
+    try:
+        number = int(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"{field_name} must be an integer") from error
+    if number < 0:
+        number += 1 << 64
+    if not 0 <= number < 1 << 64:
+        raise ValueError(f"{field_name} is outside the uint64 range")
+    return number
 
 
 def _info_message(message: Message) -> dict[str, Any]:

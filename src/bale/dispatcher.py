@@ -5,7 +5,7 @@ from __future__ import annotations
 import inspect
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from bale.filters import Filter
 
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from bale.models import Message
 
 MessageHandler = Callable[["Message", "Client"], object | Awaitable[object]]
+UpdateHandler = Callable[[dict[str, Any], "Client"], object | Awaitable[object]]
 ErrorHandler = Callable[[BaseException, "Client"], object | Awaitable[object]]
 LifecycleHandler = Callable[["Client"], object | Awaitable[object]]
 LifecycleEvent = Literal["connect", "disconnect", "initialize", "shutdown"]
@@ -28,6 +29,7 @@ class _MessageRegistration:
 class Dispatcher:
     def __init__(self) -> None:
         self._message_handlers: list[_MessageRegistration] = []
+        self._update_handlers: list[UpdateHandler] = []
         self._error_handlers: list[ErrorHandler] = []
         self._lifecycle_handlers: dict[LifecycleEvent, list[LifecycleHandler]] = {
             "connect": [],
@@ -46,6 +48,10 @@ class Dispatcher:
         self._error_handlers.append(callback)
         return callback
 
+    def add_update_handler(self, callback: UpdateHandler) -> UpdateHandler:
+        self._update_handlers.append(callback)
+        return callback
+
     def add_lifecycle_handler(
         self, event: LifecycleEvent, callback: LifecycleHandler
     ) -> LifecycleHandler:
@@ -58,6 +64,13 @@ class Dispatcher:
                 if handler.filter and not await handler.filter.check(client, message):
                     continue
                 await _maybe_await(handler.callback(message, client))
+            except Exception as error:
+                await self.dispatch_error(client, error)
+
+    async def dispatch_update(self, client: Client, update: dict[str, Any]) -> None:
+        for handler in tuple(self._update_handlers):
+            try:
+                await _maybe_await(handler(update, client))
             except Exception as error:
                 await self.dispatch_error(client, error)
 

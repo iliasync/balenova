@@ -14,7 +14,7 @@
 - WebSocket multiplexing، keepalive، timeout و RPCهای هم‌زمان
 - gRPC-web async با retry و backoff
 - مدل‌های typed برای `User`، `Chat` و `Message`
-- handlerهای sync/async، lifecycle hooks و فیلترهای ترکیبی
+- handlerهای sync/async برای پیام و تمام updateهای خام، lifecycle hooks و فیلترها
 - متدهای پیام، تاریخچه، دیالوگ، پروفایل، تایپ، واکنش، گزارش و جست‌وجو
 - مدیریت گروه/کانال، اعضا، مجوزها، لینک دعوت و پیام‌های pinشده
 - فایل و upload URL، آواتار گروه، multi-media، wallet و gift
@@ -50,6 +50,11 @@ async def ping(message, _client):
 @client.on_error
 async def log_error(error, _client):
     print(error)
+
+
+@client.on_update
+async def raw_update(update, _client):
+    print((update.get("update") or {}).keys())
 ```
 
 برای اجرای برنامه:
@@ -119,6 +124,9 @@ python examples/calls.py generate-link --title 'جلسه'
 
 # کیف پول فقط‌خواندنی یا ارسال صریح gift
 python examples/gifts.py wallet
+
+# شمارش امن تمام updateهای دریافتی، بدون چاپ payload خصوصی
+python examples/updates.py --watch 30
 ```
 
 برای مشاهدهٔ تمام گزینه‌ها روی هر مثال `--help` بزنید.

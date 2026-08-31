@@ -20,6 +20,7 @@ EXAMPLES = (
     "messages.py",
     "official_web_protocol_lab.py",
     "protocol_lab.py",
+    "updates.py",
 )
 
 
