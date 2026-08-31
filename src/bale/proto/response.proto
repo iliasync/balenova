@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package response;
+
+import "struct.proto";
+
+message Response {
+  WsResponse ws_response = 1;
+  WsUpdate ws_update = 2;
+}
+
+message WsResponse {
+  WsError error = 1;
+  bytes response = 2;
+  int64 index = 3;
+}
+
+message WsError {
+  int32 code = 1;
+  string message = 2;
+  struct.MapValue details = 3;
+}
+
+message WsUpdate {
+  Update update = 1;
+}
+
+message Update {
+  ComposedUpdate composed_update = 1;
+}
+
+message ComposedUpdate {
+  bytes message_sent = 4;
+  UpdateMessage message = 55;
+}
+
+
+message UpdateMessage {
+  struct.Peer peer = 1;
+  int32 sender_uid = 2;
+  int64 date = 3;
+  int64 rid = 4;
+  struct.Message message = 5;
+  struct.QuotedMessage quoted_message = 7;
+  struct.MessageId previous_message_id = 9;
+}
+
+message GetMessageViews {
+  repeated struct.MessagesViews containers = 1;
+}
+
+message LoadHistory {
+  repeated struct.MessageContainer history = 1;
+}
+
+message JoinGroup {
+  struct.Group group = 1;
+  int32 seq = 2;
+}
+
+message JoinPublicGroup {
+  struct.Group group = 1;
+  int32 seq = 2;
+}
+
+message LoadUsers {
+  repeated struct.User users = 1;
+}
+
+message LoadFullUsers {
+  repeated struct.FullUser full_users = 1;
+}
+
+message CheckNickName {
+  bool available = 1;
+}
+
+message GetFullGroup {
+  struct.FullGroup full_group = 1;
+}
+
+message SearchContacts {
+  repeated struct.User users = 1;
+  repeated struct.UserOutPeer user_peers = 2;
+  repeated struct.Group groups = 4;
+  repeated struct.GroupOutPeer group_peers = 5;
+}
+
+message CreateGroup {
+  int32 seq = 1;
+  int64 date = 2;
+  struct.Group group = 3;
+  repeated struct.UserOutPeer users = 5;
+  repeated struct.UserOutPeer not_added_users = 6;
+  string invite_link = 7;
+}
+
+message EditGroupAvatar {
+  struct.Avatar avatar = 1;
+  int32 seq = 2;
+  bytes state = 3;
+  int64 date = 4;
+}
+
+message GetGroupInviteUrl {
+  string url = 1;
+}
+
+message RevokeInviteUrl {
+  string url = 1;
+}
+
+message InviteUsers {
+  repeated struct.UserOutPeer not_added_user_peers = 1;
+}
+
+message LoadMembers {
+  repeated struct.Member members = 1;
+  bytes next = 2;
+}
+
+message GetGroupMembersCount {
+  int32 members_count = 1;
+}
+
+message GetNasimFileUploadUrl {
+  int64 file_id = 1;
+  string url = 2;
+  bool duplicate = 3;
+  int32 chunk_size = 4;
+  int64 block_size = 5;
+}
+
+message StartPhoneAuth {
+  string transaction_hash = 1;
+  bool is_registered = 2;
+  int32 sent_code_type = 5;
+  struct.Int64Value code_expiration_date = 6;
+  int32 next_send_code_type = 7;
+  struct.Int64Value next_send_code_wait_time = 8;
+  struct.Int32Value code_timeout = 9;
+}
+
+message Auth {
+  struct.User user = 2;
+  struct.StringValue jwt = 4;
+}
+
+message LoadGroupAvatars {
+  struct.Avatars avatars = 1;
+}
+
+message LoadPinnedMessages {
+  repeated struct.MessageContainer pinned_messages = 1;
+}
+
+message GetNasimFileUrl {
+  struct.FileUrlDescription file_url = 1;
+}
+
+message GetParameters {
+  repeated struct.ExtKeyValue params = 1;
+}
+
+message LoadDialogs {
+  repeated struct.Group groups = 1;
+  repeated struct.User users = 2;
+  repeated struct.Dialog dialogs = 3;
+  repeated struct.UserOutPeer user_peers = 4;
+  repeated struct.GroupOutPeer group_peers = 5;
+}
+
+message DefaultResponse {
+  int32 seq = 1;
+  int64 date = 2;
+}
+
+message MessageSetReaction {
+  repeated struct.Reaction reactions = 2;
+}
+
+enum GiftOpenning {
+  GIFT_OPENNING_ALREADY_RECEIVED = 0;
+  GIFT_OPENNING_SOLD_OUT = 1;
+  GIFT_OPENNING_GIFT_CREATOR = 2;
+  GIFT_OPENNING_SUCCESSFUL = 3;
+  GIFT_OPENNING_PENDING = 4;
+}
+
+message OpenGiftPacket {
+  repeated struct.Winner receivers = 1;
+  GiftOpenning status = 2;
+  int32 openned_count = 3;
+  struct.Int64Value win_amount = 4;
+  struct.Int64Value rank = 5;
+}
+
+message Upvote {
+  repeated struct.InfoMessage messages = 1;
+  int32 limit = 2;
+}
+
+message UpvoteResponse {
+  Upvote upvote = 1;
+}
+
+message GetMyKifpools {
+  repeated struct.Wallet wallet = 1;
+  struct.StringValue first_name = 2;
+  struct.StringValue last_name = 3;
+}
