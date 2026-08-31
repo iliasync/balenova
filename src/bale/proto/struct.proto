@@ -118,6 +118,25 @@ message Reaction {
   Int32Value count = 3;
 }
 
+// Shapes used by the current official web client's bulk reaction/view RPCs.
+message BulkReaction {
+  repeated int32 users = 1;
+  string code = 2;
+  Int64Value cardinality = 3;
+  map<string, RawValue> ext = 4;
+}
+
+message MessageReactionsContainer {
+  int64 rid = 1;
+  int64 date = 2;
+  repeated BulkReaction reactions = 3;
+}
+
+message MessageViewsContainer {
+  MessageId message_id = 1;
+  Int64Value views = 2;
+}
+
 message IntroPhoto {
   FastThumb thumb = 1;
   int32 width = 2;
@@ -232,6 +251,83 @@ message StringValue {
 message ExtKeyValue {
   string key = 1;
   string value = 2;
+}
+
+message PendingCallRequest {
+  string requester_identifier = 1;
+  string name = 2;
+}
+
+enum CallMode {
+  CALL_MODE_UNKNOWN = 0;
+  CALL_MODE_PRIVATE = 1;
+  CALL_MODE_GROUP = 2;
+  CALL_MODE_MULTI_PEER = 3;
+  CALL_MODE_CHANNEL_LIVE = 4;
+}
+
+message GroupCall {
+  int64 id = 1;
+  string room = 2;
+  string token = 3;
+  StringValue url = 4;
+  bool video = 5;
+  Int64Value create_date = 6;
+  Int32Value duration = 7;
+  int32 initiator_user_id = 8;
+  Peer peer = 9;
+  map<string, RawValue> ext = 10;
+  CallMode mode = 11;
+  string link = 12;
+  bool is_public = 13;
+  map<string, string> extra = 15;
+  string title = 16;
+  repeated Peer in_call_participants = 17;
+  Int64Value end_date = 18;
+  repeated PendingCallRequest pending_requests = 19;
+  repeated string raised_hands_user_identities = 20;
+}
+
+message PrivateCallLog {
+  int32 status = 1;
+}
+
+message GroupCallLog {
+  int32 status = 1;
+  BoolValue missed = 2;
+  repeated Peer peers = 3;
+}
+
+message MultiPeerCallLog {
+  int32 status = 1;
+  bool missed = 2;
+  repeated Peer peers = 3;
+}
+
+message CallLog {
+  Peer initiator = 1;
+  Peer peer = 2;
+  Peer finisher = 3;
+  int64 duration = 4;
+  int64 start_date = 5;
+  map<string, string> extra = 6;
+  PrivateCallLog private_call_log = 7;
+  GroupCallLog group_call_log = 8;
+  map<string, RawValue> ext = 9;
+  Int64Value call_id = 10;
+  MultiPeerCallLog multi_peer_call_log = 11;
+  string title = 12;
+  string link = 13;
+  bool is_public = 14;
+  int64 end_date = 15;
+  int64 creation_date = 16;
+}
+
+message CallPeerState {
+  int32 id = 1;
+  int64 date = 2;
+  int32 state = 3;
+  map<string, RawValue> extra = 4;
 }
 
 message BytesValue {

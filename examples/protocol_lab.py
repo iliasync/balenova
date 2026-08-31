@@ -11,7 +11,6 @@ from bale import Client, ProtocolRecorder
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("phone", nargs="?", help="Phone number, for example +989...")
     parser.add_argument(
         "--watch",
         type=float,
@@ -24,16 +23,9 @@ def parse_args() -> argparse.Namespace:
 
 async def main() -> None:
     args = parse_args()
-    phone = args.phone
-    if phone is None:
-        phone = (await asyncio.to_thread(input, "Phone number (+989...): ")).strip()
-    if not phone:
-        raise SystemExit("A phone number is required.")
-
     recorder = ProtocolRecorder("protocol/traces")
     await recorder.start()
     client = Client(
-        phone,
         session_dir=Path("sessions"),
         session_name="my_account",
         recorder=recorder,

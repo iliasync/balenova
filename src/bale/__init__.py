@@ -10,6 +10,8 @@ from bale.errors import (
 )
 from bale.filters import Filter
 from bale.models import (
+    CallMode,
+    CallRecordQuality,
     Chat,
     ChatType,
     DefaultResponse,
@@ -35,6 +37,8 @@ __all__ = [
     "AuthenticationError",
     "BaleError",
     "BaleRpcError",
+    "CallMode",
+    "CallRecordQuality",
     "Chat",
     "ChatType",
     "Client",

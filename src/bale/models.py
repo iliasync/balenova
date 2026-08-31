@@ -53,6 +53,23 @@ class PeerSource(IntEnum):
     PRIVACY_BAR = 4
 
 
+class CallMode(IntEnum):
+    UNKNOWN = 0
+    PRIVATE = 1
+    GROUP = 2
+    MULTI_PEER = 3
+    CHANNEL_LIVE = 4
+
+
+class CallRecordQuality(IntEnum):
+    NOT_SPECIFIED = 0
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    ULTRA = 4
+    ULTRA_PLUS = 5
+
+
 @dataclass(slots=True)
 class User:
     id: int
@@ -104,6 +121,28 @@ class Chat:
 
     async def load_history(self, limit: int = 20, from_date: int = -1) -> list[Message]:
         return await self._require_client().load_history(self.id, from_date, limit)
+
+    async def send_gift(
+        self,
+        amount: int,
+        message: str,
+        *,
+        gift_count: int = 1,
+        giving_type: GivingType = GivingType.SAME,
+        show_amounts: bool = True,
+        token: str | None = None,
+    ) -> DefaultResponse:
+        return await self._require_client().send_gift(
+            self.id,
+            amount,
+            message,
+            gift_count=gift_count,
+            giving_type=giving_type,
+            show_amounts=show_amounts,
+            token=token,
+        )
+
+    send_giftpacket = send_gift
 
     async def report(
         self, reason: str | None = None, kind: ReportKind = ReportKind.SPAM
@@ -183,9 +222,55 @@ class Message:
     async def seen(self) -> DefaultResponse:
         return await self._require_client().seen_chat(self.chat.id, self.date)
 
+    async def clear_chat(self) -> DefaultResponse:
+        return await self._require_client().clear_chat(self.chat.id)
+
+    async def delete_chat(self) -> DefaultResponse:
+        return await self._require_client().delete_chat(self.chat.id)
+
+    async def load_history(self, limit: int = 20, from_date: int = -1) -> list[Message]:
+        return await self._require_client().load_history(self.chat.id, from_date, limit)
+
+    async def pin(self, just_mine: bool = False) -> DefaultResponse:
+        return await self._require_client().pin_message(
+            self.chat.id, self.id, just_mine
+        )
+
+    async def unpin(self) -> DefaultResponse:
+        return await self._require_client().unpin_message(self.chat.id, self.id)
+
+    async def unpin_all(self) -> DefaultResponse:
+        return await self._require_client().unpin_all(self.chat.id)
+
+    async def pin_in_group(self) -> DefaultResponse:
+        return await self._require_client().pin_group_message(self.chat.id, self.id)
+
+    async def unpin_in_group(self) -> DefaultResponse:
+        return await self._require_client().unpin_group_message(self.chat.id, self.id)
+
+    async def unpin_all_in_group(self) -> DefaultResponse:
+        return await self._require_client().remove_group_pins(self.chat.id)
+
+    async def load_pinned_messages(self) -> list[Message]:
+        return await self._require_client().load_pinned_messages(self.chat.id)
+
+    async def load_full_chat(self) -> dict[str, Any] | None:
+        return await self._require_client().load_full_chat(self.chat.id)
+
     async def react(self, code: str) -> dict[str, Any]:
         return await self._require_client().message_set_reaction(
             self.chat.id, self.id, code
+        )
+
+    async def remove_reaction(self, code: str) -> dict[str, Any]:
+        return await self._require_client().message_remove_reaction(
+            self.chat.id, self.id, code
+        )
+
+    async def click(self, data: str) -> dict[str, Any]:
+        """Trigger an inline callback using data from a message button."""
+        return await self._require_client().click_inline_button(
+            self.chat.id, self.id, data
         )
 
     async def forward(self, chat_id: str) -> DefaultResponse:
@@ -195,6 +280,18 @@ class Message:
 
     async def copy(self, chat_id: str) -> Message:
         return await self._require_client().copy_message(chat_id, self.chat.id, self.id)
+
+    async def open_gift(self, receiver_token: str | None = None) -> PacketResponse:
+        return await self._require_client().open_gift(self, receiver_token)
+
+    open_packet = open_gift
+
+    async def report(
+        self, reason: str | None = None, kind: ReportKind = ReportKind.SPAM
+    ) -> DefaultResponse:
+        return await self._require_client().report_message(
+            self.chat.id, self, reason, kind
+        )
 
     def _require_client(self) -> Client:
         if self._client is None:
@@ -322,6 +419,52 @@ def wrap_default(raw: dict[str, Any]) -> DefaultResponse:
     return DefaultResponse(
         seq=int(raw["seq"]) if "seq" in raw else None,
         date=int(raw["date"]) if "date" in raw else None,
+    )
+
+
+def wrap_packet_response(raw: dict[str, Any]) -> PacketResponse:
+    status = raw.get("status", 0)
+    if isinstance(status, str):
+        status = {
+            "GIFT_OPENNING_SOLD_OUT": GiftOpening.SOLD_OUT,
+            "GIFT_OPENNING_GIFT_CREATOR": GiftOpening.GIFT_CREATOR,
+            "GIFT_OPENNING_SUCCESSFUL": GiftOpening.SUCCESSFUL,
+            "GIFT_OPENNING_PENDING": GiftOpening.PENDING,
+        }.get(status, GiftOpening.ALREADY_RECEIVED)
+    return PacketResponse(
+        receivers=tuple(
+            Winner(
+                id=int(item.get("id", 0)),
+                amount=int(item.get("amount", 0)),
+                date=int(item["date"]) if "date" in item else None,
+            )
+            for item in raw.get("receivers", [])
+        ),
+        status=GiftOpening(int(status)),
+        opened_count=int(raw.get("openned_count", 0)),
+        win_amount=int(_wrapped(raw.get("win_amount"), 0)),
+        rank=int(_wrapped(raw.get("rank"), 0)),
+    )
+
+
+def wrap_wallet_response(raw: dict[str, Any]) -> WalletResponse:
+    values = raw.get("wallet")
+    value = values[0] if isinstance(values, list) and values else values
+    wallet = None
+    if isinstance(value, dict):
+        wallet = Wallet(
+            token=str(value.get("token", "")),
+            is_merchant=bool(_wrapped(value.get("is_merchant"), False)),
+            app=_string(value.get("app")),
+            balance=int(value.get("balance", 0)),
+            level=int(value.get("level", 0)),
+            pan=_wrapped(value.get("pan")),
+            account=_wrapped(value.get("account")),
+        )
+    return WalletResponse(
+        wallet=wallet,
+        first_name=_wrapped(raw.get("first_name")),
+        last_name=_wrapped(raw.get("last_name")),
     )
 
 

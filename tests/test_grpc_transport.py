@@ -84,3 +84,21 @@ async def test_grpc_surfaces_non_retriable_error() -> None:
     assert captured.value.code == 3
     assert captured.value.reason == "service/method"
     await http.aclose()
+
+
+@pytest.mark.asyncio
+async def test_grpc_supports_untyped_rpc_payloads() -> None:
+    async def handler(request: httpx.Request) -> httpx.Response:
+        body = await request.aread()
+        assert body == grpc_frame(b"\x08\x01")
+        return httpx.Response(200, content=grpc_frame(b"\x12\x03raw"))
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    transport = GrpcTransport(http_client=http, max_retries=0)
+
+    result = await transport.request_raw(
+        "bale.new.v1.New", "NewMethod", b"\x08\x01", access_token="jwt"
+    )
+
+    assert result == b"\x12\x03raw"
+    await http.aclose()

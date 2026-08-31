@@ -151,11 +151,35 @@ class WebSocketTransport:
         payload: Mapping[str, Any],
         response_type: str | None,
     ) -> dict[str, Any]:
+        encoded_payload = encode_message(request_type, payload)
+        return await self._request_encoded(
+            service,
+            method,
+            encoded_payload,
+            response_type,
+            request_type=request_type,
+            request_payload=payload,
+        )
+
+    async def request_raw(self, service: str, method: str, payload: bytes) -> bytes:
+        """Invoke an RPC whose protobuf schema is not bundled yet."""
+        result = await self._request_encoded(service, method, payload, None)
+        return bytes(result.get("raw", b""))
+
+    async def _request_encoded(
+        self,
+        service: str,
+        method: str,
+        encoded_payload: bytes,
+        response_type: str | None,
+        *,
+        request_type: str | None = None,
+        request_payload: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
         index = self._next_index
         self._next_index += 1
         future = asyncio.get_running_loop().create_future()
         self._pending[index] = _PendingRequest(future, response_type, service, method)
-        encoded_payload = encode_message(request_type, payload)
         envelope = {
             "ws_request": {
                 "service_name": service,
@@ -174,7 +198,7 @@ class WebSocketTransport:
                     type_name=request_type,
                     service=service,
                     method=method,
-                    payload=payload,
+                    payload=request_payload,
                     raw=encoded_payload,
                 )
             await self.send_raw("request.Request", envelope)

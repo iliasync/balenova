@@ -43,6 +43,7 @@ def parse_args() -> argparse.Namespace:
 
 
 async def main() -> None:
+    args = parse_args()
     try:
         from playwright.async_api import async_playwright
     except ImportError as error:
@@ -52,7 +53,6 @@ async def main() -> None:
             "  playwright install chromium"
         ) from error
 
-    args = parse_args()
     recorder = ProtocolRecorder("protocol/traces", include_secrets=args.show_secrets)
     await recorder.start()
     capture = OfficialWebCapture(recorder)

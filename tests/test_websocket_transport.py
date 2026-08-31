@@ -60,6 +60,35 @@ async def test_websocket_multiplexes_rpc_response_by_index() -> None:
 
 
 @pytest.mark.asyncio
+async def test_websocket_supports_untyped_rpc_payloads() -> None:
+    transport = WebSocketTransport("jwt")
+    socket = FakeSocket()
+    transport._socket = socket  # type: ignore[assignment]
+
+    request_task = asyncio.create_task(
+        transport.request_raw("bale.new.v1.New", "NewMethod", b"\x08\x01")
+    )
+    await asyncio.wait_for(socket.sent_event.wait(), timeout=1)
+    envelope = decode_message("request.Request", socket.sent[0])["ws_request"]
+    assert envelope["payload"] == b"\x08\x01"
+
+    await transport._handle_incoming(
+        encode_message(
+            "response.Response",
+            {
+                "ws_response": {
+                    "index": envelope["index"],
+                    "response": b"\x08\x07",
+                }
+            },
+        )
+    )
+
+    assert await request_task == b"\x08\x07"
+    await transport.close()
+
+
+@pytest.mark.asyncio
 async def test_websocket_publishes_updates_to_queue_and_callback() -> None:
     transport = WebSocketTransport("jwt")
     received = []

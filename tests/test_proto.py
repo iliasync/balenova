@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+import ast
+import re
+from pathlib import Path
+
 from bale.proto import decode_message, encode_message
 
 
@@ -46,3 +52,88 @@ def test_unknown_proto_type_has_clear_error() -> None:
         assert "request.DoesNotExist" in str(error)
     else:
         raise AssertionError("LookupError was not raised")
+
+
+def test_recorded_call_and_inline_callback_protos_round_trip() -> None:
+    callback = {
+        "peer": {"id": 10, "type": 3},
+        "message_id": {"date": 20, "rid": 30, "seq": 40},
+        "data": {"value": "button-data"},
+    }
+    assert (
+        decode_message(
+            "request.SendInlineCallback",
+            encode_message("request.SendInlineCallback", callback),
+        )
+        == callback
+    )
+
+    response = {
+        "group_call": {
+            "id": 99,
+            "room": "room",
+            "token": "token",
+            "mode": "CALL_MODE_GROUP",
+            "link": "https://example.test/call",
+            "title": "Team call",
+        },
+        "link_expiration_period": 3600,
+    }
+    assert (
+        decode_message(
+            "response.GenerateCallLink",
+            encode_message("response.GenerateCallLink", response),
+        )
+        == response
+    )
+
+
+def test_recorded_bulk_reaction_and_view_responses_round_trip() -> None:
+    reactions = {
+        "containers": [
+            {
+                "rid": 10,
+                "date": 20,
+                "reactions": [
+                    {
+                        "users": [1, 2],
+                        "code": "👍",
+                        "cardinality": {"value": 2},
+                    }
+                ],
+            }
+        ]
+    }
+    views = {
+        "containers": [
+            {
+                "message_id": {"rid": 10, "date": 20},
+                "views": {"value": 50},
+            }
+        ]
+    }
+
+    for type_name, payload in (
+        ("response.GetMessagesReactions", reactions),
+        ("response.GetMessagesViews", views),
+    ):
+        assert decode_message(type_name, encode_message(type_name, payload)) == payload
+
+
+def test_every_protobuf_type_referenced_by_runtime_code_exists() -> None:
+    source_root = Path(__file__).parents[1] / "src" / "bale"
+    type_names: set[str] = set()
+    for path in source_root.rglob("*.py"):
+        if path.name.endswith("_pb2.py"):
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Constant) or not isinstance(node.value, str):
+                continue
+            if re.fullmatch(r"(?:request|response)\.[A-Za-z][A-Za-z0-9]*", node.value):
+                type_names.add(node.value)
+
+    assert type_names
+    for type_name in sorted(type_names):
+        encoded = encode_message(type_name, {})
+        assert decode_message(type_name, encoded) == {}

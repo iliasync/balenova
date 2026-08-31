@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import getpass
 import inspect
 import re
 import time
@@ -20,17 +21,24 @@ from bale.dispatcher import (
 from bale.errors import AuthenticationError, BaleRpcError, ClientStateError
 from bale.filters import Filter, command
 from bale.models import (
+    CallMode,
+    CallRecordQuality,
     Chat,
     DefaultResponse,
+    GivingType,
     Message,
     OtherMessage,
+    PacketResponse,
     PeerSource,
     ReportKind,
     User,
+    WalletResponse,
     wrap_default,
     wrap_group,
     wrap_message,
+    wrap_packet_response,
     wrap_user,
+    wrap_wallet_response,
 )
 from bale.protocol import ProtocolRecorder
 from bale.session import Session, SessionStorage
@@ -48,18 +56,20 @@ _API_KEY = "C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D"
 class Client:
     """An async client for real Bale user sessions.
 
-    ``credential`` may be an international phone number or an exported
-    ``<user_id>:<jwt>`` session string. Phone authentication is performed only
-    when no reusable session is available.
+    By default the client loads a named session. If it is missing or expired,
+    interactive phone authentication is started in the terminal. ``credential``
+    remains optional for backwards compatibility and may be a phone number or
+    an exported ``<user_id>:<jwt>`` session string.
     """
 
     def __init__(
         self,
-        credential: str,
+        credential: str | None = None,
         *,
         session_dir: str | Path = ".",
         session_name: str | None = None,
         update_concurrency: int = 16,
+        phone_prompt: Prompt | None = None,
         code_prompt: Prompt | None = None,
         password_prompt: Prompt | None = None,
         signup_name_prompt: Prompt | None = None,
@@ -67,28 +77,39 @@ class Client:
         websocket_options: Mapping[str, Any] | None = None,
         recorder: ProtocolRecorder | None = None,
     ) -> None:
-        if not credential.strip():
-            raise AuthenticationError("A phone number or Bale session is required")
-        self.credential = credential.strip()
+        normalized_credential = credential.strip() if credential else None
+        if credential is not None and not normalized_credential:
+            raise AuthenticationError("The supplied Bale credential is empty")
+        self.credential = normalized_credential
+        self._phone_number = (
+            normalized_credential
+            if normalized_credential and not _is_session(normalized_credential)
+            else None
+        )
         self.dispatcher = Dispatcher()
         self.user: User | None = None
         self._session = (
-            Session.parse(self.credential) if _is_session(self.credential) else None
+            Session.parse(normalized_credential)
+            if normalized_credential and _is_session(normalized_credential)
+            else None
         )
-        storage_name = session_name or self.credential
+        storage_name = session_name or self._phone_number or "bale"
         self._storage = SessionStorage(session_dir, storage_name)
         self._recorder = recorder
         self._grpc = grpc or GrpcTransport(recorder=recorder)
         self._websocket_options = dict(websocket_options or {})
         self._websocket: WebSocketTransport | None = None
+        self._phone_prompt = phone_prompt or _terminal_prompt
         self._code_prompt = code_prompt or _terminal_prompt
-        self._password_prompt = password_prompt or _terminal_prompt
+        self._password_prompt = password_prompt or _terminal_password_prompt
         self._signup_name_prompt = signup_name_prompt or _terminal_prompt
         self._update_semaphore = asyncio.Semaphore(max(1, update_concurrency))
         self._update_tasks: set[asyncio.Task[None]] = set()
         self._peer_cache: dict[str, User | Chat] = {}
         self._chat_cache: dict[str, Chat] = {}
         self._author_cache: dict[int, User] = {}
+        self._wallet_cache: tuple[float, WalletResponse] | None = None
+        self._wallet_lock = asyncio.Lock()
         self._stop_event = asyncio.Event()
         self._running = False
         self._closed = False
@@ -162,19 +183,44 @@ class Client:
             return
         if self._closed:
             raise ClientStateError("This client has already been closed")
-        self._session = self._session or await self._storage.load()
+        loaded_existing_session = self._session is not None
+        session_from_storage = False
+        if self._session is None:
+            try:
+                self._session = await self._storage.load()
+            except AuthenticationError:
+                await self._storage.delete()
+            loaded_existing_session = self._session is not None
+            session_from_storage = loaded_existing_session
         if self._session is None:
             self._session = await self._authenticate()
             await self._storage.save(self._session)
+        try:
+            await self._connect_session(self._session)
+        except BaseException as error:
+            if not loaded_existing_session or not _is_authentication_failure(error):
+                raise
+            if session_from_storage:
+                await self._storage.delete()
+            self._session = None
+            self.user = None
+            self._peer_cache.clear()
+            self._phone_number = None
+            print("Existing Bale session is invalid or expired; logging in again.")
+            self._session = await self._authenticate()
+            await self._storage.save(self._session)
+            await self._connect_session(self._session)
+
+    async def _connect_session(self, session: Session) -> None:
         websocket = WebSocketTransport(
-            self._session.jwt,
+            session.jwt,
             recorder=self._recorder,
             **self._websocket_options,
         )
         websocket.add_update_handler(self._enqueue_update)
-        await websocket.connect()
-        self._websocket = websocket
         try:
+            await websocket.connect()
+            self._websocket = websocket
             self.user = await self.get_me()
         except BaseException:
             self._websocket = None
@@ -324,6 +370,15 @@ class Client:
             )
         return await self.post(service, method, request_type, response_type, payload)
 
+    async def invoke_raw(self, service: str, method: str, payload: bytes) -> bytes:
+        """Invoke a captured RPC before its protobuf schema is bundled.
+
+        ``payload`` is the nested protobuf message, not a transport envelope.
+        """
+        if self._websocket is not None:
+            return await self._websocket.request_raw(service, method, payload)
+        return await self.post_raw(service, method, payload)
+
     async def post(
         self,
         service: str,
@@ -338,6 +393,16 @@ class Client:
             method,
             request_type,
             response_type,
+            payload,
+            access_token=session.jwt if session else None,
+        )
+
+    async def post_raw(self, service: str, method: str, payload: bytes) -> bytes:
+        """Invoke an untyped unary gRPC-web method using the current session."""
+        session = self._session or await self._storage.load()
+        return await self._grpc.request_raw(
+            service,
+            method,
             payload,
             access_token=session.jwt if session else None,
         )
@@ -667,6 +732,76 @@ class Client:
         )
         return wrap_default(response)
 
+    async def remove_user_admin(
+        self, chat_id: str, user_id: int | str
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "RemoveUserAdmin",
+            "request.RemoveUserAdmin",
+            "response.DefaultResponse",
+            {
+                "group_peer": _group_peer(chat_id),
+                "user_peer": _user_peer(user_id),
+            },
+        )
+        return wrap_default(response)
+
+    async def edit_group_avatar(
+        self, chat_id: str, file: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        file_id = int(file["file_id"])
+        access_hash = int(file["access_hash"])
+        storage_version = file.get("file_storage_version")
+        return await self.invoke(
+            "bale.groups.v1.Groups",
+            "EditGroupAvatar",
+            "request.EditGroupAvatar",
+            "response.EditGroupAvatar",
+            {
+                "group_peer": _group_peer(chat_id),
+                "file_location": {
+                    "file_id": file_id,
+                    "access_hash": access_hash,
+                    "file_storage_version": (
+                        {"value": int(storage_version)}
+                        if storage_version is not None
+                        else None
+                    ),
+                },
+                "rid": WebSocketTransport.create_rid(),
+                "optimizations": [],
+            },
+        )
+
+    async def load_group_avatars(self, chat_id: str) -> list[dict[str, Any]]:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "LoadGroupAvatars",
+            "request.LoadGroupAvatars",
+            "response.LoadGroupAvatars",
+            {"peer": _group_peer(chat_id)},
+        )
+        avatars = response.get("avatars") or {}
+        return list(avatars.get("avatars", []))
+
+    async def remove_group_avatar(
+        self, chat_id: str, avatar_id: int | None = None
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "RemoveGroupAvatar",
+            "request.RemoveGroupAvatar",
+            "response.DefaultResponse",
+            {
+                "group_peer": _group_peer(chat_id),
+                "rid": WebSocketTransport.create_rid(),
+                "optimizations": [],
+                "avatar_id": {"value": avatar_id} if avatar_id is not None else None,
+            },
+        )
+        return wrap_default(response)
+
     async def load_members(
         self, chat_id: str, limit: int = 50, next_: str | int | None = None
     ) -> dict[str, Any]:
@@ -751,6 +886,55 @@ class Client:
             },
         )
 
+    async def get_file(self, file_id: int, access_hash: int) -> dict[str, Any]:
+        return await self.invoke(
+            "ai.bale.server.Files",
+            "GetNasimFileUrl",
+            "request.GetNasimFileUrl",
+            "response.GetNasimFileUrl",
+            {"file": {"file_id": file_id, "access_hash": access_hash}},
+        )
+
+    get_file_url = get_file
+
+    async def get_file_upload_url(
+        self,
+        expected_size: int,
+        name: str,
+        mime_type: str,
+        *,
+        crc: int = 0,
+        uid: int | None = None,
+        chat_id: str | None = None,
+        send_type: int | None = None,
+        chunk_size: int | None = None,
+    ) -> dict[str, Any]:
+        if expected_size < 0:
+            raise ValueError("expected_size cannot be negative")
+        owner_id = uid
+        if owner_id is None:
+            owner_id = self.user.id if self.user else None
+        if owner_id is None and self._session is not None:
+            owner_id = self._session.user_id
+        if owner_id is None:
+            raise AuthenticationError("Connect before requesting an upload URL")
+        return await self.invoke(
+            "ai.bale.server.Files",
+            "GetNasimFileUploadUrl",
+            "request.GetNasimFileUploadUrl",
+            "response.GetNasimFileUploadUrl",
+            {
+                "expected_size": expected_size,
+                "crc": crc,
+                "uid": owner_id,
+                "name": name,
+                "mime_type": mime_type,
+                "ex_peer": _out_peer(chat_id) if chat_id else None,
+                "send_type": {"type": send_type} if send_type is not None else None,
+                "chunk_size": chunk_size,
+            },
+        )
+
     async def send_message(
         self, chat_id: str, text: str, reply_to: Message | None = None
     ) -> Message:
@@ -779,6 +963,49 @@ class Client:
                 "message": message_payload,
             }
         )
+
+    async def send_multi_media_message(
+        self, chat_id: str, media: Iterable[Mapping[str, Any]]
+    ) -> list[Message]:
+        peer = _require_peer(chat_id)
+        normalized: list[dict[str, Any]] = []
+        for item in media:
+            document = item.get("media")
+            if not isinstance(document, Mapping):
+                raise ValueError("Each media item must contain a 'media' mapping")
+            normalized.append(
+                {
+                    "random_id": int(
+                        item.get("random_id") or WebSocketTransport.create_rid()
+                    ),
+                    "media": dict(document),
+                }
+            )
+        if not normalized:
+            return []
+        response = await self.invoke(
+            "bale.messaging.v2.Messaging",
+            "SendMultiMediaMessage",
+            "request.SendMultiMediaMessage",
+            "response.DefaultResponse",
+            {
+                "peer": _out_peer(chat_id),
+                "multi_media": normalized,
+                "grouped_id": WebSocketTransport.create_rid(),
+            },
+        )
+        return [
+            self._wrap_message(
+                {
+                    "peer": peer,
+                    "sender_uid": self.user.id if self.user else 0,
+                    "date": response.get("date", 0),
+                    "rid": item["random_id"],
+                    "message": {"document_message": item["media"]},
+                }
+            )
+            for item in normalized
+        ]
 
     async def clear_chat(self, chat_id: str) -> DefaultResponse:
         return await self._simple_peer_call("ClearChat", "ClearChat", chat_id)
@@ -848,6 +1075,406 @@ class Client:
                 "date": date,
             },
         )
+
+    async def message_remove_reaction(
+        self, chat_id: str, message_id: str, code: str
+    ) -> dict[str, Any]:
+        rid, date = _require_message_id(message_id)
+        return await self.invoke(
+            "bale.abacus.v1.Abacus",
+            "MessageRemoveReaction",
+            "request.MessageRemoveReaction",
+            "response.MessageRemoveReaction",
+            {
+                "peer": _require_peer(chat_id),
+                "rid": rid,
+                "code": code,
+                "date": date,
+            },
+        )
+
+    async def get_messages_reactions(
+        self, chat_id: str, message_ids: Iterable[str]
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.abacus.v1.Abacus",
+            "GetMessagesReactions",
+            "request.GetMessagesReactions",
+            "response.GetMessagesReactions",
+            {
+                "peer": _require_peer(chat_id),
+                "mids": [_message_identifier(value) for value in message_ids],
+            },
+        )
+
+    async def get_messages_views(
+        self,
+        chat_id: str,
+        message_ids: Iterable[str],
+        *,
+        increment: bool = False,
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.abacus.v1.Abacus",
+            "GetMessagesViews",
+            "request.GetMessagesViews",
+            "response.GetMessagesViews",
+            {
+                "peer": _require_peer(chat_id),
+                "mids": [_message_identifier(value) for value in message_ids],
+                "increment": increment,
+            },
+        )
+
+    async def click_inline_button(
+        self, chat_id: str, message_id: str, data: str
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.ketf.v1.Ketf",
+            "SendInlineCallback",
+            "request.SendInlineCallback",
+            "response.SendInlineCallback",
+            {
+                "peer": _require_peer(chat_id),
+                "message_id": _message_identifier(message_id),
+                "data": {"value": data},
+            },
+        )
+
+    async def get_call_wss_url(self, call_id: int | str) -> str | None:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "GetWssURL",
+            "request.GetWssUrl",
+            "response.GetWssUrl",
+            {"call_id": _require_call_id(call_id)},
+        )
+        url = response.get("url")
+        return url if isinstance(url, str) else None
+
+    async def start_group_call(
+        self,
+        chat_id: str,
+        *,
+        video: bool = False,
+        mode: CallMode = CallMode.GROUP,
+        invitees: Iterable[str] = (),
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "StartGroupCall",
+            "request.StartGroupCall",
+            "response.GroupCallWithSequence",
+            {
+                "peer": _require_peer(chat_id),
+                "random_id": WebSocketTransport.create_rid(),
+                "video": video,
+                "mode": int(mode),
+                "invitees": [_require_peer(value) for value in invitees],
+            },
+        )
+
+    async def join_group_call(
+        self, call_id: int | str, name: str | None = None
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "JoinGroupCall",
+            "request.JoinGroupCall",
+            "response.JoinGroupCall",
+            {
+                "call_id": _require_call_id(call_id),
+                "name": {"value": name} if name else None,
+            },
+        )
+
+    async def leave_group_call(
+        self, call_id: int | str, *, end: bool = False
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "LeaveGroupCall",
+            "request.LeaveGroupCall",
+            "response.GroupCallWithSequence",
+            {"call_id": _require_call_id(call_id), "end": end},
+        )
+
+    async def invite_to_call(
+        self, call_id: int | str, invitees: Iterable[str]
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "InviteToCall",
+            "request.InviteToCall",
+            "response.InviteToCall",
+            {
+                "call_id": _require_call_id(call_id),
+                "invitees": [_require_peer(value) for value in invitees],
+            },
+        )
+
+    async def get_group_call(self, chat_id: str) -> dict[str, Any] | None:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "GetGroupCall",
+            "request.GetGroupCall",
+            "response.GroupCall",
+            {"peer": _require_peer(chat_id)},
+        )
+        value = response.get("group_call")
+        return value if isinstance(value, dict) else None
+
+    async def get_call_logs(
+        self,
+        page: int = 1,
+        limit: int = 50,
+        *,
+        after_date: int | None = None,
+        before_date: int | None = None,
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "GetCallLogs",
+            "request.GetCallLogs",
+            "response.GetCallLogs",
+            {
+                "page_number": {"value": page},
+                "page_size": {"value": limit},
+                "after_date": {"value": after_date} if after_date else None,
+                "before_date": {"value": before_date} if before_date else None,
+            },
+        )
+
+    async def get_ongoing_calls(
+        self, page: int | None = None, limit: int | None = None
+    ) -> list[dict[str, Any]]:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "GetOngoingCalls",
+            "request.GetOngoingCalls",
+            "response.GetOngoingCalls",
+            {
+                "page_number": {"value": page} if page is not None else None,
+                "page_size": {"value": limit} if limit is not None else None,
+            },
+        )
+        return list(response.get("call_logs", []))
+
+    async def delete_call_logs(
+        self,
+        call_ids: Iterable[int | str] = (),
+        *,
+        all_: bool = False,
+        invert: bool = False,
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "DeleteCallLogs",
+            "request.DeleteCallLogs",
+            "response.DefaultResponse",
+            {
+                "call_ids": [{"value": _require_call_id(value)} for value in call_ids],
+                "all": all_,
+                "invert": invert,
+            },
+        )
+        return wrap_default(response)
+
+    async def generate_call_link(
+        self,
+        *,
+        is_public: bool = True,
+        call_id: int | str | None = None,
+        title: str | None = None,
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "GenerateCallLink",
+            "request.GenerateCallLink",
+            "response.GenerateCallLink",
+            {
+                "is_public": is_public,
+                "call_id": (
+                    {"value": _require_call_id(call_id)}
+                    if call_id is not None
+                    else None
+                ),
+                "title": {"value": title} if title else None,
+            },
+        )
+
+    async def get_call_link_details(self, session: str) -> dict[str, Any] | None:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "GetCallLinkDetails",
+            "request.GetCallLinkDetails",
+            "response.GroupCall",
+            {"session": session},
+        )
+        value = response.get("group_call")
+        return value if isinstance(value, dict) else None
+
+    async def set_call_link_title(
+        self,
+        title: str,
+        *,
+        call_id: int | str | None = None,
+        link_url: str | None = None,
+    ) -> DefaultResponse:
+        if call_id is None and not link_url:
+            raise ValueError("Either call_id or link_url is required")
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "SetLinkTitle",
+            "request.SetCallLinkTitle",
+            "response.DefaultResponse",
+            {
+                "title": title,
+                "call_id": (
+                    {"value": _require_call_id(call_id)}
+                    if call_id is not None
+                    else None
+                ),
+                "link_url": {"value": link_url} if link_url else None,
+            },
+        )
+        return wrap_default(response)
+
+    async def send_call_reaction(
+        self, call_id: int | str, reaction: str
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "SendCallReaction",
+            "request.SendCallReaction",
+            "response.DefaultResponse",
+            {"call_id": _require_call_id(call_id), "reaction": reaction},
+        )
+        return wrap_default(response)
+
+    async def mute_call_participant(
+        self,
+        call_id: int | str,
+        identity: str,
+        *,
+        track_id: str = "",
+        revoke_publish_permission: bool = False,
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "MuteParticipant",
+            "request.MuteParticipant",
+            "response.DefaultResponse",
+            {
+                "call_id": _require_call_id(call_id),
+                "identity": identity,
+                "track_id": track_id,
+                "revoke_publish_permission": revoke_publish_permission,
+            },
+        )
+        return wrap_default(response)
+
+    async def remove_call_participant(
+        self,
+        call_id: int | str,
+        identity: str,
+        *,
+        block: bool = False,
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "RemoveParticipant",
+            "request.RemoveParticipant",
+            "response.DefaultResponse",
+            {
+                "call_id": _require_call_id(call_id),
+                "identity": identity,
+                "block_from_call": block,
+            },
+        )
+        return wrap_default(response)
+
+    async def start_call_recording(
+        self,
+        call_id: int | str,
+        layout: str,
+        quality: CallRecordQuality = CallRecordQuality.HIGH,
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "StartRecording",
+            "request.StartRecording",
+            "response.DefaultResponse",
+            {
+                "call_id": _require_call_id(call_id),
+                "layout": layout,
+                "quality": int(quality),
+            },
+        )
+        return wrap_default(response)
+
+    async def stop_call_recording(self, call_id: int | str) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "StopRecording",
+            "request.StopRecording",
+            "response.DefaultResponse",
+            {"call_id": _require_call_id(call_id)},
+        )
+        return wrap_default(response)
+
+    async def update_call_layout(
+        self, call_id: int | str, layout: str
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "UpdateLayout",
+            "request.UpdateCallLayout",
+            "response.DefaultResponse",
+            {"call_id": _require_call_id(call_id), "requested_layout": layout},
+        )
+        return wrap_default(response)
+
+    async def ask_to_join_call(self, call_id: int | str, name: str) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "AskToJoinCall",
+            "request.AskToJoinCall",
+            "response.DefaultResponse",
+            {"call_id": _require_call_id(call_id), "name": name},
+        )
+        return wrap_default(response)
+
+    async def answer_call_join_request(
+        self,
+        call_id: int | str,
+        requester_identifier: str,
+        *,
+        allow: bool,
+    ) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "AnswerCallJoinRequest",
+            "request.AnswerCallJoinRequest",
+            "response.DefaultResponse",
+            {
+                "call_id": _require_call_id(call_id),
+                "requester_identifier": requester_identifier,
+                "is_allowed": allow,
+            },
+        )
+        return wrap_default(response)
+
+    async def get_call_state(self, call_id: int | str) -> dict[str, Any] | None:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "GetCallState",
+            "request.GetCallState",
+            "response.GroupCall",
+            {"call_id": _require_call_id(call_id)},
+        )
+        value = response.get("group_call")
+        return value if isinstance(value, dict) else None
 
     async def delete_message(
         self, chat_id: str, message_id: str, just_me: bool = False
@@ -923,6 +1550,48 @@ class Client:
 
     async def unpin_all(self, chat_id: str) -> DefaultResponse:
         return await self.unpin_messages(chat_id, all_=True)
+
+    async def pin_group_message(self, chat_id: str, message_id: str) -> DefaultResponse:
+        rid, date = _require_message_id(message_id)
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "PinMessage",
+            "request.PinMessage",
+            "response.DefaultResponse",
+            {
+                "group_peer": _group_peer(chat_id),
+                "date": date,
+                "msg_rid": rid,
+            },
+        )
+        return wrap_default(response)
+
+    async def unpin_group_message(
+        self, chat_id: str, message_id: str
+    ) -> DefaultResponse:
+        rid, date = _require_message_id(message_id)
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "RemoveSinglePin",
+            "request.RemoveSinglePin",
+            "response.DefaultResponse",
+            {"group_peer": _group_peer(chat_id), "rid": rid, "date": date},
+        )
+        return wrap_default(response)
+
+    remove_single_pin = unpin_group_message
+
+    async def remove_group_pins(self, chat_id: str) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "RemovePin",
+            "request.RemovePin",
+            "response.DefaultResponse",
+            {"group_peer": _group_peer(chat_id)},
+        )
+        return wrap_default(response)
+
+    remove_all_pins = remove_group_pins
 
     async def edit_message_text(
         self, chat_id: str, message_id: str, text: str
@@ -1001,6 +1670,111 @@ class Client:
             }
         )
 
+    async def get_wallet(self) -> WalletResponse:
+        cached = self._wallet_cache
+        now = time.monotonic()
+        if cached is not None and cached[0] > now:
+            return cached[1]
+        async with self._wallet_lock:
+            cached = self._wallet_cache
+            now = time.monotonic()
+            if cached is not None and cached[0] > now:
+                return cached[1]
+            response = await self.invoke(
+                "bale.kifpool.v1.Kifpool",
+                "GetMyKifpools",
+                "request.GetMyKifpools",
+                "response.GetMyKifpools",
+                {},
+            )
+            wallet = wrap_wallet_response(response)
+            self._wallet_cache = (now + 60.0, wallet)
+            return wallet
+
+    get_my_kifpools = get_wallet
+
+    async def prime_wallet_cache(self) -> WalletResponse | None:
+        try:
+            return await self.get_wallet()
+        except Exception:
+            return None
+
+    async def send_gift(
+        self,
+        chat_id: str,
+        amount: int,
+        message: str,
+        *,
+        gift_count: int = 1,
+        giving_type: GivingType = GivingType.SAME,
+        show_amounts: bool = True,
+        token: str | None = None,
+    ) -> DefaultResponse:
+        wallet_token = token
+        if not wallet_token:
+            wallet = await self.get_wallet()
+            wallet_token = wallet.wallet.token if wallet.wallet else None
+        if not wallet_token:
+            raise ClientStateError("A wallet token is required to send a gift")
+        response = await self.invoke(
+            "bale.giftpacket.v1.GiftPacket",
+            "SendGiftPacketWithWallet",
+            "request.SendGiftPacketWithWallet",
+            "response.DefaultResponse",
+            {
+                "peer": _require_peer(chat_id),
+                "random_id": WebSocketTransport.create_rid(),
+                "gift": {
+                    "count": gift_count,
+                    "total_amount": amount,
+                    "giving_type": int(giving_type),
+                    "message": {"value": message},
+                    "owner_id": self.user.id if self.user else None,
+                    "show_amounts": {"value": show_amounts},
+                },
+                "token": wallet_token,
+            },
+        )
+        return wrap_default(response)
+
+    send_gift_packet_with_wallet = send_gift
+    send_giftpacket = send_gift
+
+    async def open_gift(
+        self, message: Message, receiver_token: str | None = None
+    ) -> PacketResponse:
+        wallet_token = receiver_token
+        if not wallet_token:
+            wallet = await self.get_wallet()
+            wallet_token = wallet.wallet.token if wallet.wallet else None
+        if not wallet_token:
+            raise ClientStateError("A wallet token is required to open a gift")
+        response = await self.invoke(
+            "bale.giftpacket.v1.GiftPacket",
+            "OpenGiftPacket",
+            "request.OpenGiftPacket",
+            "response.OpenGiftPacket",
+            {"message": _info_message(message), "receiver_token": wallet_token},
+        )
+        return wrap_packet_response(response)
+
+    open_gift_packet = open_gift
+    open_packet = open_gift
+
+    async def upvote_post(
+        self, message: Message, album_id: int | None = None
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.magazine.v1.Magazine",
+            "UpvotePost",
+            "request.UpvotePost",
+            "response.UpvoteResponse",
+            {
+                "message": _info_message(message),
+                "album_id": {"value": album_id} if album_id is not None else None,
+            },
+        )
+
     async def report_chat(
         self,
         chat_id: str,
@@ -1061,26 +1835,44 @@ class Client:
         return wrap_default(response)
 
     async def _authenticate(self) -> Session:
-        try:
-            sent = await self.start_phone_auth(self.credential)
-        except BaleRpcError as error:
-            if error.message == "PHONE_NUMBER_INVALID":
-                raise AuthenticationError(
-                    "Bale rejected the phone number. Use international format, "
+        phone_number = self._phone_number
+        while True:
+            while not phone_number:
+                phone_number = (
+                    await _resolve_prompt(
+                        self._phone_prompt,
+                        "Bale phone number in international format (+989...): ",
+                    )
+                ).strip()
+                if not re.sub(r"\D", "", phone_number):
+                    print("Please enter a valid phone number.")
+                    phone_number = None
+            try:
+                sent = await self.start_phone_auth(phone_number)
+                break
+            except BaleRpcError as error:
+                if error.message != "PHONE_NUMBER_INVALID":
+                    raise
+                print(
+                    "Bale rejected that phone number. Use international format, "
                     "for example +989121234567."
-                ) from error
-            raise
+                )
+                phone_number = None
+                self._phone_number = None
         transaction_hash = str(sent.get("transaction_hash", ""))
         if not transaction_hash:
             raise AuthenticationError("Phone authentication response is incomplete")
         while True:
             code = (
-                await _resolve_prompt(self._code_prompt, "Enter phone code: ")
+                await _resolve_prompt(
+                    self._code_prompt, "Enter the verification code sent by Bale: "
+                )
             ).strip()
             try:
                 return _parse_auth(await self.validate_code(transaction_hash, code))
             except BaleRpcError as error:
                 if error.message == "PHONE_CODE_INVALID":
+                    print("The verification code is invalid; please try again.")
                     continue
                 if error.message == "PHONE_NUMBER_UNOCCUPIED":
                     name = await _resolve_prompt(
@@ -1091,7 +1883,7 @@ class Client:
                     )
                 if not error.message or "password" in error.message.casefold():
                     password = await _resolve_prompt(
-                        self._password_prompt, "Enter password: "
+                        self._password_prompt, "Two-step verification password: "
                     )
                     return _parse_auth(
                         await self.validate_password(transaction_hash, password.strip())
@@ -1228,6 +2020,21 @@ def _require_message_id(value: str) -> tuple[int, int]:
     return int(match.group("rid")), int(match.group("date"))
 
 
+def _message_identifier(value: str) -> dict[str, int]:
+    rid, date = _require_message_id(value)
+    return {"rid": rid, "date": date}
+
+
+def _require_call_id(value: int | str) -> int:
+    try:
+        call_id = int(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"Expected a numeric Bale call id, got {value!r}") from error
+    if call_id <= 0:
+        raise ValueError("Bale call id must be positive")
+    return call_id
+
+
 def _info_message(message: Message) -> dict[str, Any]:
     return {
         "peer": _require_peer(message.chat.id),
@@ -1264,6 +2071,10 @@ async def _terminal_prompt(text: str) -> str:
     return await asyncio.to_thread(input, text)
 
 
+async def _terminal_password_prompt(text: str) -> str:
+    return await asyncio.to_thread(getpass.getpass, text)
+
+
 async def _resolve_prompt(prompt: Prompt, text: str) -> str:
     value = prompt(text)
     if inspect.isawaitable(value):
@@ -1273,3 +2084,27 @@ async def _resolve_prompt(prompt: Prompt, text: str) -> str:
 
 def _milliseconds() -> int:
     return int(time.time() * 1000)
+
+
+def _is_authentication_failure(error: BaseException) -> bool:
+    if isinstance(error, AuthenticationError):
+        return True
+    if isinstance(error, BaleRpcError):
+        if error.code in {16, 401, 403}:
+            return True
+        message = f"{error.message} {error.reason or ''}".casefold()
+        return any(
+            marker in message
+            for marker in ("unauthenticated", "unauthorized", "session", "jwt", "token")
+        )
+    status = getattr(error, "status_code", None)
+    if status in {401, 403}:
+        return True
+    response = getattr(error, "response", None)
+    if getattr(response, "status_code", None) in {401, 403}:
+        return True
+    message = str(error).casefold()
+    return any(
+        marker in message
+        for marker in ("unauthenticated", "unauthorized", "invalid session", "jwt")
+    )

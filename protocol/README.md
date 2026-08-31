@@ -15,7 +15,7 @@ snapshot شامل تمام messageها، enumها، شماره و نوع fieldه
 ## ۲. ضبط رفتار اکانت
 
 ```bash
-python examples/protocol_lab.py +989121234567
+python examples/protocol_lab.py
 ```
 
 این حالت تا زمان فشردن `Ctrl+C` فعال می‌ماند و سپس trace را ذخیره و اتصال را
@@ -24,7 +24,7 @@ python examples/protocol_lab.py +989121234567
 برای ثبت تاریخچهٔ یک peer مشخص:
 
 ```bash
-python examples/protocol_lab.py +989121234567 --chat '12345|1'
+python examples/protocol_lab.py --chat '12345|1'
 ```
 
 traceها در `protocol/traces/` قرار می‌گیرند و عمداً توسط Git نادیده گرفته

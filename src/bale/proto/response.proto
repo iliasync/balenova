@@ -179,6 +179,58 @@ message MessageSetReaction {
   repeated struct.Reaction reactions = 2;
 }
 
+message MessageRemoveReaction {
+  repeated struct.Reaction reactions = 2;
+}
+
+message GetMessagesReactions {
+  repeated struct.MessageReactionsContainer containers = 1;
+}
+
+message GetMessagesViews {
+  repeated struct.MessageViewsContainer containers = 1;
+}
+
+message SendInlineCallback {
+  bytes answer = 1;
+}
+
+message GetWssUrl {
+  string url = 1;
+}
+
+message GroupCall {
+  struct.GroupCall group_call = 1;
+}
+
+message GroupCallWithSequence {
+  struct.GroupCall group_call = 1;
+  int32 seq = 2;
+}
+
+message JoinGroupCall {
+  struct.GroupCall group_call = 1;
+  repeated struct.CallPeerState states = 2;
+}
+
+message InviteToCall {
+  repeated struct.CallPeerState peer_states = 1;
+}
+
+message GenerateCallLink {
+  struct.GroupCall group_call = 1;
+  int64 link_expiration_period = 2;
+}
+
+message GetCallLogs {
+  repeated struct.CallLog call_logs = 1;
+  int32 total = 2;
+}
+
+message GetOngoingCalls {
+  repeated struct.CallLog call_logs = 1;
+}
+
 enum GiftOpenning {
   GIFT_OPENNING_ALREADY_RECEIVED = 0;
   GIFT_OPENNING_SOLD_OUT = 1;

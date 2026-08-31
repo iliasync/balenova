@@ -78,6 +78,44 @@ class GrpcTransport:
         access_token: str | None = None,
     ) -> dict[str, Any]:
         encoded = encode_message(request_type, payload)
+        raw_response = await self._request_encoded(
+            service,
+            method,
+            encoded,
+            access_token=access_token,
+            request_type=request_type,
+            request_payload=payload,
+            response_type=response_type,
+        )
+        return decode_message(response_type, raw_response)
+
+    async def request_raw(
+        self,
+        service: str,
+        method: str,
+        payload: bytes,
+        *,
+        access_token: str | None = None,
+    ) -> bytes:
+        """Invoke a unary RPC without requiring generated protobuf classes."""
+        return await self._request_encoded(
+            service,
+            method,
+            payload,
+            access_token=access_token,
+        )
+
+    async def _request_encoded(
+        self,
+        service: str,
+        method: str,
+        encoded: bytes,
+        *,
+        access_token: str | None,
+        request_type: str | None = None,
+        request_payload: Mapping[str, Any] | None = None,
+        response_type: str | None = None,
+    ) -> bytes:
         body = b"\x00" + len(encoded).to_bytes(4, "big") + encoded
         if self._recorder:
             await self._recorder.record(
@@ -87,7 +125,7 @@ class GrpcTransport:
                 type_name=request_type,
                 service=service,
                 method=method,
-                payload=payload,
+                payload=request_payload,
                 raw=encoded,
             )
         headers = dict(self._headers)
@@ -104,7 +142,11 @@ class GrpcTransport:
                 )
                 self._raise_for_error(response, service, method)
                 raw_response = _unframe(response.content)
-                decoded = decode_message(response_type, raw_response)
+                decoded = (
+                    decode_message(response_type, raw_response)
+                    if response_type
+                    else None
+                )
                 if self._recorder:
                     await self._recorder.record(
                         transport="grpc-web",
@@ -116,7 +158,7 @@ class GrpcTransport:
                         payload=decoded,
                         raw=raw_response,
                     )
-                return decoded
+                return raw_response
             except (httpx.TimeoutException, httpx.NetworkError):
                 if attempt >= self.max_retries:
                     raise

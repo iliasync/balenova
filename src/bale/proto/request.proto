@@ -106,6 +106,146 @@ message MessageSetReaction {
   int64 date = 4;
 }
 
+message MessageRemoveReaction {
+  struct.Peer peer = 1;
+  int64 rid = 2;
+  string code = 3;
+  int64 date = 4;
+}
+
+message GetMessagesReactions {
+  struct.Peer peer = 1;
+  repeated struct.MessageId mids = 2;
+  struct.Peer origin_peer = 3;
+  repeated struct.MessageId origin_mids = 4;
+}
+
+message GetMessagesViews {
+  struct.Peer peer = 1;
+  repeated struct.MessageId mids = 2;
+  bool increment = 3;
+  repeated struct.MessageId correct_mids = 4;
+}
+
+message SendInlineCallback {
+  struct.Peer peer = 1;
+  struct.MessageId message_id = 2;
+  struct.StringValue data = 3;
+}
+
+message GetWssUrl {
+  int64 call_id = 1;
+}
+
+message StartGroupCall {
+  struct.Peer peer = 1;
+  int64 random_id = 2;
+  bool video = 3;
+  int32 mode = 4;
+  repeated struct.Peer invitees = 5;
+}
+
+message JoinGroupCall {
+  int64 call_id = 1;
+  struct.StringValue name = 2;
+}
+
+message LeaveGroupCall {
+  int64 call_id = 1;
+  bool end = 2;
+}
+
+message InviteToCall {
+  int64 call_id = 1;
+  repeated struct.Peer invitees = 2;
+}
+
+message GetGroupCall {
+  struct.Peer peer = 1;
+}
+
+message SendCallReaction {
+  int64 call_id = 1;
+  string reaction = 2;
+}
+
+message GetCallLogs {
+  struct.Int64Value page_number = 1;
+  struct.Int64Value page_size = 2;
+  struct.Int64Value after_date = 3;
+  struct.Int64Value before_date = 4;
+}
+
+message GetOngoingCalls {
+  struct.Int64Value page_number = 1;
+  struct.Int64Value page_size = 2;
+}
+
+message DeleteCallLogs {
+  repeated struct.Int64Value call_ids = 1;
+  bool all = 2;
+  bool invert = 3;
+}
+
+message MuteParticipant {
+  int64 call_id = 1;
+  string identity = 2;
+  string track_id = 3;
+  bool revoke_publish_permission = 4;
+}
+
+message RemoveParticipant {
+  int64 call_id = 1;
+  string identity = 2;
+  bool block_from_call = 3;
+}
+
+message StartRecording {
+  int64 call_id = 1;
+  string layout = 2;
+  int32 quality = 3;
+}
+
+message StopRecording {
+  int64 call_id = 1;
+}
+
+message UpdateCallLayout {
+  int64 call_id = 1;
+  string requested_layout = 2;
+}
+
+message GenerateCallLink {
+  bool is_public = 1;
+  struct.Int64Value call_id = 2;
+  struct.StringValue title = 3;
+}
+
+message GetCallLinkDetails {
+  string session = 1;
+}
+
+message AskToJoinCall {
+  int64 call_id = 1;
+  string name = 2;
+}
+
+message AnswerCallJoinRequest {
+  int64 call_id = 1;
+  string requester_identifier = 2;
+  bool is_allowed = 3;
+}
+
+message SetCallLinkTitle {
+  string title = 1;
+  struct.Int64Value call_id = 2;
+  struct.StringValue link_url = 3;
+}
+
+message GetCallState {
+  int64 call_id = 1;
+}
+
 message LoadHistory {
   struct.Peer peer = 1;
   int64 date = 2;
@@ -330,6 +470,9 @@ message UpvotePost {
 }
 
 message GetMyKifpools {
+}
+
+message GetParameters {
 }
 
 message ReportInappropriateContent {

@@ -4,40 +4,22 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-from pathlib import Path
 
-from bale import Client
+from common import add_session_arguments, make_client
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Log in to Bale with a phone number and call get_me()."
-    )
-    parser.add_argument(
-        "phone",
-        nargs="?",
-        help="Phone number in international format, for example +989121234567",
-    )
+    parser = argparse.ArgumentParser(description=__doc__)
+    add_session_arguments(parser)
     return parser.parse_args()
 
 
 async def main() -> None:
-    args = parse_args()
-    phone = args.phone
-    if phone is None:
-        phone = (await asyncio.to_thread(input, "Phone number (+989...): ")).strip()
-    if not phone:
-        raise SystemExit("A phone number is required.")
-
-    client = Client(
-        phone,
-        session_dir=Path("sessions"),
-        session_name="my_account",
-    )
+    client = make_client(parse_args())
 
     try:
-        # On the first run, connect() asks for the code sent by Bale.
-        # If two-step verification is enabled, it asks for the password too.
+        # connect() uses the saved session first. If it is missing or expired,
+        # the phone number, code, and optional password are prompted here.
         await client.connect()
         me = await client.get_me()
 
