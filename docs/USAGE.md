@@ -148,4 +148,11 @@ python examples/commands.py
 python examples/dialogs.py
 ```
 
-برای دیدن گزینه‌های هر مثال، `--help` بزنید.
+نمونه‌های کامل‌تر:
+
+```bash
+python -m examples.broadcast_manager.app
+python -m examples.voice_player.app
+```
+
+راهنمای فرمان‌ها داخل پوشهٔ خود هر نمونه قرار دارد.

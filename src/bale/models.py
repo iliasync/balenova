@@ -315,6 +315,9 @@ class Message(Serializable):
     async def seen(self) -> DefaultResponse:
         return await self._require_client().seen_chat(self.chat.id, self.date)
 
+    async def download(self) -> bytes:
+        return await self._require_client().download_media(self)
+
     async def clear_chat(self) -> DefaultResponse:
         return await self._require_client().clear_chat(self.chat.id)
 

@@ -3,7 +3,7 @@
 from bale import events, filters
 from bale.client import Client
 from bale.errors import AuthenticationError, BaleError, BaleRpcError, ClientStateError
-from bale.events import MessageSent, NewMessage, RawUpdate, Update
+from bale.events import MessageEdited, MessageSent, NewMessage, RawUpdate, Update
 from bale.filters import Filter
 from bale.models import (
     CallMode,
@@ -48,6 +48,7 @@ __all__ = [
     "GiftPacket",
     "GivingType",
     "Message",
+    "MessageEdited",
     "MessageSent",
     "NewMessage",
     "OtherMessage",

@@ -1,5 +1,5 @@
 """Public event imports."""
 
-from bale.events import MessageSent, NewMessage, RawUpdate, Update
+from bale.events import MessageEdited, MessageSent, NewMessage, RawUpdate, Update
 
-__all__ = ["MessageSent", "NewMessage", "RawUpdate", "Update"]
+__all__ = ["MessageEdited", "MessageSent", "NewMessage", "RawUpdate", "Update"]

@@ -96,6 +96,11 @@ class NewMessage(Update):
 
 
 @dataclass(slots=True)
+class MessageEdited(NewMessage):
+    """A message whose content changed while the client was running."""
+
+
+@dataclass(slots=True)
 class MessageSent(Update):
     """Confirmation data for a message sent by the current account."""
 
@@ -131,4 +136,4 @@ def build_updates(
     return result
 
 
-__all__ = ["MessageSent", "NewMessage", "RawUpdate", "Update"]
+__all__ = ["MessageEdited", "MessageSent", "NewMessage", "RawUpdate", "Update"]

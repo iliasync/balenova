@@ -70,6 +70,23 @@ async def test_message_sent_and_unknown_updates_are_always_classed(tmp_path) -> 
     assert received[1].kind == "future"  # type: ignore[attr-defined]
 
 
+@pytest.mark.asyncio
+async def test_changed_message_is_delivered_as_message_edited(tmp_path) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=DummyGrpc())  # type: ignore[arg-type]
+    edited: list[events.MessageEdited] = []
+
+    @client.on(events.MessageEdited)
+    async def handler(event: events.MessageEdited) -> None:
+        edited.append(event)
+
+    await client._process_update(message_update("ordinary text"))
+    await client._process_update(message_update("!status"))
+
+    assert len(edited) == 1
+    assert edited[0].text == "!status"
+    assert isinstance(edited[0], events.NewMessage)
+
+
 def test_balenova_is_the_public_import() -> None:
     assert Client.__module__ == "bale.client"
     assert events.NewMessage.__name__ == "NewMessage"

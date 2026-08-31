@@ -27,7 +27,7 @@ from bale.dispatcher import (
     UpdateHandler,
 )
 from bale.errors import AuthenticationError, BaleRpcError, ClientStateError
-from bale.events import Update, build_updates
+from bale.events import MessageEdited, NewMessage, Update, build_updates
 from bale.filters import Filter, command
 from bale.models import (
     CallMode,
@@ -154,6 +154,7 @@ class Client:
         self._update_semaphore = asyncio.Semaphore(max(1, update_concurrency))
         self._update_tasks: set[asyncio.Task[None]] = set()
         self._event_queue: asyncio.Queue[Update] = asyncio.Queue()
+        self._seen_messages: dict[tuple[str, str], str] = {}
         self._peer_cache: dict[str, User | Chat] = {}
         self._chat_cache: dict[str, Chat] = {}
         self._author_cache: dict[int, User] = {}
@@ -1861,10 +1862,15 @@ class Client:
         )
 
     async def download_file(
-        self, file_id: int | str, access_hash: int | None = None
+        self,
+        file_id: int | str,
+        access_hash: int | None = None,
+        file_storage_version: int | None = None,
     ) -> bytes:
         """Download a file identified by a Bale file reference."""
-        description = await self.get_file(file_id, access_hash)
+        description = await self.get_file(
+            file_id, access_hash, file_storage_version=file_storage_version
+        )
         file_url = description.get("file_url")
         if not isinstance(file_url, Mapping):
             raise ClientStateError("Bale did not return a file URL")
@@ -1874,6 +1880,38 @@ class Client:
         return await self._grpc.download(url, timeout=file_url.get("timeout"))
 
     download = download_file
+
+    async def download_media(self, message: Message) -> bytes:
+        """Download the media attached to a message."""
+        content = message.raw.get("message") or {}
+        if not isinstance(content, Mapping):
+            raise ValueError("The message does not contain downloadable media")
+        media = next(
+            (
+                value
+                for key, value in content.items()
+                if key
+                in {
+                    "audio_message",
+                    "document_message",
+                    "photo_message",
+                    "video_message",
+                    "voice_message",
+                }
+                and isinstance(value, Mapping)
+            ),
+            None,
+        )
+        if media is None or "file_id" not in media or "access_hash" not in media:
+            raise ValueError("The message does not contain downloadable media")
+        version = media.get("file_storage_version")
+        if isinstance(version, Mapping):
+            version = version.get("value")
+        return await self.download_file(
+            int(media["file_id"]),
+            int(media["access_hash"]),
+            int(version) if version is not None else None,
+        )
 
     async def upload_file(
         self,
@@ -3278,6 +3316,20 @@ class Client:
             try:
                 await self.dispatcher.dispatch_raw_update(self, update)
                 for event in build_updates(update, self._wrap_message):
+                    if isinstance(event, NewMessage):
+                        key = (event.message.chat.id, event.message.id)
+                        content = json.dumps(
+                            event.message.raw.get("message", {}),
+                            ensure_ascii=False,
+                            sort_keys=True,
+                            default=str,
+                        )
+                        previous = self._seen_messages.get(key)
+                        self._seen_messages[key] = content
+                        if len(self._seen_messages) > 5000:
+                            self._seen_messages.pop(next(iter(self._seen_messages)))
+                        if previous is not None and previous != content:
+                            event = MessageEdited(event.raw, event.message)
                     event.bind(self)
                     self._event_queue.put_nowait(event)
                     await self.dispatcher.dispatch_update(self, event)

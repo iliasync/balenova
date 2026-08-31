@@ -263,6 +263,30 @@ async def test_new_bale_web_auth_and_nasim_file_rpcs(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
+async def test_message_media_can_be_downloaded_directly(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+    message = Message(
+        1,
+        2,
+        User(42),
+        Chat(99, 2),
+        raw={
+            "message": {
+                "document_message": {
+                    "file_id": 123,
+                    "access_hash": 99,
+                    "name": "voice.ogg",
+                }
+            }
+        },
+    ).bind(client)
+
+    assert await message.download() == b"downloaded"
+    assert grpc.calls[-1]["method"] == "download"
+
+
+@pytest.mark.asyncio
 async def test_upload_limits_uses_current_files_method_and_schema(tmp_path) -> None:
     grpc = FakeGrpc()
     client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]

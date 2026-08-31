@@ -33,3 +33,9 @@ python examples/commands.py
 | `groups.py` | اطلاعات گروه |
 | `gifts.py` | اطلاعات کیف پول |
 | `calls.py` | تماس‌های اخیر |
+
+دو نمونهٔ کامل‌تر نیز وجود دارد:
+
+- [`broadcast_manager`](broadcast_manager): بنر، زمان‌بندی و ارسال با فاصله به
+  گروه‌های تحت مدیریت
+- [`voice_player`](voice_player): پخش آهنگ یا ویس ریپلای‌شده در تماس گروهی
