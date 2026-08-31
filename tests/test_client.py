@@ -44,6 +44,18 @@ class FakeGrpc:
             return {"jwt": {"value": "refreshed-jwt"}}
         if method == "GetAuthSessions":
             return {"sessions": [{"id": 7, "device_title": "Web"}]}
+        if method == "LoadDialogs":
+            return {
+                "groups": [
+                    {"id": 20, "title": "Group", "group_type": 0},
+                    {"id": 30, "title": "Channel", "group_type": 1},
+                ],
+                "users": [
+                    {"id": 40, "name": "Person"},
+                    {"id": 50, "name": "Bot", "is_bot": {"value": True}},
+                ],
+                "dialogs": [],
+            }
         if method == "GetNasimFileUploadResume":
             return {
                 "file_url": {"url": "https://upload.example.test/resume"},
@@ -687,6 +699,88 @@ def test_client_exposes_every_user_session_method_from_balejs() -> None:
 
     assert len(balejs_methods) == 91
     assert not {name for name in balejs_methods if not hasattr(Client, name)}
+
+
+@pytest.mark.asyncio
+async def test_dialogs_are_split_by_account_peer_type() -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt", grpc=grpc)  # type: ignore[arg-type]
+
+    result = await client.get_dialogs_by_type(limit=10)
+
+    assert [chat.id for chat in result["groups"]] == ["20|2"]
+    assert [chat.id for chat in result["channels"]] == ["30|3"]
+    assert [user.id for user in result["private_chats"]] == [40]
+    assert [user.id for user in result["bots"]] == [50]
+    assert [chat.id for chat in await client.get_groups(limit=10)] == ["20|2"]
+    assert [chat.id for chat in await client.get_channels(limit=10)] == ["30|3"]
+    assert [user.id for user in await client.get_private_chats(limit=10)] == [40]
+    assert [user.id for user in await client.get_bots(limit=10)] == [50]
+
+
+@pytest.mark.asyncio
+async def test_all_dialogs_by_type_paginates_and_deduplicates() -> None:
+    client = Client("42:jwt", grpc=FakeGrpc())  # type: ignore[arg-type]
+    pages = iter(
+        [
+            {
+                "dialogs": [
+                    {"peer": {"id": 20, "type": 2}, "sort_date": 20},
+                    {"peer": {"id": 40, "type": 1}, "sort_date": 19},
+                ],
+                "groups": [{"id": 20, "title": "Group", "group_type": 0}],
+                "users": [{"id": 40, "name": "Person"}],
+            },
+            {
+                "dialogs": [
+                    {"peer": {"id": 20, "type": 2}, "sort_date": 18},
+                    {"peer": {"id": 50, "type": 1}, "sort_date": 17},
+                ],
+                "groups": [{"id": 20, "title": "Group", "group_type": 0}],
+                "users": [{"id": 50, "name": "Bot", "is_bot": {"value": True}}],
+            },
+            {"dialogs": []},
+        ]
+    )
+
+    async def load_dialogs(**_kwargs: Any) -> dict[str, Any]:
+        return next(pages)
+
+    client.load_dialogs = load_dialogs  # type: ignore[method-assign]
+    result = await client.get_all_dialogs_by_type(page_size=2, max_pages=5)
+
+    assert [chat.id for chat in result["groups"]] == ["20|2"]
+    assert [user.id for user in result["private_chats"]] == [40]
+    assert [user.id for user in result["bots"]] == [50]
+
+
+@pytest.mark.asyncio
+async def test_dialog_buckets_use_peer_types_without_entity_resolution() -> None:
+    client = Client("42:jwt", grpc=FakeGrpc())  # type: ignore[arg-type]
+    pages = iter(
+        [
+            {
+                "dialogs": [
+                    {"peer": {"id": 20, "type": 2}, "sort_date": 20},
+                    {"peer": {"id": 30, "type": 3}, "sort_date": 19},
+                    {"peer": {"id": 40, "type": 1}, "sort_date": 18},
+                    {"peer": {"id": 50, "type": 4}, "sort_date": 17},
+                ]
+            },
+            {"dialogs": []},
+        ]
+    )
+
+    async def load_dialogs(**_kwargs: Any) -> dict[str, Any]:
+        return next(pages)
+
+    client.load_dialogs = load_dialogs  # type: ignore[method-assign]
+    result = await client.get_all_dialogs_by_type(page_size=4, max_pages=2)
+
+    assert [chat.id for chat in result["groups"]] == ["20|2"]
+    assert [chat.id for chat in result["channels"]] == ["30|3"]
+    assert [user.id for user in result["private_chats"]] == [40]
+    assert [user.id for user in result["bots"]] == [50]
 
 
 @pytest.mark.asyncio

@@ -168,7 +168,7 @@ message GetNasimFileUrl {
 }
 
 message GetNasimFileUrls {
-  struct.FileUrlDescription file_url = 1;
+  repeated struct.FileUrlDescription file_urls = 1;
 }
 
 message GetNasimFileUploadResume {
@@ -203,7 +203,7 @@ message GetAuthSessions {
 }
 
 message GetParameters {
-  repeated struct.ExtKeyValue params = 1;
+  repeated struct.ExtKeyValue parameters = 1;
 }
 
 message LoadDialogs {

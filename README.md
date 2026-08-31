@@ -16,6 +16,21 @@
 - مدل‌های typed برای `User`، `Chat` و `Message`
 - handlerهای sync/async برای پیام و تمام updateهای خام، lifecycle hooks و فیلترها
 - متدهای پیام، تاریخچه، دیالوگ، پروفایل، تایپ، واکنش، گزارش و جست‌وجو
+- تفکیک دیالوگ‌ها به گروه، کانال، چت خصوصی و بات با `get_groups()`،
+  `get_channels()`، `get_private_chats()` و `get_bots()`
+
+برای دریافت همهٔ صفحات (نه فقط صفحهٔ اول) از `get_all_dialogs_by_type()` استفاده
+کنید. این متد به‌صورت پیش‌فرض entityها را با RPCهای خواندنی resolve می‌کند تا
+کانال و گروه اشتباه نشوند؛ در حساب‌های بسیار بزرگ می‌توانید `page_size` و
+`max_pages` را کاهش دهید تا محدودیت نرخ Web رعایت شود:
+
+```python
+result = await client.get_all_dialogs_by_type(page_size=100, max_pages=100)
+groups = result["groups"]
+channels = result["channels"]
+private_chats = result["private_chats"]
+bots = result["bots"]
+```
 - مدیریت گروه/کانال، اعضا، مجوزها، لینک دعوت و پیام‌های pinشده
 - فایل و upload URL، آواتار گروه، multi-media، wallet و gift
 - کلیک دکمهٔ inline، حذف واکنش و RPCهای signaling تماس گروهی
@@ -101,6 +116,28 @@ public URL) نیز به proto و `Client` اضافه شده‌اند.
 
 متدهای تماس، signaling بله را پوشش می‌دهند؛ انتقال صوت/تصویر WebRTC وظیفهٔ
 لایهٔ رسانه است و در این کتابخانه ضبط یا پیاده‌سازی نشده است.
+
+### خلاصهٔ ممیزی سازگاری
+
+این ممیزی در ۳۱ اوت ۲۰۲۶ با bundle عمومی `web.bale.ai` و commit
+`a98aa699847ca09ed42ea93eb498581ceb8bb761` از Balethon انجام شد. سطح «تأیید»
+فقط به schema و نام RPC اشاره دارد، نه موفقیت اجرای زنده.
+
+| منبع | RPC | متد محلی | وضعیت | سطح تأیید |
+| --- | --- | --- | --- | --- |
+| Web + Balethon userbot | `ai.bale.server.Files/GetNasimFileUrl` | `get_file()` | پشتیبانی | bundle + proto محلی |
+| Web | `ai.bale.server.Files/GetNasimFileUrls` | `get_file_urls()` | پشتیبانی | bundle؛ پاسخ تکرارشونده |
+| Web | `ai.bale.server.Files/GetNasimFileUploadResume` | `get_file_upload_resume()` | پشتیبانی | bundle + تست محلی |
+| Web | `ai.bale.server.Files/FileUploadCancel` | `cancel_file_upload()` | پشتیبانی | bundle + تست محلی |
+| Web | `bale.v1.Configs/GetParameters` | `get_parameters()` | پشتیبانی | bundle؛ `parameters` تکرارشونده |
+| Web | `bale.auth.v1.Auth/GetAuthSessions` | `get_auth_sessions()` | پشتیبانی | bundle + تست محلی |
+| Web | `bale.users.v1.Users/GetFullUser` و privacy/card/contact RPCها | — | مستند نشده | schema عمومی کافی برای wrapper امن یافت نشد |
+
+Balethon همچنان یک کتابخانهٔ Bot API است؛ بنابراین webhook، `getUpdates`، پرداخت
+بات، inline bot و سایر متدهای Bot API عمداً از این پروژه خارج هستند. همچنین
+`DeleteAccount`، `LogOut`، تغییر امنیت حساب، wallet و عملیات مخرب Web wrapper
+عمداً wrapper سطح بالا ندارند. هیچ RPC از جدول «مستند نشده» به‌صورت حدسی اضافه
+نشده است.
 
 برای اجرای smoke test روی Web بله، session اکانت را فقط از طریق متغیر محیطی بدهید
 (این تست در اجرای عادی به‌صورت خودکار skip می‌شود):

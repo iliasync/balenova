@@ -13,7 +13,7 @@ import time
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from io import BufferedIOBase
 from pathlib import Path
-from typing import Any, BinaryIO, TypeVar, overload
+from typing import Any, BinaryIO, TypedDict, TypeVar, overload
 from urllib.parse import urlsplit
 
 from bale.dispatcher import (
@@ -30,6 +30,7 @@ from bale.models import (
     CallMode,
     CallRecordQuality,
     Chat,
+    ChatType,
     DefaultResponse,
     GivingType,
     Message,
@@ -54,6 +55,16 @@ ResponseT = TypeVar("ResponseT", bound=dict[str, Any])
 Prompt = Callable[[str], str | Awaitable[str]]
 ClientTask = Callable[["Client"], object | Awaitable[object]]
 MediaInput = bytes | bytearray | memoryview | str | Path | BinaryIO
+
+
+class DialogBuckets(TypedDict):
+    """Dialog entities grouped by account-session peer kind."""
+
+    groups: list[Chat]
+    channels: list[Chat]
+    private_chats: list[User]
+    bots: list[User]
+
 
 _PEER_PATTERN = re.compile(r"^(?P<id>\d+)\|(?P<type>\d+)$")
 _MESSAGE_PATTERN = re.compile(r"^(?P<rid>\d+)\|(?P<date>\d+)$")
@@ -1060,9 +1071,14 @@ class Client:
             "response.GetParameters",
             {},
         )
+        # ``parameters`` is the current Web schema.  ``params`` was emitted
+        # by older captures and is retained as a read-only compatibility
+        # fallback for callers replaying those captures.
+        raw_parameters = response.get("parameters", response.get("params", []))
         return [
             {"key": str(item.get("key", "")), "value": str(item.get("value", ""))}
-            for item in response.get("params", [])
+            for item in raw_parameters
+            if isinstance(item, Mapping)
         ]
 
     async def edit_parameter(
@@ -1103,6 +1119,229 @@ class Client:
                 "exclude_pinned_dialogs": exclude_pinned,
             },
         )
+
+    async def get_dialogs_by_type(
+        self,
+        limit: int = 40,
+        min_date: int = -1,
+        *,
+        resolve_entities: bool = True,
+    ) -> DialogBuckets:
+        """Return account dialogs split into groups, channels, users, and bots.
+
+        Some Web responses contain full ``users``/``groups`` objects while
+        others contain only ``user_peers``/``group_peers``.  When
+        ``resolve_entities`` is true (the default), the latter are resolved
+        through the read-only Users/Groups RPCs so channel and bot types are
+        not guessed from peer ids.
+        """
+        response = await self.load_dialogs(limit=limit, min_date=min_date)
+        return await self._bucket_dialog_response(response, resolve_entities)
+
+    async def _bucket_dialog_response(
+        self, response: Mapping[str, Any], resolve_entities: bool
+    ) -> DialogBuckets:
+        groups: list[Chat] = []
+        channels: list[Chat] = []
+        users: list[User] = []
+        bots: list[User] = []
+
+        for raw_group in response.get("groups", []):
+            if not isinstance(raw_group, Mapping) or "id" not in raw_group:
+                continue
+            group = wrap_group(dict(raw_group)).bind(self)
+            self._peer_cache[group.id] = group
+            if group.type is ChatType.CHANNEL:
+                channels.append(group)
+            else:
+                groups.append(group)
+
+        for raw_user in response.get("users", []):
+            if not isinstance(raw_user, Mapping) or "id" not in raw_user:
+                continue
+            user = wrap_user(dict(raw_user)).bind(self)
+            self._peer_cache[f"{user.id}|1"] = user
+            (bots if user.is_bot else users).append(user)
+
+        if resolve_entities:
+            user_peers = response.get("user_peers", [])
+            known_user_ids = {user.id for user in users + bots}
+            ids = [
+                int(peer["uid"])
+                for peer in user_peers
+                if isinstance(peer, Mapping)
+                and peer.get("uid") is not None
+                and int(peer["uid"]) not in known_user_ids
+            ]
+            if ids:
+                loaded_users = await self.load_users(ids)
+                for user in loaded_users:
+                    (bots if user.is_bot else users).append(user)
+
+        if resolve_entities:
+            group_peers = response.get("group_peers", [])
+            known_group_ids = {group.peer_id for group in groups + channels}
+            for peer in group_peers:
+                if not isinstance(peer, Mapping) or peer.get("group_id") is None:
+                    continue
+                if int(peer["group_id"]) in known_group_ids:
+                    continue
+                try:
+                    entity = await self._load_peer(int(peer["group_id"]), 2)
+                except Exception:
+                    continue
+                if not isinstance(entity, Chat):
+                    continue
+                known_group_ids.add(entity.peer_id)
+                if entity.type is ChatType.CHANNEL:
+                    channels.append(entity)
+                else:
+                    groups.append(entity)
+
+        # Recent Web responses may contain only dialogs plus peer ids.  The
+        # peer type is authoritative for counting and avoids one RPC per
+        # group/channel just to produce a typed list.
+        if not groups and not channels and not users and not bots:
+            seen: set[tuple[int, int]] = set()
+            for dialog in response.get("dialogs", []):
+                if not isinstance(dialog, Mapping):
+                    continue
+                peer = dialog.get("peer") or {}
+                if not isinstance(peer, Mapping):
+                    continue
+                peer_id = int(peer.get("id", 0))
+                peer_type = int(peer.get("type", 0))
+                marker = (peer_id, peer_type)
+                if peer_id <= 0 or marker in seen:
+                    continue
+                seen.add(marker)
+                if peer_type == 1:
+                    users.append(User(peer_id).bind(self))
+                elif peer_type == 4:
+                    bots.append(User(peer_id, is_bot=True).bind(self))
+                elif peer_type in (2, 5):
+                    groups.append(Chat(peer_id, peer_type).bind(self))
+                elif peer_type == 3:
+                    channels.append(Chat(peer_id, peer_type).bind(self))
+
+        return {
+            "groups": groups,
+            "channels": channels,
+            "private_chats": users,
+            "bots": bots,
+        }
+
+    async def get_all_dialogs_by_type(
+        self,
+        page_size: int = 100,
+        max_pages: int = 100,
+        *,
+        resolve_entities: bool = True,
+    ) -> DialogBuckets:
+        """Load and classify all available account dialogs across pages.
+
+        Set ``resolve_entities=False`` for a fast peer-type count.  The default
+        resolves entities so channels, groups, and bots are classified using
+        server metadata rather than guessed from peer ids.
+        """
+        if page_size <= 0:
+            raise ValueError("page_size must be positive")
+        if max_pages <= 0:
+            raise ValueError("max_pages must be positive")
+        min_date = -1
+        merged: dict[str, Any] = {
+            "dialogs": [],
+            "users": [],
+            "groups": [],
+            "user_peers": [],
+            "group_peers": [],
+        }
+        seen_peers: set[tuple[int, int]] = set()
+        seen_users: set[int] = set()
+        seen_groups: set[int] = set()
+        for _ in range(max_pages):
+            response = await self.load_dialogs(limit=page_size, min_date=min_date)
+            dialogs = response.get("dialogs", [])
+            if not isinstance(dialogs, list) or not dialogs:
+                break
+            for key in ("dialogs", "users", "groups", "user_peers", "group_peers"):
+                values = response.get(key, [])
+                if not isinstance(values, list):
+                    continue
+                for value in values:
+                    if key == "dialogs" and isinstance(value, Mapping):
+                        peer = value.get("peer") or {}
+                        peer_marker = (int(peer.get("id", 0)), int(peer.get("type", 0)))
+                        if peer_marker in seen_peers:
+                            continue
+                        seen_peers.add(peer_marker)
+                    elif key in {"users", "user_peers"} and isinstance(value, Mapping):
+                        if key == "user_peers":
+                            user_marker = int(value.get("uid", 0))
+                        else:
+                            user_marker = int(value.get("id", 0))
+                        if user_marker in seen_users:
+                            continue
+                        seen_users.add(user_marker)
+                    elif key in {"groups", "group_peers"} and isinstance(
+                        value, Mapping
+                    ):
+                        if key == "group_peers":
+                            group_marker = int(value.get("group_id", 0))
+                        else:
+                            group_marker = int(value.get("id", 0))
+                        if group_marker in seen_groups:
+                            continue
+                        seen_groups.add(group_marker)
+                    merged[key].append(value)
+            dates = [
+                int(item.get("sort_date", item.get("date", 0)))
+                for item in dialogs
+                if isinstance(item, Mapping)
+            ]
+            if len(dialogs) < page_size or not dates:
+                break
+            next_date = min(dates)
+            if next_date >= min_date and min_date != -1:
+                break
+            min_date = next_date
+        return await self._bucket_dialog_response(merged, resolve_entities)
+
+    async def get_groups(self, limit: int | None = None) -> list[Chat]:
+        """Return groups (including supergroups) from the account dialogs."""
+        result = (
+            await self.get_all_dialogs_by_type()
+            if limit is None
+            else await self.get_dialogs_by_type(limit=limit)
+        )
+        return [chat for chat in result["groups"] if isinstance(chat, Chat)]
+
+    async def get_channels(self, limit: int | None = None) -> list[Chat]:
+        """Return channels from the account dialogs."""
+        result = (
+            await self.get_all_dialogs_by_type()
+            if limit is None
+            else await self.get_dialogs_by_type(limit=limit)
+        )
+        return [chat for chat in result["channels"] if isinstance(chat, Chat)]
+
+    async def get_private_chats(self, limit: int | None = None) -> list[User]:
+        """Return non-bot private users from the account dialogs."""
+        result = (
+            await self.get_all_dialogs_by_type()
+            if limit is None
+            else await self.get_dialogs_by_type(limit=limit)
+        )
+        return [user for user in result["private_chats"] if isinstance(user, User)]
+
+    async def get_bots(self, limit: int | None = None) -> list[User]:
+        """Return bot users from the account dialogs."""
+        result = (
+            await self.get_all_dialogs_by_type()
+            if limit is None
+            else await self.get_dialogs_by_type(limit=limit)
+        )
+        return [user for user in result["bots"] if isinstance(user, User)]
 
     async def get_file(
         self,
@@ -1169,9 +1408,7 @@ class Client:
             "GetNasimFileUploadResume",
             "request.GetNasimFileUploadResume",
             "response.GetNasimFileUploadResume",
-            {
-                "file": _file_location(file_id, access_hash, file_storage_version)
-            },
+            {"file": _file_location(file_id, access_hash, file_storage_version)},
         )
 
     async def cancel_file_upload(
@@ -1183,9 +1420,7 @@ class Client:
             "FileUploadCancel",
             "request.FileUploadCancel",
             "response.FileUploadCancel",
-            {
-                "file": _file_location(file_id, access_hash, file_storage_version)
-            },
+            {"file": _file_location(file_id, access_hash, file_storage_version)},
         )
         return bool(response.get("canceled"))
 

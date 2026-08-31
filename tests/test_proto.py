@@ -120,6 +120,31 @@ def test_recorded_bulk_reaction_and_view_responses_round_trip() -> None:
         assert decode_message(type_name, encode_message(type_name, payload)) == payload
 
 
+def test_current_web_file_and_config_response_shapes_round_trip() -> None:
+    file_urls = {
+        "file_urls": [
+            {"file_id": 2**63 - 1, "url": "https://cdn.example/one"},
+            {"file_id": 7, "unsigned_url": "https://cdn.example/two"},
+        ]
+    }
+    parameters = {"parameters": [{"key": "upload.chunk", "value": "1048576"}]}
+
+    assert (
+        decode_message(
+            "response.GetNasimFileUrls",
+            encode_message("response.GetNasimFileUrls", file_urls),
+        )
+        == file_urls
+    )
+    assert (
+        decode_message(
+            "response.GetParameters",
+            encode_message("response.GetParameters", parameters),
+        )
+        == parameters
+    )
+
+
 def test_every_protobuf_type_referenced_by_runtime_code_exists() -> None:
     source_root = Path(__file__).parents[1] / "src" / "bale"
     type_names: set[str] = set()
