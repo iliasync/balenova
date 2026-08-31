@@ -296,6 +296,10 @@ message GetFullGroup {
   struct.GroupOutPeer peer = 1;
 }
 
+message GetGroupPreview {
+  string token = 1;
+}
+
 message SearchContacts {
   string request = 1;
   repeated int32 optimizations = 2;
@@ -445,6 +449,12 @@ message SignUp {
   string name = 2;
   int32 sex = 3;
   struct.StringValue password = 4;
+}
+
+message TerminateAllSessions {
+}
+
+message GetJWTToken {
 }
 
 message SignOut {

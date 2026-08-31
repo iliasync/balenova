@@ -346,6 +346,37 @@ class Client:
             },
         )
 
+    async def terminate_all_sessions(self) -> DefaultResponse:
+        """Invalidate all other authenticated Bale sessions."""
+        response = await self.post(
+            "bale.auth.v1.Auth",
+            "TerminateAllSessions",
+            "request.TerminateAllSessions",
+            "response.DefaultResponse",
+            {},
+        )
+        return wrap_default(response)
+
+    async def refresh_token(self) -> str:
+        """Refresh the current JWT and persist it for future connections."""
+        session = self._session or await self._storage.load()
+        if session is None:
+            raise AuthenticationError("No Bale session is available")
+        response = await self.post(
+            "bale.auth.v1.Auth",
+            "GetJWTToken",
+            "request.GetJWTToken",
+            "response.GetJWTToken",
+            {},
+        )
+        jwt_value = response.get("jwt")
+        jwt = jwt_value.get("value") if isinstance(jwt_value, Mapping) else jwt_value
+        if not isinstance(jwt, str) or not jwt.strip():
+            raise AuthenticationError("Bale did not return a refreshed JWT")
+        self._session = Session(session.user_id, jwt.strip())
+        await self._storage.save(self._session)
+        return self._session.jwt
+
     async def sign_out(self) -> DefaultResponse:
         response = await self.post(
             "bale.auth.v1.Auth",
@@ -583,16 +614,26 @@ class Client:
         value = response.get("full_group")
         return value if isinstance(value, dict) else None
 
-    async def join_chat(self, token_or_url: str) -> Chat:
-        token = token_or_url.removeprefix("https://ble.ir/join/").removeprefix(
-            "ble.ir/join/"
+    async def get_group_preview(self, token_or_url: str) -> dict[str, Any] | None:
+        """Load a group preview without joining it."""
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "GetGroupPreview",
+            "request.GetGroupPreview",
+            "response.GetGroupPreview",
+            {"token": _group_token(token_or_url)},
         )
+        return dict(response) if isinstance(response.get("group"), Mapping) else None
+
+    get_chat_preview = get_group_preview
+
+    async def join_chat(self, token_or_url: str) -> Chat:
         response = await self.invoke(
             "bale.groups.v1.Groups",
             "JoinGroup",
             "request.JoinGroup",
             "response.JoinGroup",
-            {"token": token},
+            {"token": _group_token(token_or_url)},
         )
         return self._cache_group_response(response)
 
@@ -2086,6 +2127,15 @@ def _other_message(message: Message | OtherMessage) -> dict[str, Any]:
 def _normalize_query(value: str) -> str:
     value = value.removeprefix("@").removeprefix("+")
     return value.removeprefix("https://ble.ir/").removeprefix("ble.ir/")
+
+
+def _group_token(value: str) -> str:
+    token = value.strip()
+    token = token.removeprefix("https://ble.ir/join/")
+    token = token.removeprefix("ble.ir/join/")
+    if not token:
+        raise ValueError("A Bale group invite token cannot be empty")
+    return token
 
 
 def _parse_auth(response: dict[str, Any]) -> Session:

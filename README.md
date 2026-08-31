@@ -87,6 +87,8 @@ python examples/login.py
 
 علاوه بر APIهای پایه، wrapperهای فایل و upload، آواتار گروه، pin گروهی،
 multi-media، wallet/gift و upvote با نام‌های متناظر BaleJS در `Client` موجودند.
+برای session نیز `refresh_token()` و `terminate_all_sessions()` و برای لینک‌های
+دعوت `get_group_preview()` در دسترس است.
 متدهای ضبط‌شدهٔ جدید نیز شامل `click_inline_button()`،
 `message_remove_reaction()`، `get_messages_reactions()`،
 `get_messages_views()` و مجموعهٔ تماس از `start_group_call()` تا مدیریت لینک،

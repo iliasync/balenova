@@ -79,6 +79,11 @@ message GetFullGroup {
   struct.FullGroup full_group = 1;
 }
 
+message GetGroupPreview {
+  struct.FullGroup group = 1;
+  int32 action = 2;
+}
+
 message SearchContacts {
   repeated struct.User users = 1;
   repeated struct.UserOutPeer user_peers = 2;
@@ -144,6 +149,10 @@ message StartPhoneAuth {
 message Auth {
   struct.User user = 2;
   struct.StringValue jwt = 4;
+}
+
+message GetJWTToken {
+  struct.StringValue jwt = 1;
 }
 
 message LoadGroupAvatars {

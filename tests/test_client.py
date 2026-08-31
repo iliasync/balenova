@@ -39,6 +39,10 @@ class FakeGrpc:
             return {"transaction_hash": "transaction"}
         if method == "ValidateCode":
             return {"user": {"id": 55}, "jwt": {"value": "new-jwt"}}
+        if method == "GetJWTToken":
+            return {"jwt": {"value": "refreshed-jwt"}}
+        if method == "GetGroupPreview":
+            return {"group": {"id": 99, "title": "Preview"}, "action": 2}
         if method == "GetWssURL":
             return {"url": "wss://meet.example.test/ws"}
         if method == "GetMyKifpools":
@@ -95,6 +99,37 @@ async def test_phone_auth_supports_noninteractive_async_prompt(tmp_path) -> None
         "StartPhoneAuth",
         "ValidateCode",
     ]
+
+
+@pytest.mark.asyncio
+async def test_auth_session_methods_are_available_and_refresh_is_persisted(
+    tmp_path,
+) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:old-jwt", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    result = await client.terminate_all_sessions()
+    token = await client.refresh_token()
+
+    assert result.seq == 1
+    assert token == "refreshed-jwt"
+    assert client.session == "42:refreshed-jwt"
+    assert (tmp_path / "bale.session").read_text() == "42:refreshed-jwt"
+    assert [call["method"] for call in grpc.calls] == [
+        "TerminateAllSessions",
+        "GetJWTToken",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_group_preview_accepts_join_urls(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    preview = await client.get_group_preview("https://ble.ir/join/invite-token")
+
+    assert preview == {"group": {"id": 99, "title": "Preview"}, "action": 2}
+    assert grpc.calls[-1]["payload"] == {"token": "invite-token"}
 
 
 @pytest.mark.asyncio
