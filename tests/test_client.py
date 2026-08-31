@@ -44,6 +44,31 @@ class FakeGrpc:
             return {"jwt": {"value": "refreshed-jwt"}}
         if method == "GetAuthSessions":
             return {"sessions": [{"id": 7, "device_title": "Web"}]}
+        if method == "GetFullUser":
+            return {"full_user": {"id": 7, "name": "Seven", "access_hash": 9}}
+        if method == "LoadFullUsersSequentially":
+            return {"full_users": [{"id": 7, "about": {"value": "hello"}}]}
+        if method == "LoadAvatars":
+            return {"avatars": {"avatars": [{"id": {"value": 11}}]}}
+        if method == "LoadBlockedUsers":
+            return {"user_peers": [{"uid": 7, "access_hash": 9}]}
+        if method == "GetContacts":
+            return {
+                "users": [{"id": 7, "name": "Seven"}],
+                "user_peers": [{"uid": 7, "access_hash": 9}],
+            }
+        if method == "GetUserPrivacyStatus":
+            return {"status": 2}
+        if method == "GetUserFullPrivacy":
+            return {
+                "privacy": {
+                    "invite_privacy": 1,
+                    "presence_privacy": 2,
+                    "money_transfer_privacy": 3,
+                }
+            }
+        if method == "EditAvatar":
+            return {"avatar": {"id": {"value": 11}}, "seq": 3, "state": b"s"}
         if method == "LoadDialogs":
             return {
                 "groups": [
@@ -811,6 +836,195 @@ async def test_composable_filters_and_error_handlers(tmp_path) -> None:
 
     assert handled == ["/ping now"]
     assert errors == ["handler failed"]
+
+
+@pytest.mark.asyncio
+async def test_incoming_and_outgoing_filters_classify_same_account_messages(
+    tmp_path,
+) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=FakeGrpc())  # type: ignore[arg-type]
+    client.user = User(42).bind(client)
+    incoming_seen: list[int] = []
+    outgoing_seen: list[int] = []
+
+    @client.on_message(filters.incoming)
+    async def incoming(message: Message, _client: Client) -> None:
+        incoming_seen.append(message.sender_id)
+
+    @client.on_message(filters.outgoing)
+    async def outgoing(message: Message, _client: Client) -> None:
+        outgoing_seen.append(message.sender_id)
+
+    for sender_id in (7, 42):
+        await client._process_update(
+            {
+                "update": {
+                    "composed_update": {
+                        "message": {
+                            "peer": {"id": 9, "type": 1},
+                            "sender_uid": sender_id,
+                            "date": sender_id,
+                            "rid": sender_id,
+                            "message": {"text_message": {"text": "hello"}},
+                        }
+                    }
+                }
+            }
+        )
+
+    assert incoming_seen == [7]
+    assert outgoing_seen == [42]
+
+
+@pytest.mark.asyncio
+async def test_balethon_style_filter_aliases_and_media_filters(tmp_path) -> None:
+    message = Message(
+        1,
+        2,
+        User(3),
+        Chat(4, 1, type=ChatType.PRIVATE),
+        raw={"message": {"photo_message": {"caption": {"text": "x"}}}},
+    )
+    assert filters.text().name == "text"
+    assert filters.Text is filters.text
+    client = Client("42:jwt", session_dir=tmp_path, grpc=FakeGrpc())  # type: ignore[arg-type]
+    assert await filters.photo.check(client, message)
+
+    document_photo = Message(
+        2,
+        3,
+        User(3),
+        Chat(4, 1),
+        raw={"message": {"document_message": {"ext": {"document_ex_photo": {"w": 1}}}}},
+    )
+    location = Message(
+        3,
+        4,
+        User(3),
+        Chat(4, 1),
+        raw={
+            "message": {
+                "json_message": {"raw_json": '{"dataType":"location","data":{}}'}
+            }
+        },
+    )
+    assert await filters.photo.check(client, document_photo)
+    assert not await filters.document.check(client, document_photo)
+    assert await filters.location.check(client, location)
+
+
+@pytest.mark.asyncio
+async def test_verified_web_user_profile_contact_and_privacy_rpcs(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    await client.edit_sex(1)
+    await client.edit_birth_date(1_700_000_000)
+    avatar = await client.edit_avatar(2**63 + 4, -9, 3)
+    await client.remove_avatar(11)
+    await client.edit_time_zone("Asia/Tehran")
+    await client.edit_preferred_languages(["fa", "en"])
+    await client.edit_user_local_name(7, "Local", access_hash=9)
+    profile = await client.get_full_user(7, access_hash=9)
+    sequential = await client.load_full_users_sequentially([7])
+    avatars = await client.load_user_avatars(7, access_hash=9)
+    await client.block_user(7, access_hash=9)
+    await client.unblock_user(7, access_hash=9)
+    blocked = await client.load_blocked_users()
+    contacts = await client.get_contacts("hash", [1, 2])
+    await client.add_contact(7, access_hash=9)
+    await client.remove_contact(7, access_hash=9)
+    privacy_status = await client.get_user_privacy_status(7, 2)
+    await client.set_user_privacy_status(7, 2, 1)
+    full_privacy = await client.get_user_full_privacy(7)
+
+    assert avatar["seq"] == 3
+    assert profile == {"id": 7, "name": "Seven", "access_hash": 9}
+    assert sequential[0]["id"] == 7
+    assert avatars[0]["id"]["value"] == 11
+    assert blocked == [{"uid": 7, "access_hash": 9}]
+    assert isinstance(contacts["users"][0], User)
+    assert privacy_status == 2
+    assert full_privacy == {
+        "invite_privacy": 1,
+        "presence_privacy": 2,
+        "money_transfer_privacy": 3,
+    }
+
+    expected_types = {
+        "EditSex": ("request.EditSex", "response.EmptyResponse"),
+        "EditBirthDate": ("request.EditBirthDate", "response.EmptyResponse"),
+        "EditAvatar": ("request.EditAvatar", "response.EditAvatar"),
+        "RemoveAvatar": ("request.RemoveAvatar", "response.SequenceResponse"),
+        "EditMyTimeZone": (
+            "request.EditMyTimeZone",
+            "response.SequenceResponse",
+        ),
+        "EditMyPreferredLanguages": (
+            "request.EditMyPreferredLanguages",
+            "response.SequenceResponse",
+        ),
+        "EditUserLocalName": (
+            "request.EditUserLocalName",
+            "response.SequenceResponse",
+        ),
+        "GetFullUser": ("request.GetFullUser", "response.GetFullUser"),
+        "LoadFullUsersSequentially": (
+            "request.LoadFullUsersSequentially",
+            "response.LoadFullUsers",
+        ),
+        "LoadAvatars": ("request.LoadAvatars", "response.LoadAvatars"),
+        "BlockUser": ("request.BlockUser", "response.SequenceResponse"),
+        "UnblockUser": ("request.UnblockUser", "response.SequenceResponse"),
+        "LoadBlockedUsers": (
+            "request.LoadBlockedUsers",
+            "response.LoadBlockedUsers",
+        ),
+        "GetContacts": ("request.GetContacts", "response.GetContacts"),
+        "AddContact": ("request.AddContact", "response.SequenceResponse"),
+        "RemoveContact": ("request.RemoveContact", "response.SequenceResponse"),
+        "GetUserPrivacyStatus": (
+            "request.GetUserPrivacyStatus",
+            "response.GetUserPrivacyStatus",
+        ),
+        "SetUserPrivacyStatus": (
+            "request.SetUserPrivacyStatus",
+            "response.EmptyResponse",
+        ),
+        "GetUserFullPrivacy": (
+            "request.GetUserFullPrivacy",
+            "response.GetUserFullPrivacy",
+        ),
+    }
+    assert {call["method"] for call in grpc.calls} == set(expected_types)
+    for call in grpc.calls:
+        assert call["service"] == "bale.users.v1.Users"
+        assert (call["request_type"], call["response_type"]) == expected_types[
+            call["method"]
+        ]
+
+    edit_avatar_call = next(
+        call for call in grpc.calls if call["method"] == "EditAvatar"
+    )
+    assert edit_avatar_call["payload"] == {
+        "file_location": {
+            "file_id": 2**63 + 4,
+            "access_hash": -9,
+            "file_storage_version": {"value": 3},
+        }
+    }
+
+
+@pytest.mark.asyncio
+async def test_user_rpc_validation_rejects_invalid_int_ranges(tmp_path) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=FakeGrpc())  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match="positive int32"):
+        await client.get_full_user(0)
+    with pytest.raises(ValueError, match="int64 range"):
+        await client.edit_birth_date(1 << 63)
+    with pytest.raises(ValueError, match="non-negative int32"):
+        await client.edit_avatar(1, 1, -1)
 
 
 @pytest.mark.asyncio

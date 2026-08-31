@@ -22,16 +22,20 @@ from bale.models import (
     OtherMessage,
     PacketResponse,
     PeerSource,
+    PrivacyStatus,
+    PrivacyType,
     ReportKind,
     User,
     Wallet,
     WalletResponse,
     Winner,
+    model_to_dict,
+    model_to_json,
 )
 from bale.protocol import ProtocolRecorder
 from bale.session import Session
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "AuthenticationError",
@@ -52,6 +56,8 @@ __all__ = [
     "OtherMessage",
     "PacketResponse",
     "PeerSource",
+    "PrivacyStatus",
+    "PrivacyType",
     "ProtocolRecorder",
     "ReportKind",
     "Session",
@@ -60,4 +66,6 @@ __all__ = [
     "WalletResponse",
     "Winner",
     "filters",
+    "model_to_dict",
+    "model_to_json",
 ]

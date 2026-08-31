@@ -145,6 +145,53 @@ def test_current_web_file_and_config_response_shapes_round_trip() -> None:
     )
 
 
+def test_current_web_user_profile_contact_and_privacy_shapes_round_trip() -> None:
+    profile = {
+        "full_user": {
+            "id": 7,
+            "access_hash": -(2**63),
+            "name": "Seven",
+            "local_name": {"value": "Local"},
+            "contact_info": [
+                {
+                    "long_value": {"value": 989121234567},
+                    "title": {"value": "mobile"},
+                }
+            ],
+            "bot_commands": [{"slash_command": "start", "description": "Start"}],
+            "preferred_languages": ["fa", "en"],
+            "privacy_bar_mode": "PRIVACY_MODE_SPAM",
+        }
+    }
+    contacts = {
+        "users": [{"id": 7, "access_hash": 2**63 - 1, "name": "Seven"}],
+        "user_peers": [{"uid": 7, "access_hash": -(2**63)}],
+    }
+    privacy = {
+        "privacy": {
+            "invite_privacy": 1,
+            "presence_privacy": 2,
+            "money_transfer_privacy": 3,
+        }
+    }
+
+    for type_name, payload in (
+        ("response.GetFullUser", profile),
+        ("response.GetContacts", contacts),
+        ("response.GetUserFullPrivacy", privacy),
+    ):
+        assert decode_message(type_name, encode_message(type_name, payload)) == payload
+
+    preferred_languages = {"preferred_languages": ["fa", "en"]}
+    assert (
+        decode_message(
+            "request.EditMyPreferredLanguages",
+            encode_message("request.EditMyPreferredLanguages", preferred_languages),
+        )
+        == preferred_languages
+    )
+
+
 def test_every_protobuf_type_referenced_by_runtime_code_exists() -> None:
     source_root = Path(__file__).parents[1] / "src" / "bale"
     type_names: set[str] = set()

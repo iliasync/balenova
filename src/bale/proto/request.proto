@@ -66,6 +66,37 @@ message CheckNickName {
   string nick_name = 1;
 }
 
+message EditSex {
+  int32 sex = 1;
+}
+
+message EditBirthDate {
+  int64 date = 1;
+}
+
+message EditAvatar {
+  struct.FileLocation file_location = 1;
+}
+
+message RemoveAvatar {
+  // The official Web codec uses this misspelling on the JSON-facing field.
+  struct.Int64Value avater_id = 1;
+}
+
+message EditMyTimeZone {
+  string tz = 1;
+}
+
+message EditMyPreferredLanguages {
+  repeated string preferred_languages = 1;
+}
+
+message EditUserLocalName {
+  int32 uid = 1;
+  int64 access_hash = 2;
+  string name = 3;
+}
+
 message SendMessage {
   struct.Peer peer = 1;
   int64 rid = 2;
@@ -290,6 +321,59 @@ message LoadUsers {
 
 message LoadFullUsers {
   repeated struct.UserOutPeer user_peers = 1;
+}
+
+message GetFullUser {
+  struct.UserOutPeer peer = 1;
+}
+
+message LoadFullUsersSequentially {
+  repeated struct.UserOutPeer user_peers = 1;
+}
+
+message LoadAvatars {
+  struct.UserOutPeer peer = 1;
+}
+
+message BlockUser {
+  struct.UserOutPeer peer = 1;
+}
+
+message UnblockUser {
+  struct.UserOutPeer peer = 1;
+}
+
+message LoadBlockedUsers {
+}
+
+message GetContacts {
+  string contacts_hash = 1;
+  repeated int32 optimizations = 2;
+}
+
+message RemoveContact {
+  int32 uid = 1;
+  int64 access_hash = 2;
+}
+
+message AddContact {
+  int32 uid = 1;
+  int64 access_hash = 2;
+}
+
+message GetUserPrivacyStatus {
+  int32 user_id = 1;
+  int32 type = 2;
+}
+
+message SetUserPrivacyStatus {
+  int32 user_id = 1;
+  int32 type = 2;
+  int32 status = 3;
+}
+
+message GetUserFullPrivacy {
+  int32 user_id = 1;
 }
 
 message GetFullGroup {

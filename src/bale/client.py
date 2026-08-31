@@ -9,6 +9,7 @@ import json
 import mimetypes
 import os
 import re
+import sys
 import time
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from io import BufferedIOBase
@@ -37,6 +38,8 @@ from bale.models import (
     OtherMessage,
     PacketResponse,
     PeerSource,
+    PrivacyStatus,
+    PrivacyType,
     ReportKind,
     User,
     WalletResponse,
@@ -69,6 +72,23 @@ class DialogBuckets(TypedDict):
 _PEER_PATTERN = re.compile(r"^(?P<id>\d+)\|(?P<type>\d+)$")
 _MESSAGE_PATTERN = re.compile(r"^(?P<rid>\d+)\|(?P<date>\d+)$")
 _API_KEY = "C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D"
+
+
+def _color_enabled() -> bool:
+    """Return whether interactive status output should use ANSI colors."""
+    setting = os.environ.get("BALE_COLOR", "auto").strip().casefold()
+    if setting in {"0", "false", "never", "no"} or "NO_COLOR" in os.environ:
+        return False
+    return setting in {"1", "true", "always", "yes"} or sys.stdout.isatty()
+
+
+def _colorize(text: str, code: int) -> str:
+    return f"\033[{code}m{text}\033[0m" if _color_enabled() else text
+
+
+def _status(text: str, *, error: bool = False) -> None:
+    """Print a short colored login/session status without exposing secrets."""
+    print(_colorize(text, 31 if error else 36))
 
 
 class Client:
@@ -232,7 +252,10 @@ class Client:
             self.user = None
             self._peer_cache.clear()
             self._phone_number = None
-            print("Existing Bale session is invalid or expired; logging in again.")
+            _status(
+                "Existing Bale session is invalid or expired; logging in again.",
+                error=True,
+            )
             self._session = await self._authenticate()
             await self._storage.save(self._session)
             await self._connect_session(self._session)
@@ -495,7 +518,7 @@ class Client:
                 "bale.users.v1.Users",
                 "EditName",
                 "request.EditName",
-                "response.DefaultResponse",
+                "response.SequenceResponse",
                 {"name": name},
             )
         )
@@ -506,7 +529,7 @@ class Client:
                 "bale.users.v1.Users",
                 "EditNickName",
                 "request.EditNickName",
-                "response.DefaultResponse",
+                "response.SequenceResponse",
                 {"nick_name": {"value": nickname} if nickname else None},
             )
         )
@@ -517,7 +540,7 @@ class Client:
                 "bale.users.v1.Users",
                 "EditAbout",
                 "request.EditAbout",
-                "response.DefaultResponse",
+                "response.SequenceResponse",
                 {"about": {"value": about} if about else None},
             )
         )
@@ -530,7 +553,99 @@ class Client:
             "response.CheckNickName",
             {"nick_name": nickname},
         )
-        return bool(response.get("available"))
+        return bool(response.get("value", response.get("available")))
+
+    async def edit_sex(self, sex: int) -> DefaultResponse:
+        """Update the authenticated account's profile sex enum."""
+        await self.invoke(
+            "bale.users.v1.Users",
+            "EditSex",
+            "request.EditSex",
+            "response.EmptyResponse",
+            {"sex": int(sex)},
+        )
+        return DefaultResponse()
+
+    async def edit_birth_date(self, date: int) -> DefaultResponse:
+        """Update the account birth date using Bale's int64 representation."""
+        await self.invoke(
+            "bale.users.v1.Users",
+            "EditBirthDate",
+            "request.EditBirthDate",
+            "response.EmptyResponse",
+            {"date": _signed_int64(date, field_name="date")},
+        )
+        return DefaultResponse()
+
+    async def edit_avatar(
+        self,
+        file_id: int | str,
+        access_hash: int,
+        file_storage_version: int,
+    ) -> dict[str, Any]:
+        """Set a profile avatar from an already uploaded Bale file."""
+        return await self.invoke(
+            "bale.users.v1.Users",
+            "EditAvatar",
+            "request.EditAvatar",
+            "response.EditAvatar",
+            {
+                "file_location": _file_location(
+                    file_id, access_hash, file_storage_version
+                )
+            },
+        )
+
+    async def remove_avatar(self, avatar_id: int) -> DefaultResponse:
+        """Remove one profile avatar by its signed int64 avatar ID."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "RemoveAvatar",
+            "request.RemoveAvatar",
+            "response.SequenceResponse",
+            {"avater_id": {"value": _signed_int64(avatar_id, field_name="avatar_id")}},
+        )
+        return wrap_default(response)
+
+    async def edit_time_zone(self, time_zone: str) -> DefaultResponse:
+        """Update the account time-zone identifier."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "EditMyTimeZone",
+            "request.EditMyTimeZone",
+            "response.SequenceResponse",
+            {"tz": time_zone},
+        )
+        return wrap_default(response)
+
+    edit_timezone = edit_time_zone
+
+    async def edit_preferred_languages(
+        self, languages: Iterable[str]
+    ) -> DefaultResponse:
+        """Replace the account's preferred language list."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "EditMyPreferredLanguages",
+            "request.EditMyPreferredLanguages",
+            "response.SequenceResponse",
+            {"preferred_languages": [str(language) for language in languages]},
+        )
+        return wrap_default(response)
+
+    async def edit_user_local_name(
+        self, user: int | str, name: str, *, access_hash: int = 1
+    ) -> DefaultResponse:
+        """Set this account's local display name for another user."""
+        peer = _user_peer(user, access_hash=access_hash)
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "EditUserLocalName",
+            "request.EditUserLocalName",
+            "response.SequenceResponse",
+            {**peer, "name": name},
+        )
+        return wrap_default(response)
 
     async def get_me(self) -> User:
         session = self._session or await self._storage.load()
@@ -594,6 +709,187 @@ class Client:
             {"user_peers": [_user_peer(value) for value in users]},
         )
         return list(response.get("full_users", []))
+
+    async def get_full_user(
+        self, user: int | str, *, access_hash: int = 1
+    ) -> dict[str, Any] | None:
+        """Load the current Web client's combined profile for one user."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "GetFullUser",
+            "request.GetFullUser",
+            "response.GetFullUser",
+            {"peer": _user_peer(user, access_hash=access_hash)},
+        )
+        profile = response.get("full_user")
+        return dict(profile) if isinstance(profile, Mapping) else None
+
+    async def load_full_users_sequentially(
+        self, users: Iterable[int | str]
+    ) -> list[dict[str, Any]]:
+        """Load full-user records through Bale's sequential RPC variant."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "LoadFullUsersSequentially",
+            "request.LoadFullUsersSequentially",
+            "response.LoadFullUsers",
+            {"user_peers": [_user_peer(value) for value in users]},
+        )
+        return list(response.get("full_users", []))
+
+    async def load_user_avatars(
+        self, user: int | str, *, access_hash: int = 1
+    ) -> list[dict[str, Any]]:
+        """Load all known avatars for one Bale user."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "LoadAvatars",
+            "request.LoadAvatars",
+            "response.LoadAvatars",
+            {"peer": _user_peer(user, access_hash=access_hash)},
+        )
+        avatars = response.get("avatars")
+        if not isinstance(avatars, Mapping):
+            return []
+        values = avatars.get("avatars")
+        if not isinstance(values, list):
+            return []
+        return [dict(value) for value in values if isinstance(value, Mapping)]
+
+    load_avatars = load_user_avatars
+
+    async def block_user(
+        self, user: int | str, *, access_hash: int = 1
+    ) -> DefaultResponse:
+        """Block a Bale user for the authenticated account."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "BlockUser",
+            "request.BlockUser",
+            "response.SequenceResponse",
+            {"peer": _user_peer(user, access_hash=access_hash)},
+        )
+        return wrap_default(response)
+
+    async def unblock_user(
+        self, user: int | str, *, access_hash: int = 1
+    ) -> DefaultResponse:
+        """Unblock a Bale user for the authenticated account."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "UnblockUser",
+            "request.UnblockUser",
+            "response.SequenceResponse",
+            {"peer": _user_peer(user, access_hash=access_hash)},
+        )
+        return wrap_default(response)
+
+    async def load_blocked_users(self) -> list[dict[str, Any]]:
+        """Return the blocked-user peer records visible to this account."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "LoadBlockedUsers",
+            "request.LoadBlockedUsers",
+            "response.LoadBlockedUsers",
+            {},
+        )
+        return [
+            dict(peer)
+            for peer in response.get("user_peers", [])
+            if isinstance(peer, Mapping)
+        ]
+
+    async def get_contacts(
+        self, contacts_hash: str = "", optimizations: Iterable[int] = ()
+    ) -> dict[str, Any]:
+        """Load account contacts, optionally using Bale's unchanged hash."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "GetContacts",
+            "request.GetContacts",
+            "response.GetContacts",
+            {
+                "contacts_hash": contacts_hash,
+                "optimizations": [int(value) for value in optimizations],
+            },
+        )
+        users = [wrap_user(raw).bind(self) for raw in response.get("users", [])]
+        for user in users:
+            self._peer_cache[f"{user.id}|1"] = user
+            if user.is_bot:
+                self._peer_cache[f"{user.id}|4"] = user
+        return {**response, "users": users}
+
+    async def add_contact(
+        self, user: int | str, *, access_hash: int = 1
+    ) -> DefaultResponse:
+        """Add one Bale user to the account contacts."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "AddContact",
+            "request.AddContact",
+            "response.SequenceResponse",
+            _user_peer(user, access_hash=access_hash),
+        )
+        return wrap_default(response)
+
+    async def remove_contact(
+        self, user: int | str, *, access_hash: int = 1
+    ) -> DefaultResponse:
+        """Remove one Bale user from the account contacts."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "RemoveContact",
+            "request.RemoveContact",
+            "response.SequenceResponse",
+            _user_peer(user, access_hash=access_hash),
+        )
+        return wrap_default(response)
+
+    async def get_user_privacy_status(
+        self, user_id: int, privacy_type: int | PrivacyType
+    ) -> PrivacyStatus:
+        """Return one integer privacy status for a Bale user."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "GetUserPrivacyStatus",
+            "request.GetUserPrivacyStatus",
+            "response.GetUserPrivacyStatus",
+            {"user_id": _user_id(user_id), "type": int(privacy_type)},
+        )
+        return PrivacyStatus(int(response.get("status", 0)))
+
+    async def set_user_privacy_status(
+        self,
+        user_id: int,
+        privacy_type: int | PrivacyType,
+        status: int | PrivacyStatus,
+    ) -> DefaultResponse:
+        """Set one integer privacy status for a Bale user."""
+        await self.invoke(
+            "bale.users.v1.Users",
+            "SetUserPrivacyStatus",
+            "request.SetUserPrivacyStatus",
+            "response.EmptyResponse",
+            {
+                "user_id": _user_id(user_id),
+                "type": int(privacy_type),
+                "status": int(status),
+            },
+        )
+        return DefaultResponse()
+
+    async def get_user_full_privacy(self, user_id: int) -> dict[str, Any] | None:
+        """Load the invite, presence, and money-transfer privacy tuple."""
+        response = await self.invoke(
+            "bale.users.v1.Users",
+            "GetUserFullPrivacy",
+            "request.GetUserFullPrivacy",
+            "response.GetUserFullPrivacy",
+            {"user_id": _user_id(user_id)},
+        )
+        privacy = response.get("privacy")
+        return dict(privacy) if isinstance(privacy, Mapping) else None
 
     async def search_contacts(self, query: str) -> dict[str, Any]:
         response = await self.invoke(
@@ -2760,7 +3056,7 @@ class Client:
                     )
                 ).strip()
                 if not re.sub(r"\D", "", phone_number):
-                    print("Please enter a valid phone number.")
+                    _status("Please enter a valid phone number.", error=True)
                     phone_number = None
             try:
                 sent = await self.start_phone_auth(phone_number)
@@ -2768,9 +3064,10 @@ class Client:
             except BaleRpcError as error:
                 if error.message != "PHONE_NUMBER_INVALID":
                     raise
-                print(
+                _status(
                     "Bale rejected that phone number. Use international format, "
-                    "for example +989121234567."
+                    "for example +989121234567.",
+                    error=True,
                 )
                 phone_number = None
                 self._phone_number = None
@@ -2787,7 +3084,10 @@ class Client:
                 return _parse_auth(await self.validate_code(transaction_hash, code))
             except BaleRpcError as error:
                 if error.message == "PHONE_CODE_INVALID":
-                    print("The verification code is invalid; please try again.")
+                    _status(
+                        "The verification code is invalid; please try again.",
+                        error=True,
+                    )
                     continue
                 if error.message == "PHONE_NUMBER_UNOCCUPIED":
                     name = await _resolve_prompt(
@@ -2950,10 +3250,16 @@ def _file_location(
     file_id: int | str, access_hash: int, file_storage_version: int
 ) -> dict[str, Any]:
     """Build the FileLocation shape shared by Bale's Nasim RPCs."""
+    try:
+        storage_version = int(file_storage_version)
+    except (TypeError, ValueError) as error:
+        raise ValueError("file_storage_version must be an integer") from error
+    if not 0 <= storage_version <= (1 << 31) - 1:
+        raise ValueError("file_storage_version must be a non-negative int32")
     return {
         "file_id": _unsigned_int64(file_id, field_name="file_id"),
-        "access_hash": access_hash,
-        "file_storage_version": {"value": file_storage_version},
+        "access_hash": _signed_int64(access_hash, field_name="access_hash"),
+        "file_storage_version": {"value": storage_version},
     }
 
 
@@ -2961,12 +3267,29 @@ def _out_peer(value: str) -> dict[str, int]:
     return {**_require_peer(value), "access_hash": 1}
 
 
-def _user_peer(value: int | str) -> dict[str, int]:
+def _user_peer(value: int | str, *, access_hash: int = 1) -> dict[str, int]:
     if isinstance(value, int):
-        return {"uid": value, "access_hash": 1}
+        user_id = _user_id(value)
+        return {
+            "uid": user_id,
+            "access_hash": _signed_int64(access_hash, field_name="access_hash"),
+        }
     parsed = _parse_peer(value)
-    user_id = parsed[0] if parsed else int(value)
-    return {"uid": user_id, "access_hash": 1}
+    user_id = _user_id(parsed[0] if parsed else value)
+    return {
+        "uid": user_id,
+        "access_hash": _signed_int64(access_hash, field_name="access_hash"),
+    }
+
+
+def _user_id(value: int | str) -> int:
+    try:
+        user_id = int(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"Expected a numeric Bale user id, got {value!r}") from error
+    if not 0 < user_id <= (1 << 31) - 1:
+        raise ValueError("Bale user id must be a positive int32")
+    return user_id
 
 
 def _require_message_id(value: str) -> tuple[int, int]:
@@ -3002,6 +3325,16 @@ def _unsigned_int64(value: int | str, *, field_name: str) -> int:
         number += 1 << 64
     if not 0 <= number < 1 << 64:
         raise ValueError(f"{field_name} is outside the uint64 range")
+    return number
+
+
+def _signed_int64(value: int | str, *, field_name: str) -> int:
+    try:
+        number = int(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"{field_name} must be an integer") from error
+    if not -(1 << 63) <= number < 1 << 63:
+        raise ValueError(f"{field_name} is outside the int64 range")
     return number
 
 
@@ -3111,11 +3444,11 @@ def _parse_auth(response: dict[str, Any]) -> Session:
 
 
 async def _terminal_prompt(text: str) -> str:
-    return await asyncio.to_thread(input, text)
+    return await asyncio.to_thread(input, _colorize(text, 33))
 
 
 async def _terminal_password_prompt(text: str) -> str:
-    return await asyncio.to_thread(getpass.getpass, text)
+    return await asyncio.to_thread(getpass.getpass, _colorize(text, 33))
 
 
 async def _resolve_prompt(prompt: Prompt, text: str) -> str:

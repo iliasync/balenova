@@ -1,7 +1,6 @@
-# Bale Async
+# Bale Session
 
-یک کتابخانهٔ Python کاملاً asynchronous برای ساخت userbot روی حساب واقعی بله، با
-الهام از API کتابخانهٔ [balejs](https://github.com/Zellias/balejs).
+یک کتابخانهٔ Python کاملاً asynchronous برای ساخت userbot روی حساب واقعی بله.
 
 > این پروژه از **Bot API** استفاده نمی‌کند. ارتباط حساب کاربری از طریق gRPC-web
 > برای احراز هویت/fallback و WebSocket برای RPCهای زنده و updateها انجام می‌شود.
@@ -15,6 +14,10 @@
 - gRPC-web async با retry و backoff
 - مدل‌های typed برای `User`، `Chat` و `Message`
 - handlerهای sync/async برای پیام و تمام updateهای خام، lifecycle hooks و فیلترها
+- فیلترهای ترکیبی برای پیام‌های ورودی/خروجی، فرستنده، نوع چت، reply و regex
+- فیلترهای مستقل `text`، `content`، `photo`، `video`، `audio`، `voice`، `document`،
+  `sticker`، `location`، `contact`، `animation` و `forwarded`؛ هرکدام هم به شکل
+  `filters.text` و هم `filters.text()` قابل استفاده‌اند و با `&`، `|` و `~` ترکیب می‌شوند.
 - متدهای پیام، تاریخچه، دیالوگ، پروفایل، تایپ، واکنش، گزارش و جست‌وجو
 - تفکیک دیالوگ‌ها به گروه، کانال، چت خصوصی و بات با `get_groups()`،
   `get_channels()`، `get_private_chats()` و `get_bots()`
@@ -44,6 +47,9 @@ source .venv/bin/activate
 pip install -e '.[dev]'
 ```
 
+نام انتشار این پروژه در PyPI، `bale-session` است و import آن همچنان `bale` باقی
+می‌ماند.
+
 ## شروع سریع
 
 ```python
@@ -60,6 +66,11 @@ async def echo(message, _client):
 @client.on_command("ping")
 async def ping(message, _client):
     await message.reply("pong")
+
+
+@client.on_message(filters.outgoing & filters.regex(r"^!status"))
+async def status(message, _client):
+    print(message.sender_id, message.is_outgoing)
 
 
 @client.on_error
@@ -85,6 +96,27 @@ asyncio.run(client.run())
 بدون ترمینال می‌توان callbackهای `phone_prompt`، `code_prompt`، `password_prompt`
 و `signup_name_prompt` را به سازنده داد.
 
+### خروجی سادهٔ مدل‌ها و ورود رنگی
+
+متدهای فعلی هیچ تغییری نکرده‌اند؛ نتیجه‌ها همچنان همان کلاس‌های typed هستند و برای
+نمایش سریع می‌توان آن‌ها را مستقیماً به دیکشنری یا JSON تبدیل کرد:
+
+```python
+me = await client.get_me()
+print(me)  # نمایش کلاس User
+print(me.to_dict())  # دیکشنری معمولی
+print(me.to_json())  # JSON خوانا
+```
+
+برای مدل‌های تو در تو مانند `Message`، `User` و `Chat` نیز همین API برقرار است.
+فیلد داخلی `_client` و payload خام پیام (`raw`) به‌صورت پیش‌فرض در JSON نمی‌آیند؛
+در صورت نیاز به payload خام از `to_json(include_raw=True)` استفاده کنید. توابع
+عمومی `model_to_dict()` و `model_to_json()` برای پاسخ‌های ترکیبی نیز export شده‌اند.
+
+متن‌های احراز هویت در ترمینال به‌صورت خودکار رنگی می‌شوند. برای اجبار یا خاموش
+کردن آن از `BALE_COLOR=always` یا `BALE_COLOR=never` استفاده کنید؛ در محیط‌های
+غیرتعاملی رنگ به‌طور پیش‌فرض غیرفعال است.
+
 ### نمونهٔ ورود و `get_me`
 
 ابتدا پروژه را در محیط مجازی نصب کنید و سپس نمونهٔ آماده را اجرا کنید:
@@ -98,11 +130,11 @@ python examples/login.py
 عبور درخواست می‌شود. session در `sessions/my_account.session` ذخیره می‌شود و
 اجراهای بعدی بدون درخواست دوبارهٔ کد از همان session استفاده می‌کنند.
 
-### APIهای تکمیل‌شده از BaleJS و trace رسمی
+### APIهای تکمیل‌شده
 
 علاوه بر APIهای پایه، wrapperهای فایل و upload، ارسال photo/video/audio/document،
 location/contact/sticker، آواتار گروه، مدیریت اعضا، pin گروهی و multi-media با
-نام‌های متناظر BaleJS در `Client` موجودند. این wrapperها فقط مسیر سشن اکانت را
+این wrapperها فقط مسیر سشن اکانت را
 پوشش می‌دهند و APIهای اختصاصی Bot API عمداً در این پروژه اضافه نشده‌اند.
 برای session نیز `refresh_token()` و `terminate_all_sessions()` و برای لینک‌های
 دعوت `get_group_preview()` در دسترس است.
@@ -119,25 +151,35 @@ public URL) نیز به proto و `Client` اضافه شده‌اند.
 
 ### خلاصهٔ ممیزی سازگاری
 
-این ممیزی در ۳۱ اوت ۲۰۲۶ با bundle عمومی `web.bale.ai` و commit
-`a98aa699847ca09ed42ea93eb498581ceb8bb761` از Balethon انجام شد. سطح «تأیید»
+این ممیزی در ۳۱ اوت ۲۰۲۶ با bundle عمومی `web.bale.ai` انجام شد. سطح «تأیید»
 فقط به schema و نام RPC اشاره دارد، نه موفقیت اجرای زنده.
 
 | منبع | RPC | متد محلی | وضعیت | سطح تأیید |
 | --- | --- | --- | --- | --- |
-| Web + Balethon userbot | `ai.bale.server.Files/GetNasimFileUrl` | `get_file()` | پشتیبانی | bundle + proto محلی |
+| Web | `ai.bale.server.Files/GetNasimFileUrl` | `get_file()` | پشتیبانی | bundle + proto محلی |
 | Web | `ai.bale.server.Files/GetNasimFileUrls` | `get_file_urls()` | پشتیبانی | bundle؛ پاسخ تکرارشونده |
 | Web | `ai.bale.server.Files/GetNasimFileUploadResume` | `get_file_upload_resume()` | پشتیبانی | bundle + تست محلی |
 | Web | `ai.bale.server.Files/FileUploadCancel` | `cancel_file_upload()` | پشتیبانی | bundle + تست محلی |
 | Web | `bale.v1.Configs/GetParameters` | `get_parameters()` | پشتیبانی | bundle؛ `parameters` تکرارشونده |
 | Web | `bale.auth.v1.Auth/GetAuthSessions` | `get_auth_sessions()` | پشتیبانی | bundle + تست محلی |
-| Web | `bale.users.v1.Users/GetFullUser` و privacy/card/contact RPCها | — | مستند نشده | schema عمومی کافی برای wrapper امن یافت نشد |
+| Web | `bale.users.v1.Users/GetFullUser` و full-user RPCها | `get_full_user()`، `load_full_users_sequentially()` | پشتیبانی | codec bundle + تست محلی |
+| Web | avatar، contact، block و privacy RPCهای Users | متدهای متناظر `edit_*`، `get_*`، `add_*`، `remove_*` | پشتیبانی | codec bundle + تست محلی |
 
-Balethon همچنان یک کتابخانهٔ Bot API است؛ بنابراین webhook، `getUpdates`، پرداخت
-بات، inline bot و سایر متدهای Bot API عمداً از این پروژه خارج هستند. همچنین
-`DeleteAccount`، `LogOut`، تغییر امنیت حساب، wallet و عملیات مخرب Web wrapper
-عمداً wrapper سطح بالا ندارند. هیچ RPC از جدول «مستند نشده» به‌صورت حدسی اضافه
-نشده است.
+webhook، `getUpdates`، پرداخت بات، inline bot و سایر متدهای Bot API عمداً از این
+پروژه خارج هستند. همچنین
+`DeleteAccount`، `LogOut`، تغییر امنیت/شمارهٔ حساب، import/reset کامل مخاطبان،
+مدیریت کارت و عملیات مخرب Web عمداً wrapper سطح بالا ندارند. هیچ RPC به‌صورت
+حدسی اضافه نشده است. متدهای Users تازه‌افزوده‌شده فقط با codec عمومی و تست محلی
+تأیید شده‌اند و بدون اجرای smoke test نباید موفقیت زندهٔ آن‌ها فرض شود.
+
+نمونهٔ کوتاه برای متدهای پروفایل و مخاطب:
+
+```python
+profile = await client.get_full_user(123456)
+contacts = await client.get_contacts()
+avatars = await client.load_user_avatars(123456)
+status = await client.get_user_privacy_status(123456, 0)
+```
 
 برای اجرای smoke test روی Web بله، session اکانت را فقط از طریق متغیر محیطی بدهید
 (این تست در اجرای عادی به‌صورت خودکار skip می‌شود):
@@ -179,6 +221,10 @@ python examples/gifts.py wallet
 # شمارش امن تمام updateهای دریافتی، بدون چاپ payload خصوصی
 python examples/updates.py --watch 30
 ```
+
+مثال‌های مستقل و آماده در پوشهٔ `examples/` قرار دارند؛ راهنمای کامل اجرای آن‌ها
+و انتشار بسته در [`docs/USAGE.md`](docs/USAGE.md) و
+[`docs/PUBLISHING.md`](docs/PUBLISHING.md) آمده است.
 
 برای مشاهدهٔ تمام گزینه‌ها روی هر مثال `--help` بزنید.
 

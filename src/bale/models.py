@@ -2,14 +2,74 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import base64
+import json
+from dataclasses import dataclass, field, fields
 from enum import Enum, IntEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
+
+from google.protobuf.json_format import MessageToDict
+from google.protobuf.message import Message as ProtoMessage
 
 from bale.errors import ClientStateError
 
 if TYPE_CHECKING:
     from bale.client import Client
+
+
+class Serializable:
+    """Convenience conversion helpers shared by public response models."""
+
+    def to_dict(self, *, include_raw: bool = False) -> dict[str, Any]:
+        return cast(dict[str, Any], model_to_dict(self, include_raw=include_raw))
+
+    def to_json(self, *, include_raw: bool = False, indent: int | None = 2) -> str:
+        return json.dumps(
+            self.to_dict(include_raw=include_raw),
+            ensure_ascii=False,
+            indent=indent,
+            sort_keys=True,
+        )
+
+
+def model_to_dict(value: Any, *, include_raw: bool = False) -> Any:
+    """Convert a Bale model (including nested models) to JSON-safe values."""
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, ProtoMessage):
+        return MessageToDict(
+            value,
+            preserving_proto_field_name=True,
+            use_integers_for_enums=True,
+        )
+    if isinstance(value, bytes):
+        return base64.b64encode(value).decode("ascii")
+    if isinstance(value, Serializable):
+        return {
+            item.name: model_to_dict(getattr(value, item.name), include_raw=include_raw)
+            for item in fields(cast(Any, value))
+            if not item.name.startswith("_") and (include_raw or item.name != "raw")
+        }
+    if isinstance(value, dict):
+        return {
+            str(key): model_to_dict(item, include_raw=include_raw)
+            for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple, set)):
+        return [model_to_dict(item, include_raw=include_raw) for item in value]
+    return value
+
+
+def model_to_json(
+    value: Any, *, include_raw: bool = False, indent: int | None = 2
+) -> str:
+    """Serialize a model or response value as readable JSON."""
+    return json.dumps(
+        model_to_dict(value, include_raw=include_raw),
+        ensure_ascii=False,
+        indent=indent,
+        sort_keys=True,
+    )
 
 
 class ChatType(str, Enum):
@@ -53,6 +113,18 @@ class PeerSource(IntEnum):
     PRIVACY_BAR = 4
 
 
+class PrivacyType(IntEnum):
+    INVITE = 0
+    PRESENCE = 1
+    MONEY_TRANSFER = 2
+
+
+class PrivacyStatus(IntEnum):
+    EVERYONE = 0
+    CONTACTS = 1
+    NOBODY = 2
+
+
 class CallMode(IntEnum):
     UNKNOWN = 0
     PRIVATE = 1
@@ -71,7 +143,7 @@ class CallRecordQuality(IntEnum):
 
 
 @dataclass(slots=True)
-class User:
+class User(Serializable):
     id: int
     username: str | None = None
     name: str | None = None
@@ -88,7 +160,7 @@ class User:
 
 
 @dataclass(slots=True)
-class Chat:
+class Chat(Serializable):
     peer_id: int
     peer_type: int
     title: str | None = None
@@ -156,7 +228,7 @@ class Chat:
 
 
 @dataclass(slots=True)
-class GiftPacket:
+class GiftPacket(Serializable):
     count: int = 0
     total_amount: int = 0
     giving_type: GivingType = GivingType.SAME
@@ -167,7 +239,7 @@ class GiftPacket:
 
 
 @dataclass(slots=True)
-class Message:
+class Message(Serializable):
     rid: int | str
     date: int
     author: User
@@ -190,6 +262,25 @@ class Message:
     @property
     def sender_id(self) -> int:
         return self.author.id
+
+    @property
+    def is_outgoing(self) -> bool:
+        """Whether this message was sent by the currently connected account.
+
+        Bale identifies the author by account ID, so messages sent from another
+        device/session of the same account are also correctly classified as
+        outgoing. The protocol does not expose a reliable device/session ID.
+        """
+        return (
+            self._client is not None
+            and self._client.user is not None
+            and (self.author.id == self._client.user.id)
+        )
+
+    @property
+    def is_incoming(self) -> bool:
+        """Whether this message was authored by another account."""
+        return not self.is_outgoing
 
     @property
     def content(self) -> str:
@@ -300,27 +391,30 @@ class Message:
 
 
 @dataclass(frozen=True, slots=True)
-class DefaultResponse:
+class DefaultResponse(Serializable):
     seq: int | None = None
     date: int | None = None
+    state: bytes | None = None
+    seq_big: int | None = None
+    ext: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
-class OtherMessage:
+class OtherMessage(Serializable):
     date: int
     message_id: int | str
     seq: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
-class Winner:
+class Winner(Serializable):
     id: int
     amount: int = 0
     date: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
-class PacketResponse:
+class PacketResponse(Serializable):
     receivers: tuple[Winner, ...] = ()
     status: GiftOpening = GiftOpening.ALREADY_RECEIVED
     opened_count: int = 0
@@ -329,7 +423,7 @@ class PacketResponse:
 
 
 @dataclass(frozen=True, slots=True)
-class Wallet:
+class Wallet(Serializable):
     token: str
     is_merchant: bool = False
     app: str | None = None
@@ -340,7 +434,7 @@ class Wallet:
 
 
 @dataclass(frozen=True, slots=True)
-class WalletResponse:
+class WalletResponse(Serializable):
     wallet: Wallet | None = None
     first_name: str | None = None
     last_name: str | None = None
@@ -419,6 +513,9 @@ def wrap_default(raw: dict[str, Any]) -> DefaultResponse:
     return DefaultResponse(
         seq=int(raw["seq"]) if "seq" in raw else None,
         date=int(raw["date"]) if "date" in raw else None,
+        state=bytes(raw["state"]) if "state" in raw else None,
+        seq_big=int(raw["seq_big"]) if "seq_big" in raw else None,
+        ext=dict(raw.get("ext", {})),
     )
 
 

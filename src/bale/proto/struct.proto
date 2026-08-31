@@ -186,6 +186,8 @@ message BotExInfo {
   Intro intro = 3;
   IntroMessage intro_message = 4;
   BoolValue has_timche_profile = 5;
+  bool has_multiple_topics = 6;
+  bool allow_topic_creation = 7;
 }
 
 enum ExPeerType {
@@ -369,31 +371,85 @@ message User {
   Avatar avatar = 6;
   BoolValue is_bot = 7;
   StringValue nick = 9;
+  map<string, RawValue> ext = 14;
+  Int64Value state_version = 15;
   BoolValue is_deleted = 16;
+  repeated ContactInfo contact_info = 17;
+  int32 puppeteer = 18;
   Int64Value created_at = 19;
   ExInfo ex_info = 20;
   BotExInfo bot_ex_info = 21;
 }
 
 message ContactInfo {
-  int64 value = 3;
-  string title = 4;
+  int32 type = 1;
+  StringValue string_value = 2;
+  Int64Value long_value = 3;
+  StringValue title = 4;
+  StringValue subtitle = 5;
+  StringValue type_spec = 6;
 }
 
 message FullUser {
   int32 id = 1;
-  ContactInfo contact_info = 2;
+  repeated ContactInfo contact_info = 2;
   StringValue about = 3;
-  repeated string languages = 4;
-  StringValue timezone = 5;
-  repeated ExtKeyValue bot_commands = 6;
+  repeated string preferred_languages = 4;
+  StringValue time_zone = 5;
+  repeated BotCommand bot_commands = 6;
+  map<string, RawValue> ext = 7;
   BoolValue is_blocked = 8;
   ExInfo ex_info = 9;
+  StringValue default_bank_account = 10;
+  StringValue default_card_number = 11;
   BoolValue is_deleted = 12;
   BoolValue is_contact = 13;
+  int32 puppeteer = 14;
   Int64Value created_at = 15;
-  PrivacyMode privacy_mode = 16;
-  BoolValue allowed_invite = 17;
+  PrivacyMode privacy_bar_mode = 16;
+  BoolValue privacy_allowed_to_invite = 17;
+}
+
+// Combined profile returned by Users/GetFullUser in the current Web client.
+// This is distinct from FullUser above, which is returned by LoadFullUsers.
+message BotCommand {
+  string slash_command = 1;
+  string description = 2;
+  StringValue loc_key = 3;
+}
+
+message UserProfile {
+  int32 id = 1;
+  int64 access_hash = 2;
+  string name = 3;
+  StringValue local_name = 4;
+  StringValue nick = 5;
+  Avatar avatar = 6;
+  StringValue about = 7;
+  repeated ContactInfo contact_info = 8;
+  BoolValue is_bot = 9;
+  Sex sex = 10;
+  ExInfo ex_info = 11;
+  repeated BotCommand bot_commands = 12;
+  BoolValue is_blocked = 13;
+  BoolValue is_deleted = 14;
+  BoolValue is_contact = 15;
+  map<string, RawValue> ext = 16;
+  repeated string preferred_languages = 17;
+  StringValue time_zone = 18;
+  StringValue default_bank_account = 19;
+  StringValue default_card_number = 20;
+  int32 puppeteer = 21;
+  Int64Value created_at = 22;
+  PrivacyMode privacy_bar_mode = 23;
+  BoolValue privacy_allowed_to_invite = 24;
+  BotExInfo bot_ex_info = 25;
+}
+
+message FullPrivacy {
+  int32 invite_privacy = 1;
+  int32 presence_privacy = 2;
+  int32 money_transfer_privacy = 3;
 }
 
 message OutPeer {

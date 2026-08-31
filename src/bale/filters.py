@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import builtins
 import inspect
+import json
+import re
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -26,6 +29,10 @@ class Filter:
         if inspect.isawaitable(result):
             result = await result
         return bool(result)
+
+    def __call__(self) -> Filter:
+        """Allow both ``filters.text`` and Balethon-style ``filters.text()``."""
+        return self
 
     def __and__(self, other: Filter) -> Filter:
         async def combined(client: Client, message: Message) -> bool:
@@ -87,6 +94,147 @@ group = Filter(
 channel = Filter(
     lambda _client, message: message.chat.type.value == "channel", "channel"
 )
+incoming = Filter(lambda _client, message: message.is_incoming, "incoming")
+outgoing = Filter(lambda _client, message: message.is_outgoing, "outgoing")
+# ``self_`` avoids shadowing Python's ``self`` convention while remaining
+# convenient for account-session userbots.
+self_ = outgoing
+me = outgoing
+bot = Filter(lambda _client, message: message.author.is_bot, "bot")
+reply = Filter(lambda _client, message: message.replied_to is not None, "reply")
+
+
+def _has_media(message: Message, kind: str | None = None) -> bool:
+    content = message.raw.get("message") or {}
+    if not isinstance(content, dict):
+        return False
+    direct_keys = {
+        "photo": "photo_message",
+        "video": "video_message",
+        "audio": "audio_message",
+        "voice": "voice_message",
+        "sticker": "sticker_message",
+        "location": "location_message",
+        "contact": "contact_message",
+        "animation": "animation_message",
+    }
+    detected = {media_kind for media_kind, key in direct_keys.items() if key in content}
+    document = content.get("document_message")
+    if isinstance(document, dict):
+        ext = document.get("ext")
+        ext = ext if isinstance(ext, dict) else {}
+        document_kinds = {
+            "document_ex_photo": "photo",
+            "document_ex_video": "video",
+            "document_ex_audio": "audio",
+            "document_ex_voice": "voice",
+            "document_ex_gif": "animation",
+        }
+        specialized = {value for key, value in document_kinds.items() if key in ext}
+        detected.update(specialized or {"document"})
+    json_message = content.get("json_message")
+    if isinstance(json_message, dict):
+        raw_json = json_message.get("raw_json")
+        if isinstance(raw_json, str):
+            try:
+                decoded = json.loads(raw_json)
+            except ValueError:
+                decoded = None
+            if isinstance(decoded, dict):
+                data_type = re.sub(
+                    r"[^a-z]", "", str(decoded.get("dataType", "")).casefold()
+                )
+            else:
+                data_type = ""
+            if data_type in {"location", "contact"}:
+                detected.add(data_type)
+    return bool(detected) if kind is None else kind in detected
+
+
+media = Filter(lambda _client, message: _has_media(message), "media")
+photo = Filter(lambda _client, message: _has_media(message, "photo"), "photo")
+video = Filter(lambda _client, message: _has_media(message, "video"), "video")
+audio = Filter(lambda _client, message: _has_media(message, "audio"), "audio")
+voice = Filter(lambda _client, message: _has_media(message, "voice"), "voice")
+document = Filter(lambda _client, message: _has_media(message, "document"), "document")
+sticker = Filter(lambda _client, message: _has_media(message, "sticker"), "sticker")
+location = Filter(lambda _client, message: _has_media(message, "location"), "location")
+contact = Filter(lambda _client, message: _has_media(message, "contact"), "contact")
+animation = Filter(
+    lambda _client, message: _has_media(message, "animation"), "animation"
+)
+forwarded = Filter(
+    lambda _client, message: builtins.any(
+        message.raw.get(key)
+        for key in ("forwarded_message", "forwarded_messages", "forward_info")
+    ),
+    "forwarded",
+)
+
+# Uppercase aliases make migration from libraries with class-style filters easy.
+Text = text
+Content = content
+Private = private
+Group = group
+Channel = channel
+Incoming = incoming
+Outgoing = outgoing
+Media = media
+Photo = photo
+Video = video
+Audio = audio
+Voice = voice
+Document = document
+Sticker = sticker
+Location = location
+Contact = contact
+Animation = animation
+Bot = bot
+Gift = gift
+Reply = reply
+Forwarded = forwarded
+
+
+def sender(user_id: int) -> Filter:
+    """Match messages authored by a specific Bale user ID."""
+    expected = int(user_id)
+    return Filter(
+        lambda _client, message: message.sender_id == expected,
+        f"sender({expected})",
+    )
+
+
+user = sender
+
+
+def chat(peer_id: int | str) -> Filter:
+    """Match messages belonging to one ``<peer_id>|<peer_type>`` chat."""
+    expected = str(peer_id)
+    return Filter(
+        lambda _client, message: message.chat.id == expected,
+        f"chat({expected})",
+    )
+
+
+chat_id = chat
+
+
+def chat_type(kind: str) -> Filter:
+    """Match a chat type such as ``private``, ``group`` or ``channel``."""
+    expected = kind.casefold()
+    return Filter(
+        lambda _client, message: message.chat.type.value == expected,
+        f"chat_type({expected})",
+    )
+
+
+def regex(pattern: str, *, flags: int = 0) -> Filter:
+    """Match a regular expression against message text/content."""
+    compiled = re.compile(pattern, flags)
+    return Filter(
+        lambda _client, message: compiled.search(message.content) is not None,
+        f"regex({pattern})",
+    )
 
 
 def command(

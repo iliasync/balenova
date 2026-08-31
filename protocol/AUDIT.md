@@ -21,16 +21,44 @@ available through the WebSocket envelope used by this client.
 | `ai.bale.server.Files` | `GetNasimFileUploadUrl`, `GetNasimFileUploadResume`, `FileUploadCancel` | matching upload methods | implemented | Web + Balethon + local tests |
 | `bale.v1.Configs` | `GetParameters`, `EditParameter` | `get_parameters`, `edit_parameter` | implemented | Web; `parameters` is repeated |
 | `bale.messaging.v2.Messaging` | `LoadDialogs` peer-only responses | `get_dialogs_by_type`, `get_groups`, `get_channels`, `get_private_chats`, `get_bots` | implemented | live Web; resolves `user_peers`/`group_peers` read-only |
-| `bale.users.v1.Users` | `GetFullUser`, contacts, privacy, avatar/card RPCs | — | unsupported | names visible, request/response schema not confidently verified |
+| `bale.users.v1.Users` | `GetFullUser`, `LoadFullUsersSequentially` | `get_full_user`, `load_full_users_sequentially` | implemented | Web codec + local proto/tests |
+| `bale.users.v1.Users` | `EditAvatar`, `RemoveAvatar`, `LoadAvatars` | `edit_avatar`, `remove_avatar`, `load_user_avatars` | implemented | Web codec + local proto/tests |
+| `bale.users.v1.Users` | `GetContacts`, `AddContact`, `RemoveContact`, `SearchContacts` | matching snake_case methods | implemented | Web codec + local proto/tests |
+| `bale.users.v1.Users` | `BlockUser`, `UnblockUser`, `LoadBlockedUsers` | matching snake_case methods | implemented | Web codec + local proto/tests |
+| `bale.users.v1.Users` | `GetUserPrivacyStatus`, `SetUserPrivacyStatus`, `GetUserFullPrivacy` | matching snake_case methods | implemented | Web codec + local proto/tests |
+| `bale.users.v1.Users` | sex, birth date, time zone, preferred languages, local name | matching `edit_*` methods | implemented | Web codec + local proto/tests |
 
 ## Scope decisions
 
 Balethon’s ordinary surface is Bot API (webhooks, `getUpdates`, bot payments,
 inline bot callbacks, and bot-only update objects). Those methods are excluded
-from this account-session library. Web methods that mutate account security,
-delete an account, log out all devices, or manage financial wallet state are
-also intentionally not exposed as high-level wrappers. Unknown or minified
-codecs are documented as unsupported rather than guessed.
+from this account-session library. Web methods that delete/reset account data,
+change account security or phone ownership, upload a complete address book, or
+manage cards are also intentionally not exposed as high-level wrappers. This
+includes `DeleteAccount`, `LogOut`, password/2FA RPCs, `ChangePhoneNumber`,
+`ConfirmPhoneNumber`, `ResetContacts`, `ImportContacts`, `AddCard`, and the
+default-card mutations. `NotifyAboutDeviceInfo` remains internal because it is
+Web-client telemetry rather than a user-facing account operation. Unknown or
+minified codecs are documented as unsupported rather than guessed.
+
+## Newly verified Users schemas
+
+The current bundle provides complete codecs and field numbers for the following
+previously unsupported account-session methods:
+
+- profile: `EditSex`, `EditBirthDate`, `EditAvatar`, `RemoveAvatar`,
+  `EditMyTimeZone`, `EditMyPreferredLanguages`, `EditUserLocalName`,
+  `GetFullUser`, and `LoadFullUsersSequentially`;
+- avatars and blocks: `LoadAvatars`, `BlockUser`, `UnblockUser`, and
+  `LoadBlockedUsers`;
+- contacts: `GetContacts`, `AddContact`, and `RemoveContact`;
+- privacy: `GetUserPrivacyStatus`, `SetUserPrivacyStatus`, and
+  `GetUserFullPrivacy`.
+
+All are unary RPC descriptors on `bale.users.v1.Users`. Their source proto
+messages, generated modules, wrappers, int32/int64 boundary checks, and fake
+transport tests are now present locally. They have not been exercised against a
+live account in this audit.
 
 The local session smoke run successfully exercised `get_me`,
 `get_auth_sessions`, `get_parameters`, `load_dialogs`, `get_chat`,

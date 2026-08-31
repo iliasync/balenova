@@ -3,13 +3,13 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "bale-async"
-version = "0.1.0"
-description = "A typed, asynchronous Python userbot client for Bale"
+name = "bale-session"
+version = "0.2.0"
+description = "A typed, asynchronous account-session client for Bale"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Bale Async contributors" }]
+authors = [{ name = "Bale Session contributors" }]
 keywords = ["bale", "userbot", "asyncio", "websocket", "grpc"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -38,9 +38,6 @@ dev = [
   "types-protobuf>=6.30",
 ]
 research = ["playwright>=1.50,<2"]
-
-[project.urls]
-Reference = "https://github.com/Zellias/balejs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bale"]

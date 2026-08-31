@@ -11,11 +11,15 @@ import pytest
 ROOT = Path(__file__).parents[1]
 EXAMPLES = (
     "calls.py",
+    "command_selfbot.py",
     "dialogs.py",
+    "dialogs_by_type.py",
     "echo.py",
     "files.py",
+    "filter_messages.py",
     "gifts.py",
     "groups.py",
+    "json_output.py",
     "login.py",
     "messages.py",
     "official_web_protocol_lab.py",

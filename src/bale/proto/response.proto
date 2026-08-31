@@ -72,7 +72,48 @@ message LoadFullUsers {
 }
 
 message CheckNickName {
-  bool available = 1;
+  bool value = 1;
+}
+
+message SequenceResponse {
+  int32 seq = 1;
+  bytes state = 2;
+  int64 seq_big = 3;
+}
+
+message EmptyResponse {
+}
+
+message EditAvatar {
+  struct.Avatar avatar = 1;
+  int32 seq = 2;
+  bytes state = 3;
+}
+
+message GetFullUser {
+  struct.UserProfile full_user = 1;
+}
+
+message LoadAvatars {
+  struct.Avatars avatars = 1;
+}
+
+message LoadBlockedUsers {
+  repeated struct.UserOutPeer user_peers = 1;
+}
+
+message GetContacts {
+  repeated struct.User users = 1;
+  bool is_not_changed = 2;
+  repeated struct.UserOutPeer user_peers = 3;
+}
+
+message GetUserPrivacyStatus {
+  int32 status = 1;
+}
+
+message GetUserFullPrivacy {
+  struct.FullPrivacy privacy = 1;
 }
 
 message GetFullGroup {
@@ -217,6 +258,9 @@ message LoadDialogs {
 message DefaultResponse {
   int32 seq = 1;
   int64 date = 2;
+  bytes state = 3;
+  map<string, struct.RawValue> ext = 4;
+  int64 seq_big = 5;
 }
 
 message MessageSetReaction {
