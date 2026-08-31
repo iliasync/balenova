@@ -61,6 +61,7 @@ only_commands = filters.incoming & filters.private & filters.command("help")
 هر به‌روزرسانی یک شیء مشخص است:
 
 - `events.NewMessage` برای پیام تازه
+- `events.MessageEdited` برای ویرایش واقعی پیام (variant وب بله)
 - `events.MessageSent` برای تأیید ارسال
 - `events.RawUpdate` برای موارد دیگری که دادهٔ آن‌ها دریافت شده است
 - `events.Update` پایهٔ مشترک همهٔ موارد
@@ -79,6 +80,9 @@ async def every_update(update):
 async def sent(update):
     print(update.to_dict())
 ```
+
+شماره و بایت خام variantهایی که هنوز مدل اختصاصی ندارند نیز حفظ می‌شود؛ بنابراین
+آپدیت تازهٔ بله در تبدیل protobuf به دیکشنری بی‌صدا حذف نخواهد شد.
 
 ## تبدیل نتیجه‌ها به JSON
 
@@ -104,6 +108,49 @@ async for message in client.iter_messages("12345|1", limit=100):
 limits = await client.get_upload_limits()
 ```
 
+برای گرفتن همهٔ گروه‌های حساب، به‌جای پیمایش دیالوگ‌ها و اجرای یک درخواست برای
+هر گروه، مسیر bulk خود بله در دسترس است:
+
+```python
+groups = await client.get_my_groups()
+sendable = [
+    group
+    for group in groups
+    if group.peer_type in {2, 5}
+    and (group.can_send_message or group.permissions.get("send_message"))
+]
+```
+
+این مسیر از `GetMyGroups` و `LoadGroups` استفاده می‌کند و `access_hash`، وضعیت
+عضویت و مجوز مؤثر ارسال را در مدل `Chat` نگه می‌دارد. APIهای
+`get_member_permissions`، `get_can_see_messages`، `fetch_group_admins`،
+`get_banned_users` و `get_mutual_groups` نیز اضافه شده‌اند.
+
+چرخهٔ تماس خصوصی و استریم نیز شامل `start_call`، `accept_call`، `receive_call`،
+`discard_call`، `start_call_stream`، `delete_call_stream`،
+`submit_call_feedback` و `raise_call_hand`/`lower_call_hand` است.
+
+## کل پروتکل Bale Web
+
+علاوه بر API ساده، تمام ۶۰۷ RPC بازیابی‌شده در ۵۲ namespace سرویس از طریق
+`client.api` در دسترس‌اند:
+
+```python
+groups = await client.api.groups.GetMyGroups(mode=0, isOwner=False)
+top_peers = await client.api.top_peer.GetTopPeer()
+
+print(client.api.services)
+print(client.api.rpcs)
+```
+
+نام fieldها در این سطح دقیقاً نام protobuf است و ممکن است camelCase باشد. برای
+ساخت request تایپ‌شده نیز می‌توان از `bale.full.bale_pb2` و
+`bale.full.bale_ext_pb2` استفاده کرد. API سادهٔ snake_case همچنان بدون تغییر
+کار می‌کند. namespaceهای سازگار با مخزن مرجع مانند
+`client.messaging.SendMessage(...)` نیز مستقیماً در دسترس‌اند. فهرست کامل
+متدها در [راهنمای فارسی](docs/FULL_API_FA.md) و
+[مرجع انگلیسی](docs/FULL_API.md) آمده است.
+
 روی خود پیام نیز میان‌برهای آماده وجود دارد:
 
 ```python
@@ -114,12 +161,13 @@ await event.message.react("❤")
 ```
 
 نمونه‌های بیشتر در پوشهٔ [`examples`](examples) و راهنمای ساده در
-[`docs/USAGE.md`](docs/USAGE.md) قرار دارند.
+[`docs/USAGE.md`](docs/USAGE.md) قرار دارند. نتیجه و قواعد ممیزی مخزن مقایسه‌ای
+نیز در [`docs/PROTOCOL_AUDIT.md`](docs/PROTOCOL_AUDIT.md) ثبت شده است.
 
 دو پروژهٔ نمونهٔ کامل نیز آماده شده‌اند:
 
 - [`examples/broadcast_manager`](examples/broadcast_manager): تنظیم بنر، ساعت یا
-  فاصلهٔ دوره‌ای، انتخاب تعداد گروه‌های تحت مدیریت و فاصله بین ارسال‌ها
+  فاصلهٔ دوره‌ای، انتخاب گروه‌های دارای مجوز ارسال پیام و ارسال نرخ‌محدود
 - [`examples/voice_player`](examples/voice_player): پخش آهنگ یا ویس ریپلای‌شده در
   تماس گروهی با فرمان‌های ویرایشی
 
@@ -130,4 +178,7 @@ session را منتشر نکنید و مسئولیت استفاده از حسا�
 
 ## مجوز
 
-MIT — جزئیات حقوقی لازم در فایل [`NOTICE`](NOTICE) نگه‌داری می‌شود.
+هستهٔ BaleNova تحت MIT است. فایل‌های واردشده در `src/bale/full` متعلق به
+Mohammad Teimori Pabandi هستند، با اجازهٔ صاحب اثر در این پروژه قرار گرفته‌اند
+و مجوز اصلی خود را در [`src/bale/full/LICENSE`](src/bale/full/LICENSE) حفظ
+می‌کنند. جزئیات انتساب در [`NOTICE`](NOTICE) آمده است.

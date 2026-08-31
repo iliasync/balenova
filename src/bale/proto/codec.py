@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import base64
-from collections.abc import Mapping
-from typing import Any
+from collections.abc import Iterable, Mapping
+from typing import Any, cast
 
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.json_format import ParseDict
 from google.protobuf.message import Message
+from google.protobuf.unknown_fields import UnknownFieldSet
 
 from bale.proto import request_pb2, response_pb2, struct_pb2
 
@@ -77,6 +78,21 @@ def _message_to_dict(message: Message) -> dict[str, Any]:
             result[field.name] = _message_to_dict(value)
         else:
             result[field.name] = _scalar_value(field, value)
+    unknown = [
+        {
+            "number": field.field_number,
+            "wire_type": field.wire_type,
+            "data": bytes(field.data)
+            if isinstance(field.data, bytes | bytearray | memoryview)
+            else field.data,
+        }
+        for field in cast(Iterable[Any], UnknownFieldSet(message))
+    ]
+    if unknown:
+        # Protobuf normally discards unknown fields when converted to a dict.
+        # Retaining them is essential for an unofficial client: newly-added
+        # Bale update variants remain observable before a named schema lands.
+        result["_unknown_fields"] = unknown
     return result
 
 

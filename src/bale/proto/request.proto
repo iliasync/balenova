@@ -277,6 +277,75 @@ message GetCallState {
   int64 call_id = 1;
 }
 
+message AcceptCall {
+  int64 call_id = 1;
+  struct.BoolValue invite_enable = 2;
+}
+
+message DiscardCall {
+  int64 call_id = 1;
+  int32 duration = 2;
+  int32 reason = 3;
+  int32 type = 4;
+}
+
+message ReceiveCall { int64 call_id = 1; }
+
+message StartCall {
+  struct.Peer peer = 1;
+  int64 rid = 2;
+  bool video = 3;
+  struct.InternalCall internal_call = 4;
+  struct.SipCall sip_call = 5;
+  struct.LiveKitCall live_kit_call = 6;
+}
+
+message DeleteStream { struct.ExPeer stream_user = 1; }
+
+message StartStream {
+  struct.ExPeer stream_user = 1;
+  string url = 2;
+  string rtmp_server = 3;
+}
+
+message SubmitCallFeedback {
+  int64 call_id = 1;
+  int32 rate = 2;
+  struct.StringValue user_opinion = 3;
+  int32 client = 4;
+  struct.StringValue client_version = 5;
+  map<string, bytes> extra_fields = 6;
+  struct.BoolValue is_stream = 7;
+}
+
+message TakeCallAction {
+  int64 call_id = 1;
+  struct.LowerHand lower_hand = 2;
+  struct.RaiseHand raise_hand = 3;
+}
+
+message GetMyGroups {
+  int32 mode = 1;
+  bool is_owner = 2;
+  repeated struct.GroupFilter filters = 3;
+}
+
+message LoadGroups { repeated struct.GroupOutPeer peers = 1; }
+
+message GetMemberPermissions {
+  struct.GroupOutPeer group = 1;
+  struct.UserOutPeer user = 2;
+}
+
+message GetCanSeeMessages {
+  struct.GroupOutPeer group_peer = 1;
+  int32 user_id = 2;
+}
+
+message FetchGroupAdmins { struct.GroupOutPeer group_out_peer = 1; }
+message GetBannedUsers { struct.GroupOutPeer group = 1; }
+message GetMutualGroups { struct.UserOutPeer peer = 1; }
+
 message LoadHistory {
   struct.Peer peer = 1;
   int64 date = 2;

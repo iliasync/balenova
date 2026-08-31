@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+package bale.ext;
+
+// ===== bale.my_bank.v1.MyBank.GetMyBank =====
+message ExtMyBankGetMyBankRequest {
+}
+
+message ExtMyBankGetMyBankResponse {
+  string data = 1;
+  int32 version = 2;
+  int32 itemsVersion = 3;
+  bool isChanged = 4;
+}
+
+// ===== bale.balebank.v1.GoldWallet.GetBalance =====
+message ExtGoldWalletGetBalanceRequest {
+}
+
+message ExtGoldWalletGetBalanceResponse {
+  int64 balance = 1;
+}
+
+// ===== bale.negah.v1.Negah.GetMessageSeenList =====
+message ExtNegahPeer {
+  int32 type = 1;
+  int32 id = 2;
+  int64 accessHash = 3;
+}
+
+message ExtNegahMessageId {
+  int64 date = 1;
+  int64 rid = 2;
+  int64 seq = 3;
+}
+
+message ExtNegahUserSeen {
+  int32 userId = 1;
+}
+
+message ExtNegahGetMessageSeenListRequest {
+  ExtNegahPeer peer = 1;
+  ExtNegahMessageId messageId = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message ExtNegahGetMessageSeenListResponse {
+  repeated ExtNegahUserSeen usersSeen = 1;
+  int32 count = 2;
+}
+
+// ===== bale.falake.v1.Falake.GetLinkStatus =====
+enum ExtFalakeLinkStatus {
+    LINKSTATUS_APPROVED = 0;
+    LINKSTATUS_BLOCKED = 1;
+    LINKSTATUS_UNKNOWN = 2;
+}
+
+message ExtFalakeGetLinkStatusRequest {
+    string link = 1;
+}
+
+message ExtFalakeGetLinkStatusResponse {
+    ExtFalakeLinkStatus linkStatus = 1;
+}
+
+// ===== bale.anonymous_contact.v1.AnonymousContact.GetUserAnonymousContactPage =====
+message ExtAnonymousContactInt64Value {
+  int64 value = 1;
+}
+
+message ExtAnonymousContactKey {
+  string fa = 1;
+  string en = 2;
+}
+
+message ExtAnonymousContactExtraInfo {
+  ExtAnonymousContactKey key = 1;
+  ExtAnonymousContactKey value = 2;
+}
+
+message ExtAnonymousContactGroupPeer {
+  int32 groupId = 1;
+  int64 accessHash = 2;
+}
+
+message ExtAnonymousContactGetUserAnonymousContactPageRequest {
+  int32 userId = 1;
+  int64 serviceMessageRid = 2;
+  int64 serviceMessageDate = 3;
+}
+
+message ExtAnonymousContactGetUserAnonymousContactPageResponse {
+  string countryNumber = 1;
+  ExtAnonymousContactInt64Value registerAccountTime = 2;
+  ExtAnonymousContactInt64Value lastTimeNameChanged = 3;
+  ExtAnonymousContactInt64Value lastTimeAvatarChanged = 4;
+  repeated ExtAnonymousContactGroupPeer commonGroups = 5;
+  repeated ExtAnonymousContactExtraInfo extraInfo = 6;
+}
+
+// ===== bale.llm_auth.v1.LLMAuthService.GetAuthToken =====
+message ExtLLMAuthServiceGetAuthTokenRequest {
+}
+
+message ExtLLMAuthServiceGetAuthTokenResponse {
+  string token = 1;
+  string url = 2;
+  int64 expiresIn = 3;
+}
+
+// ===== bale.fanoos.v1.fanoos.Send =====
+// ExtFanoosValue: oneof-like value type (exported as Ye / a from module 46216)
+// All fields are optional (presence-checked before encoding)
+message ExtFanoosValue {
+  optional string stringValue = 1;
+  optional bool booleanValue = 2;
+  optional int32 int32Value = 3;
+  optional int64 int64Value = 4;
+  optional double doubleValue = 5;
+  optional ExtFanoosArrayValue arrayValue = 6;
+}
+
+// ExtFanoosArrayValue: repeated wrapper around ExtFanoosValue (exported as l from module 46216)
+message ExtFanoosArrayValue {
+  repeated ExtFanoosValue array = 1;
+}
+
+// ExtFanoosItem: a single key-value pair (exported as d from module 46216)
+message ExtFanoosItem {
+  string key = 1;
+  optional ExtFanoosValue value = 2;
+}
+
+// ExtFanoosItems: the structured items map (exported as I8 / f from module 46216)
+message ExtFanoosItems {
+  repeated ExtFanoosItem items = 1;
+}
+
+// ExtFanoosSendRequest: top-level request for bale.fanoos.v1.fanoos.Send
+// (JS var l in module 62919; default factory s() = {eventName:"", items:void 0, date:0})
+message ExtFanoosSendRequest {
+  string eventName = 1;
+  optional ExtFanoosItems items = 2;
+  int64 date = 3;
+}
+
+// ===== bale.feedback.v1.FeedBack.SendFeedBack =====
+message ExtFeedBackValue {
+  oneof kind {
+    string stringValue = 1;
+    bool booleanValue = 2;
+    int32 int32Value = 3;
+    int64 int64Value = 4;
+    double doubleValue = 5;
+    ExtFeedBackArrayValue arrayValue = 6;
+  }
+}
+
+message ExtFeedBackArrayValue {
+  repeated ExtFeedBackValue array = 1;
+}
+
+message ExtFeedBackMapEntry {
+  string key = 1;
+  ExtFeedBackValue value = 2;
+}
+
+message ExtFeedBackMtDetails {
+  repeated ExtFeedBackMapEntry items = 1;
+}
+
+message ExtFeedBackSendFeedBackRequest {
+  int32 rate = 1;
+  string title = 2;
+  string description = 3;
+  map<string, string> details = 4;
+  ExtFeedBackMtDetails mtDetails = 5;
+}

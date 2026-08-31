@@ -30,8 +30,159 @@ message Update {
 }
 
 message ComposedUpdate {
-  bytes message_sent = 4;
+  MessageSent message_sent = 4;
+  MessageRead message_read = 19;
+  ThreadDeleteMessage message_delete = 46;
+  MessageReadByMe message_read_by_me = 50;
+  MessageReceived message_received = 54;
   UpdateMessage message = 55;
+  EmptyUpdate empty_update = 85;
+  ThreadEditMessage message_content_changed = 162;
+  MessageDateChanged message_date_changed = 163;
+  MessageQuotedChanged message_quoted_changed = 169;
+  MessageReaction reactions_update = 222;
+  CallStarted call_started = 52807;
+  CallAccepted call_accepted = 52808;
+  CallDiscarded call_discarded = 52809;
+  CallReceived call_received = 52810;
+  GroupCallStarted group_call_started = 52811;
+  GroupCallEnded group_call_ended = 52812;
+  CallReactionSent call_reaction_sent = 52813;
+  CallLinkGenerated call_link_generated = 52826;
+  CallJoinRequestReceived call_join_request_received = 52827;
+  CallJoinRequestAnswered call_join_request_answered = 52828;
+  MessageReaction message_reactions = 52825;
+  MessageNewReaction message_new_reaction = 54323;
+  CallEvent call_event = 54324;
+}
+
+message EmptyUpdate {}
+
+message MessageSent {
+  struct.Peer peer = 1;
+  int64 rid = 2;
+  int64 date = 3;
+  struct.MessageId previous_message_id = 4;
+}
+
+message MessageRead {
+  struct.Peer peer = 1;
+  int64 start_date = 2;
+  int64 read_date = 3;
+}
+
+message MessageReadByMe {
+  struct.Peer peer = 1;
+  int64 start_date = 2;
+  struct.Int32Value unread_counter = 3;
+  struct.Int64Value end_date = 4;
+}
+
+message MessageReceived {
+  struct.Peer peer = 1;
+  int64 start_date = 2;
+  int64 received_date = 3;
+}
+
+message ThreadDeleteMessage {
+  struct.Peer peer = 1;
+  repeated int64 rids = 2;
+  struct.DeleteDates dates = 3;
+  repeated struct.MessageId thread_ids = 4;
+  repeated struct.Int32Value quoted_comment_reply_sender_ids = 5;
+}
+
+message ThreadEditMessage {
+  struct.Peer peer = 1;
+  int64 rid = 2;
+  struct.Message message = 3;
+  struct.Int64Value date = 4;
+  struct.Int32Value updater_user_id = 5;
+  struct.MessageId thread_id = 6;
+  struct.Int32Value quoted_comment_reply_sender_id = 7;
+  struct.Message updated_content_type_message = 8;
+  struct.ExPeer ex_peer = 9;
+}
+
+message MessageDateChanged {
+  struct.Peer peer = 1;
+  int64 rid = 2;
+  int64 date = 3;
+}
+
+message MessageQuotedChanged {
+  struct.Peer peer = 1;
+  int64 rid = 2;
+  struct.QuotedMessage quoted_message = 3;
+}
+
+message MessageReaction {
+  struct.Peer peer = 1;
+  int64 rid = 2;
+  repeated struct.Reaction reactions = 3;
+  int64 date = 4;
+}
+
+message MessageNewReaction {
+  struct.ExPeer ex_peer = 1;
+  struct.MessageId message_id = 2;
+}
+
+message CallStarted {
+  struct.Call call = 1;
+  repeated struct.Peer participants = 2;
+}
+
+message CallAccepted {
+  struct.Call call = 1;
+  repeated struct.Peer participants = 2;
+}
+
+message CallDiscarded {
+  struct.Call call = 1;
+  repeated struct.Peer participants = 2;
+}
+
+message CallReceived {
+  int64 call_id = 1;
+  repeated struct.Peer participants = 2;
+}
+
+message GroupCallStarted {
+  struct.GroupCall group_call = 1;
+  int32 seq = 2;
+}
+
+message GroupCallEnded {
+  struct.GroupCall group_call = 1;
+}
+
+message CallReactionSent {
+  struct.OutPeer sender = 1;
+  struct.OutPeer peer = 2;
+  string reaction = 3;
+}
+
+message CallLinkGenerated {
+  struct.GroupCall group_call = 1;
+}
+
+message CallJoinRequestReceived {
+  int64 call_id = 1;
+  string requester_identifier = 2;
+  string name = 3;
+}
+
+message CallJoinRequestAnswered {
+  bool is_allowed = 1;
+  int64 call_id = 2;
+}
+
+message CallEvent {
+  int64 call_id = 1;
+  string triggerer_identity = 2;
+  int32 type = 3;
+  map<string, bytes> extra_data = 4;
 }
 
 
@@ -326,6 +477,28 @@ message GetCallLogs {
 message GetOngoingCalls {
   repeated struct.CallLog call_logs = 1;
 }
+
+message CallWithParticipants {
+  struct.Call call = 1;
+  repeated struct.Peer participants = 2;
+  int32 seq = 3;
+  struct.BoolValue is_stream = 5;
+}
+
+message StartStream { string stream_key = 1; }
+
+message GetMyGroups { repeated struct.GroupOutPeer groups = 1; }
+message LoadGroups { repeated struct.Group groups = 1; }
+message GetMemberPermissions { struct.Permissions permissions = 1; }
+message GetCanSeeMessages { bool can_see_messages = 1; }
+
+message FetchGroupAdmins {
+  repeated struct.UserOutPeer users = 1;
+  repeated struct.Member admins = 2;
+}
+
+message GetBannedUsers { repeated struct.BannedUser banned_users = 3; }
+message GetMutualGroups { repeated struct.GroupOutPeer groups = 1; }
 
 enum GiftOpenning {
   GIFT_OPENNING_ALREADY_RECEIVED = 0;

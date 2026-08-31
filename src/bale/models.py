@@ -168,6 +168,10 @@ class Chat(Serializable):
     first_name: str | None = None
     last_name: str | None = None
     type: ChatType = ChatType.UNKNOWN
+    access_hash: int = 0
+    is_member: bool = False
+    can_send_message: bool = False
+    permissions: dict[str, Any] = field(default_factory=dict)
     _client: Client | None = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
@@ -271,10 +275,18 @@ class Message(Serializable):
         device/session of the same account are also correctly classified as
         outgoing. The protocol does not expose a reliable device/session ID.
         """
-        return (
-            self._client is not None
-            and self._client.user is not None
-            and (self.author.id == self._client.user.id)
+        if self._client is None or self._client.user is None:
+            return False
+        own_id = self._client.user.id
+        if self.author.id == own_id:
+            return True
+        # Saved Messages is a private dialog whose peer is the account itself.
+        # Some edited-message updates omit sender_uid (decoded as zero), but no
+        # other account can author a message in this dialog.
+        return bool(
+            self.author.id == 0
+            and self.chat.peer_type == 1
+            and self.chat.peer_id == own_id
         )
 
     @property
@@ -475,6 +487,14 @@ def wrap_group(raw: dict[str, Any]) -> Chat:
         peer_type=peer_type,
         title=_string(raw.get("title")),
         username=_wrapped(raw.get("nick")),
+        access_hash=int(raw.get("access_hash", 0)),
+        is_member=bool(_wrapped(raw.get("is_member"), False)),
+        can_send_message=bool(_wrapped(raw.get("can_send_message"), False)),
+        permissions=(
+            dict(raw["permissions"])
+            if isinstance(raw.get("permissions"), dict)
+            else {}
+        ),
     )
 
 

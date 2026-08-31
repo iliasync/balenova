@@ -37,7 +37,7 @@ dev = [
   "ruff>=0.8",
   "types-protobuf>=6.30",
 ]
-voice = ["livekit>=1.1,<2; python_version < '3.14'"]
+voice = ["livekit>=1.1,<2"]
 
 [project.urls]
 Homepage = "https://github.com/iliasync/balenova"
@@ -57,7 +57,7 @@ pythonpath = ["."]
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-extend-exclude = ["src/bale/proto/*_pb2.py"]
+extend-exclude = ["src/bale/proto/*_pb2.py", "src/bale/full/*.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM", "RUF"]
@@ -69,4 +69,4 @@ select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM", "RUF"]
 python_version = "3.10"
 strict = true
 packages = ["bale", "balenova"]
-exclude = ["src/bale/proto/.*_pb2\\.py"]
+exclude = ["src/bale/proto/.*_pb2\\.py", "src/bale/full/.*"]

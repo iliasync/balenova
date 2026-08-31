@@ -54,6 +54,18 @@ def test_unknown_proto_type_has_clear_error() -> None:
         raise AssertionError("LookupError was not raised")
 
 
+def test_codec_preserves_unknown_update_fields_for_forward_compatibility() -> None:
+    # Field 6 is the current ``typing`` update. It is intentionally outside
+    # our typed protobuf subset, but it must remain visible to raw handlers.
+    decoded = decode_message("response.ComposedUpdate", b"\x32\x03abc")
+
+    assert decoded == {
+        "_unknown_fields": [
+            {"number": 6, "wire_type": 2, "data": b"abc"},
+        ]
+    }
+
+
 def test_recorded_call_and_inline_callback_protos_round_trip() -> None:
     callback = {
         "peer": {"id": 10, "type": 3},

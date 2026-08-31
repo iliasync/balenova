@@ -10,6 +10,9 @@ from bale.errors import (
 )
 from bale.events import MessageEdited, MessageSent, NewMessage, RawUpdate, Update
 from bale.filters import Filter
+from bale.full import ALL_RPCS, SERVICE_CLASSES, FullAPI
+from bale.full import bale_pb2 as pb
+from bale.full.bale_methods import METHODS
 from bale.models import (
     CallMode,
     CallRecordQuality,
@@ -36,9 +39,14 @@ from bale.models import (
 from bale.session import Session
 
 __version__ = "0.3.0"
+BaleClient = Client
 
 __all__ = [
+    "ALL_RPCS",
+    "METHODS",
+    "SERVICE_CLASSES",
     "AuthenticationError",
+    "BaleClient",
     "BaleError",
     "BaleRpcError",
     "CallMode",
@@ -49,6 +57,7 @@ __all__ = [
     "ClientStateError",
     "DefaultResponse",
     "Filter",
+    "FullAPI",
     "GiftOpening",
     "GiftPacket",
     "GivingType",
@@ -73,4 +82,5 @@ __all__ = [
     "filters",
     "model_to_dict",
     "model_to_json",
+    "pb",
 ]

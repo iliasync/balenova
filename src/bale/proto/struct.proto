@@ -278,11 +278,11 @@ message GroupCall {
   Int32Value duration = 7;
   int32 initiator_user_id = 8;
   Peer peer = 9;
-  map<string, RawValue> ext = 10;
+  map<string, bytes> ext = 10;
   CallMode mode = 11;
   string link = 12;
   bool is_public = 13;
-  map<string, string> extra = 15;
+  map<string, bytes> extra = 15;
   string title = 16;
   repeated Peer in_call_participants = 17;
   Int64Value end_date = 18;
@@ -312,10 +312,10 @@ message CallLog {
   Peer finisher = 3;
   int64 duration = 4;
   int64 start_date = 5;
-  map<string, string> extra = 6;
+  map<string, bytes> extra = 6;
   PrivateCallLog private_call_log = 7;
   GroupCallLog group_call_log = 8;
-  map<string, RawValue> ext = 9;
+  map<string, bytes> ext = 9;
   Int64Value call_id = 10;
   MultiPeerCallLog multi_peer_call_log = 11;
   string title = 12;
@@ -325,12 +325,56 @@ message CallLog {
   int64 creation_date = 16;
 }
 
+message Call {
+  int64 id = 1;
+  string token = 2;
+  string room = 3;
+  StringValue url = 4;
+  bool video = 5;
+  int64 create_date = 6;
+  int64 start_date = 7;
+  int32 admin_uid = 8;
+  Peer peer = 9;
+  int32 duration = 10;
+  int32 discard_reason = 11;
+  bool is_livekit = 12;
+  Int64Value discard_service_message_rid = 13;
+  Int64Value discard_service_message_date = 14;
+  map<string, bytes> extra = 15;
+  map<string, bytes> ext = 16;
+}
+
 message CallPeerState {
   int32 id = 1;
   int64 date = 2;
   int32 state = 3;
   map<string, RawValue> extra = 4;
 }
+
+message InternalCall {
+  Peer peer = 1;
+  int64 rid = 2;
+  bool video = 3;
+}
+
+message LiveKitCall {
+  Peer peer = 1;
+  int64 rid = 2;
+  bool video = 3;
+  BoolValue invite_enable = 4;
+}
+
+message SipCall {
+  int64 rid = 1;
+  string caller_phone = 2;
+  string callee_phone = 3;
+  StringValue imei = 4;
+  double lat = 5;
+  double lon = 6;
+}
+
+message RaiseHand { string user_identity = 1; }
+message LowerHand { string user_identity = 1; }
 
 message BytesValue {
   string Value = 1;
@@ -486,9 +530,45 @@ message MessageContainer {
 
 message Group {
   int32 id = 1;
+  int64 access_hash = 2;
   string title = 3;
-  int32 members_count = 20;
+  Avatar avatar = 4;
+  BoolValue is_member = 5;
+  BoolValue is_hidden = 12;
+  int32 group_type = 15;
+  BoolValue can_send_message = 16;
+  StringValue nick = 17;
+  BoolValue became_orphaned = 18;
+  Int64Value state_version = 19;
+  Int32Value members_count = 20;
+  Permissions permissions = 30;
+  Permissions default_permissions = 31;
+  Int32Value owner_uid = 32;
   repeated string available_reactions = 33;
+  BoolValue is_suspend = 36;
+  ExInfo ex_info = 37;
+  Int32Value linked_group_peer_id = 38;
+  BoolValue discussion_group_enabled = 39;
+  int32 restriction = 40;
+}
+
+message FilterOwner { bool is_owner = 1; }
+message FilterAdmin { bool is_admin = 1; }
+message FilterGroupType { int32 group_type = 1; }
+message FilterRestriction { int32 restriction = 1; }
+message FilterMembersCount { int32 min_count = 1; }
+
+message GroupFilter {
+  FilterOwner filter_owner = 1;
+  FilterAdmin filter_admin = 2;
+  FilterGroupType filter_group_type = 3;
+  FilterRestriction filter_restriction = 4;
+  FilterMembersCount filter_members_count = 5;
+}
+
+message BannedUser {
+  UserOutPeer banned_user = 1;
+  UserOutPeer banner_user = 2;
 }
 
 enum Restriction {

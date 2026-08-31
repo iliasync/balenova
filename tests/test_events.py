@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 
+from bale.full import bale_pb2
 from balenova import Client, events, filters
 
 
@@ -85,6 +86,78 @@ async def test_changed_message_is_delivered_as_message_edited(tmp_path) -> None:
     assert len(edited) == 1
     assert edited[0].text == "!status"
     assert isinstance(edited[0], events.NewMessage)
+
+
+@pytest.mark.asyncio
+async def test_explicit_web_edit_variant_is_delivered_as_message_edited(
+    tmp_path,
+) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=DummyGrpc())  # type: ignore[arg-type]
+    raw = {
+        "update": {
+            "composed_update": {
+                "message_content_changed": {
+                    "peer": {"id": 42, "type": 1},
+                    "rid": -100,
+                    "date": {"value": 200},
+                    "updater_user_id": {"value": 42},
+                    "message": {"text_message": {"text": "!panel"}},
+                }
+            }
+        }
+    }
+
+    await client._process_update(raw)
+    event = await client.next_update(timeout=0.1)
+
+    assert isinstance(event, events.MessageEdited)
+    assert event.message.id == "-100|200"
+    assert event.text == "!panel"
+
+
+@pytest.mark.asyncio
+async def test_unknown_wire_update_gets_stable_variant_name(tmp_path) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=DummyGrpc())  # type: ignore[arg-type]
+    raw = {
+        "update": {
+            "composed_update": {
+                "_unknown_fields": [
+                    {"number": 6, "wire_type": 2, "data": b"payload"}
+                ]
+            }
+        }
+    }
+
+    await client._process_update(raw)
+    event = await client.next_update(timeout=0.1)
+
+    assert isinstance(event, events.RawUpdate)
+    assert event.kind == "typing"
+    assert event.payload["number"] == 6
+
+
+@pytest.mark.asyncio
+async def test_compact_unknown_update_is_decoded_with_complete_proto(tmp_path) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=DummyGrpc())  # type: ignore[arg-type]
+    encoded = bale_pb2.Typing(uid=42, typingType=3).SerializeToString()
+
+    await client._process_update(
+        {
+            "update": {
+                "composed_update": {
+                    "_unknown_fields": [
+                        {"number": 6, "wire_type": 2, "data": encoded}
+                    ]
+                }
+            }
+        }
+    )
+    event = await client.next_update(timeout=0.1)
+
+    assert isinstance(event, events.RawUpdate)
+    assert event.kind == "typing"
+    assert event.payload["protobuf_type"] == "bale.Typing"
+    assert event.payload["decoded"] == {"uid": 42, "typingType": 3}
 
 
 def test_balenova_is_the_public_import() -> None:

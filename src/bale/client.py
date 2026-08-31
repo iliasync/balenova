@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import getpass
 import inspect
 import json
@@ -17,6 +18,8 @@ from pathlib import Path
 from typing import Any, BinaryIO, TypedDict, TypeVar, overload
 from urllib.parse import urlsplit
 
+from google.protobuf.message import Message as ProtobufMessage
+
 from bale.dispatcher import (
     Dispatcher,
     ErrorHandler,
@@ -29,6 +32,7 @@ from bale.dispatcher import (
 from bale.errors import AuthenticationError, BaleRpcError, ClientStateError
 from bale.events import MessageEdited, NewMessage, Update, build_updates
 from bale.filters import Filter, command
+from bale.full import FullAPI
 from bale.models import (
     CallMode,
     CallRecordQuality,
@@ -72,7 +76,7 @@ class DialogBuckets(TypedDict):
 
 
 _PEER_PATTERN = re.compile(r"^(?P<id>\d+)\|(?P<type>\d+)$")
-_MESSAGE_PATTERN = re.compile(r"^(?P<rid>\d+)\|(?P<date>\d+)$")
+_MESSAGE_PATTERN = re.compile(r"^(?P<rid>-?\d+)\|(?P<date>\d+)$")
 _API_KEY = "C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D"
 
 
@@ -163,6 +167,9 @@ class Client:
         self._stop_event = asyncio.Event()
         self._running = False
         self._closed = False
+        self.api = FullAPI(self)
+        for service_name in self.api.services:
+            setattr(self, service_name, getattr(self.api, service_name))
 
     @property
     def connected(self) -> bool:
@@ -339,7 +346,8 @@ class Client:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            asyncio.run(self._run_and_close())
+            with contextlib.suppress(KeyboardInterrupt):
+                asyncio.run(self._run_and_close())
             return
         raise ClientStateError("Use 'await client.run()' inside async code")
 
@@ -348,7 +356,8 @@ class Client:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            asyncio.run(self._run_and_close(task))
+            with contextlib.suppress(KeyboardInterrupt):
+                asyncio.run(self._run_and_close(task))
             return
         raise ClientStateError("Use 'await client.run(task)' inside async code")
 
@@ -547,6 +556,77 @@ class Client:
         if self._websocket is not None:
             return await self._websocket.request_raw(service, method, payload)
         return await self.post_raw(service, method, payload)
+
+    async def invoke_protobuf_bytes(
+        self,
+        service: str,
+        method: str,
+        payload: bytes,
+        *,
+        response_type: type[ProtobufMessage] | None = None,
+    ) -> ProtobufMessage | bytes:
+        """Invoke an RPC using the complete generated protocol surface."""
+        raw = await self.invoke_raw(service, method, payload)
+        if response_type is None:
+            return raw
+        response = response_type()
+        response.ParseFromString(raw)
+        return response
+
+    async def invoke_protobuf(
+        self,
+        service: str,
+        method: str,
+        request: ProtobufMessage,
+        *,
+        response_type: type[ProtobufMessage] | None = None,
+    ) -> ProtobufMessage | bytes:
+        """Serialize a generated request and decode its generated response."""
+        if not isinstance(request, ProtobufMessage):
+            raise TypeError("request must be a protobuf Message")
+        return await self.invoke_protobuf_bytes(
+            service,
+            method,
+            request.SerializeToString(),
+            response_type=response_type,
+        )
+
+    async def call(
+        self,
+        service: str,
+        method: str,
+        request: ProtobufMessage | None = None,
+        *,
+        request_bytes: bytes | None = None,
+        response_type: type[ProtobufMessage] | None = None,
+        timeout: float = 10.0,
+    ) -> ProtobufMessage | bytes:
+        """Call any recovered unary RPC using its generated protobuf types."""
+        if request is not None and request_bytes is not None:
+            raise ValueError("pass either request or request_bytes, not both")
+        if response_type is None:
+            from bale.full.bale_methods import METHODS
+
+            pair = METHODS.get((service, method))
+            if pair is not None:
+                response_type = pair[1]
+        if request is not None:
+            operation = self.invoke_protobuf(
+                service,
+                method,
+                request,
+                response_type=response_type,
+            )
+        elif request_bytes is not None:
+            operation = self.invoke_protobuf_bytes(
+                service,
+                method,
+                request_bytes,
+                response_type=response_type,
+            )
+        else:
+            raise ValueError("either request or request_bytes is required")
+        return await asyncio.wait_for(operation, timeout=timeout)
 
     async def post(
         self,
@@ -1037,6 +1117,135 @@ class Client:
         )
         value = response.get("full_group")
         return value if isinstance(value, dict) else None
+
+    async def get_my_group_peers(
+        self,
+        *,
+        mode: int = 0,
+        is_owner: bool = False,
+        filters: Iterable[Mapping[str, Any]] = (),
+    ) -> list[dict[str, Any]]:
+        """Return all groups known to the account without scanning dialogs."""
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "GetMyGroups",
+            "request.GetMyGroups",
+            "response.GetMyGroups",
+            {
+                "mode": mode,
+                "is_owner": is_owner,
+                "filters": [dict(item) for item in filters],
+            },
+        )
+        return [
+            dict(item)
+            for item in response.get("groups", [])
+            if isinstance(item, Mapping) and item.get("group_id") is not None
+        ]
+
+    async def load_groups(
+        self, peers: Iterable[Mapping[str, Any] | Chat | str]
+    ) -> list[Chat]:
+        """Resolve group peers in one RPC and retain their access hashes."""
+        normalized: list[dict[str, int]] = []
+        for value in peers:
+            if isinstance(value, Chat):
+                normalized.append(
+                    {"group_id": value.peer_id, "access_hash": value.access_hash or 1}
+                )
+            elif isinstance(value, str):
+                peer_id, _peer_type = _require_peer_tuple(value)
+                normalized.append({"group_id": peer_id, "access_hash": 1})
+            elif isinstance(value, Mapping) and value.get("group_id") is not None:
+                normalized.append(
+                    {
+                        "group_id": int(value["group_id"]),
+                        "access_hash": int(value.get("access_hash", 1)),
+                    }
+                )
+            else:
+                raise TypeError("group peer must be a chat id, Chat, or mapping")
+        if not normalized:
+            return []
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "LoadGroups",
+            "request.LoadGroups",
+            "response.LoadGroups",
+            {"peers": normalized},
+        )
+        result: list[Chat] = []
+        for item in response.get("groups", []):
+            if not isinstance(item, Mapping):
+                continue
+            chat = wrap_group(dict(item)).bind(self)
+            self._peer_cache[chat.id] = chat
+            result.append(chat)
+        return result
+
+    async def get_my_groups(
+        self,
+        *,
+        mode: int = 0,
+        is_owner: bool = False,
+        filters: Iterable[Mapping[str, Any]] = (),
+    ) -> list[Chat]:
+        peers = await self.get_my_group_peers(
+            mode=mode, is_owner=is_owner, filters=filters
+        )
+        return await self.load_groups(peers)
+
+    async def get_member_permissions(
+        self, chat_id: str, user_id: int | str
+    ) -> dict[str, Any]:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "GetMemberPermissions",
+            "request.GetMemberPermissions",
+            "response.GetMemberPermissions",
+            {"group": _group_peer(chat_id), "user": _user_peer(user_id)},
+        )
+        permissions = response.get("permissions")
+        return dict(permissions) if isinstance(permissions, Mapping) else {}
+
+    async def get_can_see_messages(self, chat_id: str, user_id: int) -> bool:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "GetCanSeeMessages",
+            "request.GetCanSeeMessages",
+            "response.GetCanSeeMessages",
+            {"group_peer": _group_peer(chat_id), "user_id": user_id},
+        )
+        return bool(response.get("can_see_messages", False))
+
+    async def fetch_group_admins(self, chat_id: str) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.groups.v1.Groups",
+            "FetchGroupAdmins",
+            "request.FetchGroupAdmins",
+            "response.FetchGroupAdmins",
+            {"group_out_peer": _group_peer(chat_id)},
+        )
+
+    async def get_banned_users(self, chat_id: str) -> list[dict[str, Any]]:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "GetBannedUsers",
+            "request.GetBannedUsers",
+            "response.GetBannedUsers",
+            {"group": _group_peer(chat_id)},
+        )
+        return [dict(item) for item in response.get("banned_users", [])]
+
+    async def get_mutual_groups(self, user_id: int | str) -> list[dict[str, Any]]:
+        response = await self.invoke(
+            "bale.groups.v1.Groups",
+            "GetMutualGroups",
+            "request.GetMutualGroups",
+            "response.GetMutualGroups",
+            {"peer": _user_peer(user_id)},
+        )
+        return [dict(item) for item in response.get("groups", [])]
 
     async def get_group_preview(self, token_or_url: str) -> dict[str, Any] | None:
         """Load a group preview without joining it."""
@@ -2465,6 +2674,175 @@ class Client:
         url = response.get("url")
         return url if isinstance(url, str) else None
 
+    async def start_call(
+        self,
+        chat_id: str,
+        *,
+        video: bool = False,
+        invite_enable: bool | None = None,
+    ) -> dict[str, Any]:
+        """Start a private LiveKit call with one peer."""
+        peer = _require_peer(chat_id)
+        rid = WebSocketTransport.create_rid()
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "StartCall",
+            "request.StartCall",
+            "response.CallWithParticipants",
+            {
+                "peer": peer,
+                "rid": rid,
+                "video": video,
+                "live_kit_call": {
+                    "peer": peer,
+                    "rid": rid,
+                    "video": video,
+                    "invite_enable": (
+                        {"value": invite_enable}
+                        if invite_enable is not None
+                        else None
+                    ),
+                },
+            },
+        )
+
+    async def accept_call(
+        self, call_id: int | str, *, invite_enable: bool | None = None
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "AcceptCall",
+            "request.AcceptCall",
+            "response.CallWithParticipants",
+            {
+                "call_id": _require_call_id(call_id),
+                "invite_enable": (
+                    {"value": invite_enable} if invite_enable is not None else None
+                ),
+            },
+        )
+
+    async def receive_call(self, call_id: int | str) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "ReceiveCall",
+            "request.ReceiveCall",
+            "response.DefaultResponse",
+            {"call_id": _require_call_id(call_id)},
+        )
+        return wrap_default(response)
+
+    async def discard_call(
+        self,
+        call_id: int | str,
+        *,
+        duration: int = 0,
+        reason: int = 0,
+        type_: int = 0,
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "DiscardCall",
+            "request.DiscardCall",
+            "response.CallWithParticipants",
+            {
+                "call_id": _require_call_id(call_id),
+                "duration": duration,
+                "reason": reason,
+                "type": type_,
+            },
+        )
+
+    async def start_call_stream(
+        self, stream_user: str, url: str, rtmp_server: str
+    ) -> str | None:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "StartStream",
+            "request.StartStream",
+            "response.StartStream",
+            {
+                "stream_user": _out_peer(stream_user),
+                "url": url,
+                "rtmp_server": rtmp_server,
+            },
+        )
+        key = response.get("stream_key")
+        return key if isinstance(key, str) else None
+
+    async def delete_call_stream(self, stream_user: str) -> DefaultResponse:
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "DeleteStream",
+            "request.DeleteStream",
+            "response.DefaultResponse",
+            {"stream_user": _out_peer(stream_user)},
+        )
+        return wrap_default(response)
+
+    async def submit_call_feedback(
+        self,
+        call_id: int | str,
+        rate: int,
+        *,
+        opinion: str | None = None,
+        client: int = 0,
+        client_version: str | None = None,
+        extra_fields: Mapping[str, bytes] | None = None,
+        is_stream: bool | None = None,
+    ) -> DefaultResponse:
+        if not 1 <= rate <= 5:
+            raise ValueError("rate must be between 1 and 5")
+        response = await self.invoke(
+            "bale.meet.v1.Meet",
+            "SubmitCallFeedback",
+            "request.SubmitCallFeedback",
+            "response.DefaultResponse",
+            {
+                "call_id": _require_call_id(call_id),
+                "rate": rate,
+                "user_opinion": {"value": opinion} if opinion else None,
+                "client": client,
+                "client_version": (
+                    {"value": client_version} if client_version else None
+                ),
+                "extra_fields": dict(extra_fields or {}),
+                "is_stream": (
+                    {"value": is_stream} if is_stream is not None else None
+                ),
+            },
+        )
+        return wrap_default(response)
+
+    async def take_call_action(
+        self,
+        call_id: int | str,
+        identity: str,
+        *,
+        raise_hand: bool,
+    ) -> dict[str, Any]:
+        return await self.invoke(
+            "bale.meet.v1.Meet",
+            "TakeCallAction",
+            "request.TakeCallAction",
+            "response.EmptyResponse",
+            {
+                "call_id": _require_call_id(call_id),
+                "raise_hand": {"user_identity": identity} if raise_hand else None,
+                "lower_hand": {"user_identity": identity} if not raise_hand else None,
+            },
+        )
+
+    async def raise_call_hand(
+        self, call_id: int | str, identity: str
+    ) -> dict[str, Any]:
+        return await self.take_call_action(call_id, identity, raise_hand=True)
+
+    async def lower_call_hand(
+        self, call_id: int | str, identity: str
+    ) -> dict[str, Any]:
+        return await self.take_call_action(call_id, identity, raise_hand=False)
+
     async def start_group_call(
         self,
         chat_id: str,
@@ -2527,13 +2905,18 @@ class Client:
         )
 
     async def get_group_call(self, chat_id: str) -> dict[str, Any] | None:
-        response = await self.invoke(
-            "bale.meet.v1.Meet",
-            "GetGroupCall",
-            "request.GetGroupCall",
-            "response.GroupCall",
-            {"peer": _require_peer(chat_id)},
-        )
+        try:
+            response = await self.invoke(
+                "bale.meet.v1.Meet",
+                "GetGroupCall",
+                "request.GetGroupCall",
+                "response.GroupCall",
+                {"peer": _require_peer(chat_id)},
+            )
+        except BaleRpcError as error:
+            if error.code == 5 and error.message == "CallNotFound":
+                return None
+            raise
         value = response.get("group_call")
         return value if isinstance(value, dict) else None
 
@@ -3478,8 +3861,15 @@ def _user_id(value: int | str) -> int:
 def _require_message_id(value: str) -> tuple[int, int]:
     match = _MESSAGE_PATTERN.fullmatch(value.strip())
     if match is None:
-        raise ValueError(f"Expected a message id like '123|1700000000', got {value!r}")
-    return int(match.group("rid")), int(match.group("date"))
+        raise ValueError(
+            "Expected a message id like '-123|1700000000', "
+            f"got {value!r}"
+        )
+    rid = _signed_int64(match.group("rid"), field_name="message rid")
+    date = _signed_int64(match.group("date"), field_name="message date")
+    if date < 0:
+        raise ValueError("message date cannot be negative")
+    return rid, date
 
 
 def _message_identifier(value: str) -> dict[str, int]:

@@ -100,6 +100,28 @@ class FakeGrpc:
             return {"file_url": {"url": "https://download.example.test/public"}}
         if method == "GetGroupPreview":
             return {"group": {"id": 99, "title": "Preview"}, "action": 2}
+        if method == "GetMyGroups":
+            return {"groups": [{"group_id": 20, "access_hash": 30}]}
+        if method == "LoadGroups":
+            return {
+                "groups": [
+                    {
+                        "id": 20,
+                        "access_hash": 30,
+                        "title": "Writable group",
+                        "group_type": 0,
+                        "is_member": {"value": True},
+                        "can_send_message": {"value": True},
+                        "permissions": {"send_message": True},
+                    }
+                ]
+            }
+        if method == "GetMemberPermissions":
+            return {"permissions": {"send_message": True, "invite_user": False}}
+        if method == "GetCanSeeMessages":
+            return {"can_see_messages": True}
+        if method == "StartStream":
+            return {"stream_key": "stream-secret"}
         if method == "GetNasimFileUploadUrl":
             return {
                 "file_id": 123,
@@ -330,6 +352,33 @@ async def test_group_preview_accepts_join_urls(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
+async def test_direct_group_inventory_uses_two_bulk_rpcs(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    groups = await client.get_my_groups()
+    permissions = await client.get_member_permissions("20|2", 42)
+    can_see = await client.get_can_see_messages("20|2", 42)
+
+    assert [call["method"] for call in grpc.calls] == [
+        "GetMyGroups",
+        "LoadGroups",
+        "GetMemberPermissions",
+        "GetCanSeeMessages",
+    ]
+    assert grpc.calls[1]["payload"] == {
+        "peers": [{"group_id": 20, "access_hash": 30}]
+    }
+    assert len(groups) == 1
+    assert groups[0].id == "20|2"
+    assert groups[0].access_hash == 30
+    assert groups[0].is_member is True
+    assert groups[0].can_send_message is True
+    assert permissions["send_message"] is True
+    assert can_see is True
+
+
+@pytest.mark.asyncio
 async def test_invite_link_rpc_names_match_current_metadata(tmp_path) -> None:
     grpc = FakeGrpc()
     client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
@@ -386,6 +435,19 @@ async def test_account_session_media_upload_download_and_caption_edit(tmp_path) 
     assert update_call["payload"]["updated_message"]["document_message"]["caption"] == {
         "text": "after"
     }
+
+
+@pytest.mark.asyncio
+async def test_edit_message_accepts_negative_account_rid(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    await client.edit_message_text(
+        "42|1", "-4359690077832313424|1788193482819", "انجام شد"
+    )
+
+    call = next(call for call in grpc.calls if call["method"] == "UpdateMessage")
+    assert call["payload"]["rid"] == -4359690077832313424
 
 
 @pytest.mark.asyncio
@@ -556,6 +618,59 @@ async def test_call_methods_accept_signed_int64_call_ids(tmp_path) -> None:
     await client.get_call_state(-789)
 
     assert grpc.calls[-1]["payload"] == {"call_id": -789}
+
+
+@pytest.mark.asyncio
+async def test_private_call_lifecycle_and_stream_methods_use_current_shapes(
+    tmp_path,
+) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    await client.start_call("99|1", video=True, invite_enable=False)
+    await client.accept_call(-789, invite_enable=True)
+    await client.receive_call(-789)
+    await client.discard_call(-789, duration=12, reason=2, type_=1)
+    stream_key = await client.start_call_stream("99|1", "rtmp://url", "server")
+    await client.delete_call_stream("99|1")
+    await client.submit_call_feedback(-789, 5, opinion="good", is_stream=False)
+    await client.raise_call_hand(-789, "participant")
+    await client.lower_call_hand(-789, "participant")
+
+    calls = {call["method"]: call for call in grpc.calls}
+    assert calls["StartCall"]["payload"]["peer"] == {"id": 99, "type": 1}
+    assert calls["StartCall"]["payload"]["live_kit_call"]["invite_enable"] == {
+        "value": False
+    }
+    assert calls["AcceptCall"]["payload"] == {
+        "call_id": -789,
+        "invite_enable": {"value": True},
+    }
+    assert calls["DiscardCall"]["payload"] == {
+        "call_id": -789,
+        "duration": 12,
+        "reason": 2,
+        "type": 1,
+    }
+    assert stream_key == "stream-secret"
+    assert calls["StartStream"]["payload"]["stream_user"] == {
+        "id": 99,
+        "type": 1,
+        "access_hash": 1,
+    }
+    assert calls["SubmitCallFeedback"]["payload"]["user_opinion"] == {
+        "value": "good"
+    }
+    actions = [call for call in grpc.calls if call["method"] == "TakeCallAction"]
+    assert actions[0]["payload"]["raise_hand"] == {
+        "user_identity": "participant"
+    }
+    assert actions[1]["payload"]["lower_hand"] == {
+        "user_identity": "participant"
+    }
+
+    with pytest.raises(ValueError, match="between 1 and 5"):
+        await client.submit_call_feedback(-789, 0)
 
 
 @pytest.mark.asyncio
@@ -945,6 +1060,21 @@ async def test_incoming_and_outgoing_filters_classify_same_account_messages(
 
     assert incoming_seen == [7]
     assert outgoing_seen == [42]
+
+
+def test_senderless_saved_message_is_outgoing(tmp_path) -> None:
+    client = Client("42:jwt", session_dir=tmp_path, grpc=FakeGrpc())  # type: ignore[arg-type]
+    client.user = User(42).bind(client)
+    message = Message(
+        rid=1,
+        date=2,
+        author=User(0),
+        chat=Chat(42, 1, type=ChatType.PRIVATE),
+        text="!status",
+    ).bind(client)
+
+    assert message.is_outgoing
+    assert not message.is_incoming
 
 
 @pytest.mark.asyncio

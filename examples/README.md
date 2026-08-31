@@ -37,5 +37,6 @@ python examples/commands.py
 دو نمونهٔ کامل‌تر نیز وجود دارد:
 
 - [`broadcast_manager`](broadcast_manager): بنر، زمان‌بندی و ارسال با فاصله به
-  گروه‌های تحت مدیریت
-- [`voice_player`](voice_player): پخش آهنگ یا ویس ریپلای‌شده در تماس گروهی
+  گروه‌های عضو که حساب مجوز ارسال پیام دارد
+- [`voice_player`](voice_player): پخش آهنگ یا ویس ریپلای‌شده در تماس گروهی با
+  LiveKit 1.1 روی Python 3.10 به بالا

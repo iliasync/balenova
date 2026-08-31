@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import sys
 from typing import Any
 
 from balenova import Client
@@ -91,6 +90,8 @@ class VoicePlayer:
         await self.stop()
         if self.room is not None:
             await self.room.disconnect()
+        if self.source is not None and hasattr(self.source, "aclose"):
+            await self.source.aclose()
         if self.call_id is not None:
             await self.client.leave_group_call(self.call_id)
         self.room = self.source = None
@@ -176,7 +177,6 @@ class VoicePlayer:
                     samples_per_channel=self.FRAME_SAMPLES,
                 )
                 await self.source.capture_frame(frame)
-                await asyncio.sleep(0.01)
         except asyncio.CancelledError:
             interrupted = True
             raise
@@ -198,8 +198,6 @@ def unwrap(value: Any) -> Any:
 
 
 def load_livekit() -> Any:
-    if sys.version_info >= (3, 14):
-        raise RuntimeError("برای پخش تماس از Python 3.10 تا 3.13 استفاده کنید")
     try:
         from livekit import rtc
     except ImportError as error:
