@@ -621,6 +621,62 @@ async def test_call_methods_accept_signed_int64_call_ids(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
+async def test_send_call_fanoos_event_builds_typed_value_items(tmp_path) -> None:
+    client = Client(
+        "42:jwt-token",
+        session_dir=tmp_path,
+        grpc=FakeGrpc(),  # type: ignore[arg-type]
+    )
+    captured: dict[str, Any] = {}
+
+    async def invoke_protobuf(
+        service: str,
+        method: str,
+        request: Any,
+        *,
+        response_type: Any = None,
+    ) -> Any:
+        captured.update(service=service, method=method, request=request)
+        return response_type()
+
+    client.invoke_protobuf = invoke_protobuf  # type: ignore[method-assign]
+
+    result = await client.send_call_fanoos_event(
+        "balenova_protocol_smoke",
+        {
+            "source": "tests",
+            "successful": True,
+            "attempt": 7,
+            "ratio": 0.5,
+            "tags": ["voice", 2],
+        },
+        date=1_725_000_000_123,
+    )
+
+    assert result.seq is None
+    assert captured["service"] == "bale.meet.v1.Meet"
+    assert captured["method"] == "SendFanoosEvent"
+    request = captured["request"]
+    assert request.eventName == "balenova_protocol_smoke"
+    assert request.date == 1_725_000_000_123
+    values = {item.key: item.value for item in request.items.items}
+    assert values["source"].stringValue == "tests"
+    assert values["successful"].booleanValue is True
+    assert values["attempt"].int64Value == 7
+    assert values["ratio"].doubleValue == 0.5
+    assert [
+        item.stringValue or item.int64Value
+        for item in values["tags"].arrayValue.array
+    ] == ["voice", 2]
+
+    with pytest.raises(ValueError, match="must not be empty"):
+        await client.send_call_fanoos_event(" ")
+
+    with pytest.raises(TypeError, match="Fanoos values"):
+        await client.send_call_fanoos_event("bad", {"value": object()})
+
+
+@pytest.mark.asyncio
 async def test_private_call_lifecycle_and_stream_methods_use_current_shapes(
     tmp_path,
 ) -> None:

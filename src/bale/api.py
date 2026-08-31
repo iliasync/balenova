@@ -1,19 +1,14 @@
-"""Complete typed Bale Web RPC surface.
-
-The generated protocol and service wrappers are kept separate from BaleNova's
-friendly high-level API. Access them through ``client.api``.
-"""
+"""Complete typed Bale Web RPC namespace backed by the main protobuf module."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from bale.full import bale_ext_pb2, bale_pb2
-from bale.full.services import ALL_RPCS, SERVICE_CLASSES
+from bale.services import ALL_RPCS, SERVICE_CLASSES
 
 
-class FullAPI:
-    """Namespace exposing every recovered Bale Web service and RPC."""
+class ProtocolAPI:
+    """Expose every known Bale service and RPC on one client-bound namespace."""
 
     def __init__(self, client: Any) -> None:
         self._client = client
@@ -32,10 +27,4 @@ class FullAPI:
         return (service, method) in ALL_RPCS
 
 
-__all__ = [
-    "ALL_RPCS",
-    "FullAPI",
-    "SERVICE_CLASSES",
-    "bale_ext_pb2",
-    "bale_pb2",
-]
+__all__ = ["ALL_RPCS", "SERVICE_CLASSES", "ProtocolAPI"]

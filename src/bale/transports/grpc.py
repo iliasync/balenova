@@ -6,6 +6,7 @@ import asyncio
 import time
 from collections.abc import AsyncIterator, Mapping
 from typing import Any
+from urllib.parse import unquote
 
 import httpx
 
@@ -105,6 +106,76 @@ class GrpcTransport:
             access_token=access_token,
         )
 
+    async def stream_raw(
+        self,
+        service: str,
+        method: str,
+        payload: bytes,
+        *,
+        access_token: str | None = None,
+        timeout: float | None = None,
+    ) -> AsyncIterator[bytes]:
+        """Yield every protobuf message from a server-streaming gRPC-web RPC."""
+        body = b"\x00" + len(payload).to_bytes(4, "big") + payload
+        headers = dict(self._headers)
+        if access_token:
+            headers["cookie"] = f"access_token={access_token}"
+
+        if self._recorder:
+            await self._recorder.record(
+                transport="grpc-web",
+                direction="outbound",
+                kind="rpc_stream_request",
+                service=service,
+                method=method,
+                raw=payload,
+            )
+
+        stream_timeout: float | httpx.Timeout
+        if timeout is None:
+            stream_timeout = httpx.Timeout(self.timeout, read=None)
+        else:
+            stream_timeout = timeout
+        async with self._client.stream(
+            "POST",
+            f"{self.base_url}/{service}/{method}",
+            content=body,
+            headers=headers,
+            timeout=stream_timeout,
+        ) as response:
+            self._raise_for_error(response, service, method)
+            buffer = b""
+            trailers: dict[str, str] = {}
+            async for chunk in response.aiter_bytes():
+                buffer += chunk
+                while len(buffer) >= 5:
+                    frame_length = int.from_bytes(buffer[1:5], "big")
+                    frame_end = 5 + frame_length
+                    if len(buffer) < frame_end:
+                        break
+                    flags = buffer[0]
+                    frame, buffer = buffer[5:frame_end], buffer[frame_end:]
+                    if flags & 0x80:
+                        trailers.update(_decode_trailers(frame))
+                        continue
+                    if self._recorder:
+                        await self._recorder.record(
+                            transport="grpc-web",
+                            direction="inbound",
+                            kind="rpc_stream_response",
+                            service=service,
+                            method=method,
+                            raw=frame,
+                        )
+                    yield frame
+            if buffer:
+                raise BaleRpcError(
+                    -1,
+                    "Truncated gRPC-web stream frame",
+                    reason=f"{service}/{method}",
+                )
+            self._raise_for_status(trailers, service, method)
+
     async def upload(
         self, url: str, payload: bytes, *, chunk_size: int | None = None
     ) -> None:
@@ -167,7 +238,8 @@ class GrpcTransport:
                     timeout=self.timeout,
                 )
                 self._raise_for_error(response, service, method)
-                raw_response = _unframe(response.content)
+                raw_response, trailers = _unframe_with_trailers(response.content)
+                self._raise_for_status(trailers, service, method)
                 decoded = (
                     decode_message(response_type, raw_response)
                     if response_type
@@ -207,23 +279,30 @@ class GrpcTransport:
 
     @staticmethod
     def _raise_for_error(response: httpx.Response, service: str, method: str) -> None:
-        raw_status = response.headers.get("grpc-status", "0")
-        try:
-            grpc_status = int(raw_status)
-        except ValueError:
-            grpc_status = -1
-        message = response.headers.get("grpc-message")
-        if message or grpc_status != 0:
-            raise BaleRpcError(
-                grpc_status,
-                message or f"HTTP {response.status_code}",
-                reason=f"{service}/{method}",
-            )
+        GrpcTransport._raise_for_status(response.headers, service, method)
         if not response.is_success:
             raise BaleRpcError(
                 response.status_code,
                 f"HTTP {response.status_code}",
                 reason=f"{service}/{method}",
+            )
+
+    @staticmethod
+    def _raise_for_status(
+        metadata: Mapping[str, str], service: str, method: str
+    ) -> None:
+        raw_status = metadata.get("grpc-status", "0")
+        try:
+            grpc_status = int(raw_status)
+        except ValueError:
+            grpc_status = -1
+        message = metadata.get("grpc-message")
+        if message or grpc_status != 0:
+            raise BaleRpcError(
+                grpc_status,
+                unquote(message) if message else "Unknown gRPC error",
+                reason=f"{service}/{method}",
+                details=dict(metadata),
             )
 
 
@@ -232,11 +311,37 @@ def _is_retriable(status: int) -> bool:
 
 
 def _unframe(body: bytes) -> bytes:
-    """Extract the first data frame and ignore optional gRPC trailers."""
-    if len(body) < 5:
-        return b""
-    frame_length = int.from_bytes(body[1:5], "big")
-    frame_end = 5 + frame_length
-    if frame_end > len(body):
-        raise BaleRpcError(-1, "Truncated gRPC-web response")
-    return body[5:frame_end]
+    """Extract and join data frames while validating optional trailers."""
+    payload, _trailers = _unframe_with_trailers(body)
+    return payload
+
+
+def _unframe_with_trailers(body: bytes) -> tuple[bytes, dict[str, str]]:
+    offset = 0
+    data_frames: list[bytes] = []
+    trailers: dict[str, str] = {}
+    while offset < len(body):
+        if len(body) - offset < 5:
+            raise BaleRpcError(-1, "Truncated gRPC-web frame header")
+        flags = body[offset]
+        frame_length = int.from_bytes(body[offset + 1 : offset + 5], "big")
+        start = offset + 5
+        end = start + frame_length
+        if end > len(body):
+            raise BaleRpcError(-1, "Truncated gRPC-web response")
+        frame = body[start:end]
+        if flags & 0x80:
+            trailers.update(_decode_trailers(frame))
+        else:
+            data_frames.append(frame)
+        offset = end
+    return b"".join(data_frames), trailers
+
+
+def _decode_trailers(frame: bytes) -> dict[str, str]:
+    trailers: dict[str, str] = {}
+    for line in frame.decode("utf-8", errors="replace").splitlines():
+        key, separator, value = line.partition(":")
+        if separator:
+            trailers[key.strip().lower()] = value.strip()
+    return trailers

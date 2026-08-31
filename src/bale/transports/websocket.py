@@ -271,6 +271,8 @@ class WebSocketTransport:
                 BaleRpcError(
                     int(error.get("code", -1)),
                     str(error.get("message", "Unknown WebSocket RPC error")),
+                    reason=f"{pending.service}/{pending.method}",
+                    details=error.get("details"),
                 )
             )
             return

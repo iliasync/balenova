@@ -726,3 +726,2989 @@ message EditParameter {
   string key = 1;
   struct.StringValue value = 2;
 }
+
+// ===== BEGIN COMPLETE PROTOCOL TYPES =====
+
+message WebAcceptCallRequest {
+  int64 callId = 1;
+  struct.WebBoolValue_2 inviteEnable = 2;
+}
+
+message WebAcceptCampaignMarketRequest {
+  int64 marketId = 1;
+  int64 isPermanent = 2;
+}
+
+message WebAcceptMarketJoinRequestRequest {
+  int64 marketPeerId = 1;
+  int64 requestId = 2;
+  bytes displayName = 3;
+  int64 categoryId = 4;
+}
+
+message WebActivateWalletRequest {
+  string nationalId = 1;
+  struct.WebBoolValue_1 isAutoActivated = 2;
+}
+
+message WebAddBotStoryRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebStoryContent mediaStory = 2;
+  struct.WebTextStory textStory = 3;
+  repeated int64 tagIds = 4;
+  int64 expirationType = 5;
+}
+
+message WebAddCardRequest {
+  string bankCode = 1;
+}
+
+message WebAddChannelStoryRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebStoryContent mediaStory = 2;
+  int64 hasReply = 3;
+  repeated int64 tagIds = 4;
+  int64 expirationType = 5;
+  struct.WebTextStory textStory = 6;
+}
+
+message WebAddContactRequest {
+  int32 uid = 1;
+  int64 accessHash = 2;
+}
+
+message WebAddCustomIncomeRequest {
+  int32 type = 1;
+  int64 amount = 2;
+  string description = 3;
+  int32 customerUserId = 4;
+  string customerName = 5;
+  int32 paymentMethod = 6;
+  int64 paymentDate = 7;
+}
+
+message WebAddDestinationCardsRequest {
+  repeated struct.WebCard cards = 1;
+}
+
+message WebAddDetailToTransactionRequest {
+  struct.WebId id = 1;
+  bytes detail = 2;
+}
+
+message WebAddDiscussionGroupAdminRequest {
+  struct.WebGroupPeer channel = 1;
+  struct.WebGroupPeer discussionGroup = 2;
+}
+
+message WebAddGifRequest {
+  struct.WebFileLocation gif = 1;
+  bytes thumb = 2;
+  struct.WebOffset mimeType = 3;
+}
+
+message WebAddNewCardsRequest {
+  repeated struct.WebCardInfo cardInfo = 1;
+}
+
+message WebAddStickerCollectionRequest {
+  int32 id = 1;
+  int64 accessHash = 2;
+}
+
+message WebAddStickerPackRequest {
+  int32 id = 1;
+}
+
+message WebAddStoryRequest {
+  struct.WebStoryContent mediaStory = 1;
+  struct.WebTextStory textStory = 2;
+  repeated int64 tagIds = 10;
+  int64 expirationType = 11;
+  int64 exceptionType = 12;
+}
+
+message WebAddTransactionTagsRequest {
+  struct.WebId id = 1;
+  repeated struct.WebTags tags = 2;
+}
+
+message WebAddUserTagsRequest {
+  repeated struct.WebTags tags = 1;
+}
+
+message WebAnswerCallJoinRequestRequest {
+  int64 callId = 1;
+  string requesterIdentifier = 2;
+  bool isAllowed = 3;
+}
+
+message WebArchiveDialogsRequest {
+  repeated struct.WebExPeer exPeers = 1;
+}
+
+message WebAskBotReviewCallbackRequest {
+  int32 botId = 1;
+  string payload = 2;
+}
+
+message WebAskToJoinCallRequest {
+  int64 callId = 1;
+  string name = 2;
+}
+
+message WebBlockUserRequest {
+  struct.WebUserPeer peer = 1;
+}
+
+message WebBuyChargeRequest {
+  bytes walletToken = 1;
+  bytes phoneNumber = 2;
+  int64 amount = 3;
+  int64 operatorType = 4;
+  struct.WebInt64Value_1 remaining = 5;
+  int64 chargeType = 6;
+  struct.WebInt32Value targetUserId = 7;
+  struct.WebInt32Value voucherId = 8;
+}
+
+message WebBuyFastChargeRequest {
+  int64 amount = 1;
+  struct.WebStringValue phoneNumber = 2;
+  int32 operator = 3;
+  int32 chargeType = 4;
+}
+
+message WebBuyInternetBundleRequest {
+  bytes walletToken = 1;
+  bytes phoneNumber = 2;
+  int64 bundleId = 3;
+  int64 operatorType = 4;
+  struct.WebInt64Value_1 remaining = 5;
+  struct.WebInt32Value targetUserId = 6;
+}
+
+message WebCalculateDiscountedPriceRequest {
+  int64 packageId = 1;
+  string couponCode = 2;
+}
+
+message WebCanAddBotStoryRequest {
+  int64 botUserId = 1;
+}
+
+message WebCancelMessageStreamRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebMessageId messageId = 2;
+}
+
+message WebCashOutFromWalletRequest {
+  string token = 1;
+  int64 amount = 2;
+}
+
+message WebCashOutRequest {
+  bytes requestId = 1;
+  bytes token = 2;
+  int64 amount = 3;
+  struct.WebStringValue account = 4;
+  struct.WebStringValue pan = 5;
+}
+
+message WebChangeAccountStateRequest {
+  int32 state = 1;
+  int32 ownerId = 2;
+  string reason = 3;
+}
+
+message WebChangeAdStateRequest {
+  string adId = 1;
+  int32 state = 2;
+  string reason = 3;
+}
+
+message WebChangeBonusCodeStateRequest {
+  string code = 1;
+  int32 state = 2;
+}
+
+message WebChangeCampaignContentStateRequest {
+  string campaignId = 1;
+  int32 state = 2;
+  string reason = 3;
+}
+
+message WebChangeCampaignStateRequest {
+  string campaignId = 1;
+  int32 state = 2;
+  string rejectionReason = 3;
+}
+
+message WebChangeChannelIncomeOwnerRequest {
+  struct.WebGroupPeer peerId = 1;
+}
+
+message WebChangeChannelShowAdPermissionsRequest {
+  struct.WebGroupPeer peerId = 1;
+  struct.WebShowAds showAds = 2;
+  struct.WebTimeRestrict timeRestrict = 3;
+  struct.WebCategoryFilter categoryFilter = 4;
+}
+
+message WebChangeDefaultCardNumberRequest {
+  struct.WebStringValue defaultCardNumber = 1;
+}
+
+message WebChangePhoneNumberRequest {
+  int64 phoneNumber = 1;
+}
+
+message WebChangePhoneRequest {
+  int64 phoneNumber = 1;
+  string code = 2;
+  string transactionHash = 3;
+}
+
+message WebChangeLanguageRequest {
+  int32 language = 1;
+}
+
+message WebChangeStatusDialogAdOrderRequest {
+  string id = 1;
+  int32 targetStatus = 2;
+  int64 date = 3;
+  struct.WebStringValue rejectionReason = 4;
+}
+
+message WebChangeUserDataStateRequest {
+  int32 ownerId = 1;
+  int32 state = 2;
+  int32 reason = 3;
+}
+
+message WebChannelIncomeGetCreditRequest {
+  struct.WebGroupPeer peerId = 1;
+}
+
+message WebChargeRequest {
+  bytes paymentToken = 1;
+  int64 referenceNo = 2;
+}
+
+message WebCheckChargePermissionRequest {
+  bytes paymentToken = 1;
+}
+
+message WebCheckLinkValidityRequest {
+  struct.WebExPeer exPeer = 1;
+  bytes link = 2;
+}
+
+message WebCheckNickNameRequest {
+  string nickname = 1;
+}
+
+message WebCheckPasswordRequest {
+  string password = 1;
+  int32 servicesType = 2;
+}
+
+message WebCheckPasswordSetRequest {}
+
+message WebClearChatRequest {
+  struct.WebPeer peer = 1;
+}
+
+message WebClosePollRequest {
+  int64 pollId = 1;
+}
+
+message WebConfirmPhoneNumberRequest {
+  string code = 1;
+}
+
+message WebConvertIncomeRequest {
+  struct.WebConvertToPoints convertToPoints = 1;
+  struct.WebConvertToGiftPacket convertToGiftPacket = 2;
+  struct.WebConvertToGiftPacketForChannelOwner convertToGiftPacketForChannelOwner = 3;
+}
+
+message WebCreateAdRequest {
+  struct.WebAds adData = 1;
+  int64 price = 2;
+}
+
+message WebCreateAndStartChannelAdRequest {
+  string title = 1;
+  string description = 2;
+  string link = 3;
+  int32 platform = 4;
+  int32 viewCount = 5;
+  int32 clickCount = 6;
+  int64 startTime = 7;
+}
+
+message WebCreateBaleDialogCustomAdRequest {
+  string pic = 1;
+  string title = 2;
+  string description = 3;
+  string link = 4;
+  int32 platform = 5;
+}
+
+message WebCreateBonusCodeRequest {
+  struct.WebT_tp_58187 data = 1;
+  bool autoGenerate = 2;
+}
+
+message WebCreateChannelIncomeFactorRequest {
+  struct.WebGroupPeer peerId = 1;
+  int32 year = 2;
+  int32 month = 3;
+}
+
+message WebCreateCustomCampaignPackageRequest {
+  int32 userId = 1;
+  int64 baseCredit = 2;
+  int32 creditExpireDays = 3;
+  int64 campaignDailyCapacity = 4;
+  int32 allowedConcurrentCampaign = 5;
+  int32 audienceId = 6;
+  int32 campaignViewCoef = 7;
+  int32 campaignClickCoef = 8;
+}
+
+message WebCreateFolderRequest {
+  string name = 1;
+  repeated struct.WebExPeer peers = 2;
+}
+
+message WebCreateGroupRequest {
+  int64 rid = 1;
+  string title = 2;
+  repeated struct.WebUserPeer users = 3;
+  int32 groupType = 6;
+  repeated int32 optimizations = 7;
+  struct.WebStringValue nick = 8;
+  int32 restriction = 9;
+}
+
+message WebCreateKifpoolRequest {
+  struct.WebStringValue nationalId = 1;
+}
+
+message WebCreateMarketJoinRequestRequest {
+  int64 marketPeerId = 1;
+  bytes displayName = 2;
+  int64 categoryId = 3;
+  repeated int64 tagIds = 4;
+}
+
+message WebCreatePollRequest {
+  struct.WebPollMessage pollMessage = 1;
+  int64 createAt = 2;
+  struct.WebExPeer expeer = 3;
+}
+
+message WebCreateReservedFolderRequest {
+  int32 folderId = 1;
+}
+
+message WebCreateTagRequest {
+  bytes title = 1;
+  int64 categoryId = 2;
+}
+
+message WebCreateThreadRequest {
+  struct.WebOutPeer peer = 1;
+  int64 date = 2;
+  int64 randomId = 3;
+  string title = 4;
+}
+
+message WebCreateTopicRequest {
+  struct.WebExPeer exPeer = 1;
+  string title = 2;
+}
+
+message WebCryptoCashOutRequest {
+  bytes requestId = 1;
+  int64 amount = 2;
+  struct.WebStringValue account = 3;
+  struct.WebStringValue pan = 4;
+  int64 pocketType = 5;
+  struct.WebBoolValue_1 isMerchant = 6;
+}
+
+message WebCryptoInvoiceRequest {
+  bytes token = 1;
+  int64 pageSize = 2;
+  int64 pageNumber = 3;
+}
+
+message WebCryptoPurchaseRequest {
+  int64 amount = 1;
+  bytes srcToken = 2;
+  bytes dstToken = 3;
+  bytes description = 4;
+  bytes terminalId = 5;
+  bytes bornaTrxId = 6;
+}
+
+message WebCryptoRefundRequest {
+  bytes token = 1;
+  int64 amount = 2;
+  int64 approvalCode = 3;
+  bytes trxRefSrc = 4;
+}
+
+message WebCryptoTransferRequest {
+  int64 amount = 1;
+  bytes srcToken = 2;
+  bytes dstToken = 3;
+  struct.WebStringValue description = 4;
+  struct.WebStringValue dstPhoneNo = 5;
+}
+
+message WebDeleteAccountRequest {
+  string code = 1;
+  string transactionHash = 2;
+}
+
+message WebDeleteCallLogsRequest {
+  repeated struct.WebInt64Value_1 callIds = 1;
+  bool all = 2;
+  bool invert = 3;
+}
+
+message WebDeleteChatRequest {
+  struct.WebPeer peer = 1;
+}
+
+message WebDeleteCustomIncomeRequest {
+  string id = 1;
+}
+
+message WebDeleteFolderRequest {
+  int32 folderId = 1;
+}
+
+message WebDeletePasswordRequest {
+  int32 otp = 1;
+}
+
+message WebDeleteRecentChargeOrderRequest {
+  bytes accessHash = 1;
+}
+
+message WebDeleteRecentInternetBundleOrderRequest {
+  int64 orderId = 1;
+}
+
+message WebDeleteStreamRequest {
+  struct.WebExPeer streamUser = 1;
+}
+
+message WebDeleteTopicRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebMessageId topicId = 2;
+}
+
+message WebDeliverOtpRequest {
+  bytes cardId = 1;
+  bytes destinationPan = 2;
+  int64 amount = 3;
+  bytes accessAddress = 4;
+  bytes approvalCode = 5;
+}
+
+message WebDisableTwoFactorAuthenticationRequest {}
+
+message WebDiscardCallRequest {
+  int64 callId = 1;
+  int32 duration = 2;
+  int32 reason = 3;
+  int32 type = 4;
+}
+
+message WebEditAboutRequest {
+  struct.WebStringValue about = 1;
+}
+
+message WebEditAccountRequest {
+  struct.WebData account = 1;
+  bool isRestoreExpiredCredit = 2;
+}
+
+message WebEditAdRequest {
+  struct.WebAds ad = 1;
+}
+
+message WebEditAvatarRequest {
+  struct.WebFileLocation fileLocation = 1;
+}
+
+message WebEditBirthDateRequest {
+  int64 date = 1;
+}
+
+message WebEditCampaignAdRequest {
+  struct.WebT_tE_58187 ad = 1;
+}
+
+message WebEditCampaignContentRequest {
+  struct.WebCampaign campaign = 1;
+}
+
+message WebEditCardExpirationDateRequest {
+  bytes cardId = 1;
+  struct.WebCardExpDate cardExpDate = 2;
+}
+
+message WebEditChannelNickRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  string nick = 2;
+  int64 randomId = 3;
+}
+
+message WebEditCustomServicesRequest {}
+
+message WebEditFolderRequest {
+  int32 folderId = 1;
+  string name = 2;
+  repeated struct.WebExPeer addedPeers = 3;
+  repeated struct.WebExPeer deletedPeers = 4;
+}
+
+message WebEditGroupAboutRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int64 rid = 2;
+  struct.WebStringValue about = 3;
+  repeated int32 optimizations = 5;
+}
+
+message WebEditGroupAvatarRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  struct.WebFileLocation fileLocation = 3;
+  int64 rid = 4;
+  repeated int32 optimizations = 5;
+}
+
+message WebEditGroupDefaultCardNumberRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  string cardNumber = 2;
+}
+
+message WebEditGroupTitleRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  string title = 3;
+  int64 rid = 4;
+  repeated int32 optimizations = 5;
+}
+
+message WebEditMyPreferredLanguagesRequest {
+  repeated string preferredLanguages = 1;
+}
+
+message WebEditMyTimeZoneRequest {
+  string tz = 1;
+}
+
+message WebEditNameRequest {
+  string name = 1;
+}
+
+message WebEditNickNameRequest {
+  struct.WebStringValue nickname = 1;
+}
+
+message WebEditParameterRequest {
+  string key = 1;
+  struct.WebStringValue value = 2;
+}
+
+message WebEditSexRequest {
+  int32 sex = 1;
+}
+
+message WebEditTopicRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebMessageId topicId = 2;
+  string title = 3;
+}
+
+message WebEditUserLocalNameRequest {
+  int32 uid = 1;
+  int64 accessHash = 2;
+  string name = 3;
+}
+
+message WebEnableShowReactionFlagRequest {}
+
+message WebEnableTwoFactorAuthenticationRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message WebEnrollNewCardRequest {
+  struct.WebOffset origin = 1;
+}
+
+message WebExecuteTaskNowRequest {
+  int64 taskID = 1;
+}
+
+message WebFetchGroupAdminsRequest {
+  struct.WebGroupPeer groupOutPeer = 1;
+}
+
+message WebFetchProtectedMessageRequest {
+  struct.WebOutPeer peer = 1;
+  struct.WebMessageId messageId = 2;
+}
+
+message WebFileUploadCancelRequest {
+  struct.WebFileLocation file = 1;
+}
+
+message WebFilterTaggedTransactionsRequest {
+  repeated struct.WebId ids = 1;
+}
+
+message WebFinishAdRequest {
+  string id = 1;
+}
+
+message WebFinishAdV2Request {
+  string adId = 1;
+}
+
+message WebFinishChannelAdRequest {
+  string id = 1;
+}
+
+message WebForgetPasswordRequest {}
+
+message WebForwardMessagesRequest {
+  struct.WebOutPeer peer = 1;
+  repeated int64 rid = 2;
+  repeated struct.WebQuotedMessageReference forwardedMessages = 3;
+  struct.WebInt64Value_1 groupedId = 4;
+}
+
+message WebGenerateCallLinkRequest {
+  bool isPublic = 1;
+  struct.WebInt64Value_1 callId = 2;
+  struct.WebOffset title = 3;
+}
+
+message WebGetAccountDataRequest {
+  int32 ownerId = 1;
+}
+
+message WebGetAccountsByStateRequest {
+  int32 state = 1;
+  struct.WebPagingData pageData = 2;
+}
+
+message WebGetAccountsRequest {
+  struct.WebPagingData pageData = 1;
+}
+
+message WebGetActiveAdsRequest {}
+
+message WebGetActiveChannelAdsRequest {}
+
+message WebGetActiveSharedMediaRequest {
+  struct.WebExPeer exPeer = 1;
+}
+
+message WebGetAdDataRequest {
+  string adId = 1;
+}
+
+message WebGetAdDetailRequest {
+  string title = 1;
+  int64 from = 2;
+  int64 to = 3;
+}
+
+message WebGetAdProviderRequest {
+  struct.WebGroupPeer peerId = 1;
+  int32 adType = 2;
+  int32 adSpot = 3;
+  int64 adCount = 4;
+}
+
+message WebGetAdReportRequest {
+  string adId = 1;
+}
+
+message WebGetAdReportV2Request {
+  string adId = 1;
+}
+
+message WebGetAdsBySpotAndPlatformRequest {
+  int32 spot = 1;
+  struct.WebGroupPeer peerId = 2;
+}
+
+message WebGetAdsByStateAndSpotRequest {
+  struct.WebPagingData pagingData = 1;
+  int32 state = 2;
+  int32 spot = 3;
+}
+
+message WebGetAdvertisementBotRequest {}
+
+message WebGetAllChannelIncomesFactorRequest {
+  int32 year = 1;
+  int32 month = 2;
+}
+
+message WebGetAuthSessionsRequest {}
+
+message WebGetAvailableCampaignStartDateRequest {}
+
+message WebGetAvailableChargesRequest {
+  int64 operator = 1;
+  int64 chargeType = 2;
+}
+
+message WebGetAwaitingToShowAdsRequest {}
+
+message WebGetAwaitingToShowChannelAdsRequest {}
+
+message WebGetBadgesRequest {}
+
+message WebGetBajeBamTicketRequest {
+  int64 expDateTime = 1;
+  string mobileNo = 2;
+}
+
+message WebGetBaleCustomAdRequest {
+  string adId = 1;
+}
+
+message WebGetBaleTicketRequest {
+  int64 expDateTime = 1;
+  string mobileNo = 2;
+  string clientId = 3;
+}
+
+message WebGetBamServiceTokenRequest {
+  int64 service = 1;
+}
+
+message WebGetBannedUsersRequest {
+  struct.WebGroupPeer group = 1;
+}
+
+message WebGetBonusCodeDataRequest {
+  string code = 1;
+}
+
+message WebGetBonusCodesRequest {
+  struct.WebPagingData pageData = 1;
+}
+
+message WebGetBotBannersRequest {}
+
+message WebGetBotGroupPermissionsRequest {
+  int32 botUserId = 1;
+  int32 groupId = 2;
+}
+
+message WebGetBotInfoRequest {
+  int32 botUserId = 1;
+}
+
+message WebGetBotPageRequest {
+  int32 botId = 1;
+}
+
+message WebGetBotsByCategoryRequest {
+  int64 categoryId = 1;
+  struct.WebT_n8_51787 pagination = 2;
+}
+
+message WebGetBotsRequest {
+  struct.WebT_jq pagination = 1;
+}
+
+message WebGetBotStoriesRequest {}
+
+message WebGetBotWhiteListRequest {
+  int32 botUserId = 1;
+}
+
+message WebGetBusinessAdsRequest {
+  struct.WebPagingData pagingData = 1;
+  int32 state = 2;
+}
+
+message WebGetCallLinkDetailsRequest {
+  string session = 1;
+}
+
+message WebGetCallLogsRequest {
+  struct.WebInt64Value_1 pageNumber = 1;
+  struct.WebInt64Value_1 pageSize = 2;
+  struct.WebInt64Value_1 afterDate = 3;
+  struct.WebInt64Value_1 beforeDate = 4;
+}
+
+message WebGetCallStateRequest {
+  int64 callId = 1;
+}
+
+message WebGetCampaignAdsRequest {
+  struct.WebPagingData pagingData = 1;
+  int32 state = 2;
+}
+
+message WebGetCampaignContentByIdRequest {
+  string campaignId = 1;
+}
+
+message WebGetCampaignContentsRequest {
+  struct.WebPagingData pagingData = 1;
+  int32 state = 2;
+}
+
+message WebGetCampaignDataRequest {
+  string campaignId = 1;
+}
+
+message WebGetCanSeeMessagesRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int32 userId = 2;
+}
+
+message WebGetCardInfoRequest {
+  bytes transactionId = 1;
+  struct.WebCardInfo cardInfo = 2;
+  struct.WebOffset cardId = 3;
+}
+
+message WebGetCardRemainRequest {
+  string cardNumber = 1;
+  string cvv2 = 2;
+  string expireDate = 3;
+  string pin2 = 4;
+}
+
+message WebGetCardsRequest {}
+
+message WebGetCardTransferTokenRequest {
+  struct.WebInt32Value peerUserId = 1;
+  struct.WebInt64Value_1 msgRid = 2;
+  struct.WebStringValue description = 3;
+}
+
+message WebGetCategoriesListRequest {
+  int64 categoryId = 1;
+  struct.WebInt32Value_1 level = 2;
+  struct.WebBoolValue_2 includeSampleMarkets = 3;
+  struct.WebInt32Value_1 version = 4;
+}
+
+message WebGetCategorizedBotsRequest {}
+
+message WebGetCategoryMarketsRequest {
+  int64 categoryId = 1;
+  struct.WebPagination pagination = 2;
+  int64 version = 3;
+}
+
+message WebGetCategoryProductsRequest {
+  int64 categoryId = 1;
+  struct.WebPagination pagination = 2;
+  int64 version = 3;
+}
+
+message WebGetChannelAdsRequest {
+  struct.WebPeer groupId = 1;
+}
+
+message WebGetChannelEarnMoneyInfoRequest {
+  struct.WebPeer groupId = 1;
+}
+
+message WebGetChannelEarnMoneyStatusRequest {
+  struct.WebPeer groupId = 1;
+}
+
+message WebGetChannelGraphReportRequest {
+  struct.WebGroupPeer peerId = 1;
+  int64 startTime = 2;
+  int64 endTime = 3;
+}
+
+message WebGetChannelIncomeReportRequest {
+  struct.WebGroupPeer peerId = 1;
+}
+
+message WebGetChannelOwnerBankInformationRequest {
+  struct.WebGroupPeer channelId = 1;
+}
+
+message WebGetChannelRecommendationsRequest {}
+
+message WebGetChannelShowAdCategoryFilterRequest {
+  struct.WebGroupPeer peerId = 1;
+}
+
+message WebGetChannelShowAdPermissionsRequest {
+  struct.WebGroupPeer peerId = 1;
+}
+
+message WebGetChannelShowAdTimeRestrictRequest {
+  struct.WebGroupPeer peerId = 1;
+}
+
+message WebGetChannelStoriesRequest {}
+
+message WebGetChannelsViewReportRequest {
+  int64 startTime = 2;
+  int64 endTime = 3;
+}
+
+message WebGetChargePaymentTokenRequest {
+  bytes token = 1;
+  int64 amount = 2;
+  int64 callbackType = 3;
+}
+
+message WebGetConfigRequest {}
+
+message WebGetContactsPresencesRequest {
+  struct.WebInt32Value limit = 1;
+}
+
+message WebGetContactsRequest {
+  string contactsHash = 1;
+  repeated int32 optimizations = 2;
+}
+
+message WebGetCreditableAccountsRequest {
+  struct.WebPagingData pageData = 1;
+}
+
+message WebGetCreditHistoryRequest {
+  int32 ownerId = 1;
+  int64 startTime = 2;
+  int64 endTime = 3;
+}
+
+message WebGetCreditRequest {}
+
+message WebGetCRMIssuesRequest {
+  struct.WebUserIssue userIssue = 1;
+  struct.WebAllIssue allIssue = 2;
+}
+
+message WebGetCryptoChargePaymentTokenRequest {
+  bytes token = 1;
+  int64 amount = 2;
+  bytes receiverId = 3;
+}
+
+message WebGetCryptoWalletsRequest {}
+
+message WebGetCustomIncomesRequest {
+  int64 startTime = 1;
+  int64 endTime = 2;
+}
+
+message WebGetCustomServicesRequest {}
+
+message WebGetDefaultCardRequest {}
+
+message WebGetDefaultStoryBackgroundsRequest {}
+
+message WebGetDestinationCardInfoRequest {
+  bytes cardId = 1;
+  bytes destinationPan = 2;
+  int64 amount = 3;
+  bytes sourceAddress = 4;
+  int64 localize = 5;
+  struct.WebInt32Value_1 targetUserId = 6;
+  struct.WebMsg messageData = 7;
+}
+
+message WebGetDestinationCardsRequest {}
+
+message WebGetDialogAdOrderDetailsRequest {}
+
+message WebGetDialogAdOrderPaymentTokenRequest {
+  string id = 1;
+  int64 rialAmount = 2;
+  int64 coinAmount = 3;
+}
+
+message WebGetDifferenceRequest {
+  repeated struct.WebRouteSequence routeSequences = 1;
+  repeated int64 optimizations = 2;
+}
+
+message WebGetDiffRequest {
+  repeated struct.WebState states = 1;
+  repeated int64 optimizations = 2;
+}
+
+message WebGetDiscussionMessageRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId messageId = 2;
+}
+
+message WebGetFactorEligibleAdsRequest {
+  int64 tBegin = 1;
+  int64 tEnd = 2;
+}
+
+message WebGetFullGroupRequest {
+  struct.WebGroupPeer peer = 1;
+}
+
+message WebGetFullPollResultRequest {
+  int64 pollId = 1;
+}
+
+message WebGetFullUserRequest {
+  struct.WebUserPeer peer = 1;
+}
+
+message WebGetGiftPacketPaymentTokenRequest {
+  bytes token = 1;
+  int64 amount = 2;
+  struct.WebPeer peer = 3;
+  struct.WebGiftPacketMessage message = 4;
+}
+
+message WebGetGroupCallRequest {
+  struct.WebOutPeer peer = 1;
+}
+
+message WebGetGroupDefaultCardNumberRequest {
+  struct.WebGroupPeer groupPeerr = 1;
+}
+
+message WebGetGroupInviteURLRequest {
+  struct.WebGroupPeer groupPeer = 1;
+}
+
+message WebGetGroupMembersCountRequest {
+  struct.WebGroupPeer group = 1;
+}
+
+message WebGetGroupMembersPresencesRequest {
+  struct.WebGroupPeer peer = 1;
+}
+
+message WebGetGroupOnlineCountRequest {
+  struct.WebGroupPeer peer = 1;
+}
+
+message WebGetGroupPreviewRequest {
+  string token = 1;
+  struct.WebBoolValue_2 isOpenedOutsideBale = 2;
+}
+
+message WebGetGroupRecommendationsRequest {
+  int32 source = 1;
+}
+
+message WebGetGroupsRecommendationRequest {
+  int64 source = 1;
+}
+
+message WebGetHomePageRequest {}
+
+message WebGetInAppUpdateRequest {}
+
+message WebGetIndexedProductsRequest {
+  int64 startDate = 1;
+  int64 endDate = 2;
+  int64 categoryId = 3;
+}
+
+message WebGetInlineBotResultsRequest {
+  string query = 1;
+  struct.WebPeer peer = 2;
+  int32 botUserId = 3;
+  string offset = 4;
+}
+
+message WebGetInternetBundleListRequest {
+  int64 operatorType = 1;
+  int64 simCardType = 2;
+}
+
+message WebGetInternetBundlePaymentTokenRequest {
+  int64 operatorType = 1;
+  int64 bundleId = 2;
+  bytes phoneNumber = 3;
+  struct.WebInt32Value targetUserId = 4;
+}
+
+message WebGetJWTTokenRequest {}
+
+message WebGetKifpoolOwnerRequest {
+  bytes walletToken = 1;
+}
+
+message WebGetKifpoolPointBalanceRequest {
+  bytes token = 1;
+}
+
+message WebGetKifpoolPointDetailsRequest {
+  bytes token = 1;
+  int64 count = 2;
+  int64 page = 3;
+}
+
+message WebGetKifpoolPointSummeryRequest {
+  bytes token = 1;
+}
+
+message WebGetKifpoolTransactionPointRequest {
+  int64 transactionID = 1;
+  int64 amount = 2;
+}
+
+message WebGetLinkPreviewRequest {
+  bytes url = 1;
+}
+
+message WebGetLinkSummaryRequest {
+  bytes url = 1;
+}
+
+message WebGetMarketJoinRequestsRequest {}
+
+message WebGetMarketRequest {
+  int64 peerId = 1;
+  bytes nickName = 2;
+}
+
+message WebGetMarketsPendingJoinRequestRequest {}
+
+message WebGetMemberPermissionsRequest {
+  struct.WebGroupPeer group = 1;
+  struct.WebUserPeer user = 2;
+}
+
+message WebGetMenuButtonRequest {
+  int64 botUserId = 1;
+}
+
+message WebGetMessageReactionsListRequest {
+  struct.WebPeer peer = 1;
+  int64 rid = 2;
+  int64 date = 3;
+  string code = 4;
+  int32 page = 5;
+  int32 limit = 6;
+}
+
+message WebGetMessagesReactionsRequest {
+  struct.WebPeer peer = 1;
+  repeated struct.WebMessageId mids = 2;
+  struct.WebPeer originPeer = 3;
+  repeated struct.WebMessageId originMids = 4;
+}
+
+message WebGetMessagesRepliesInfoRequest {
+  struct.WebExPeer peer = 1;
+  repeated struct.WebMessageId mids = 2;
+}
+
+message WebGetMessagesViewsRequest {
+  struct.WebPeer peer = 1;
+  repeated struct.WebMessageId mids = 2;
+  bool increment = 3;
+  repeated struct.WebMessageId correctMids = 4;
+}
+
+message WebGetMessageUpvotersRequest {
+  struct.WebBytesValue loadMoreState = 1;
+  struct.WebMsg message = 2;
+}
+
+message WebGetMiniAppUrlRequest {
+  int64 botUserId = 1;
+  int64 screenMode = 2;
+  struct.WebThemeParams themeParams = 3;
+  struct.WebMain main = 4;
+  struct.WebMenuButton menuButton = 5;
+  struct.WebKeyboardButton keyboardButton = 6;
+  struct.WebDirectLink directLink = 7;
+}
+
+message WebGetMoneyRequestDetailsRequest {
+  struct.WebMsg message = 1;
+}
+
+message WebGetMoneyRequestPaymentListRequest {
+  struct.WebMsg message = 1;
+  struct.WebBytesValue loadMoreState = 2;
+}
+
+message WebGetMoneyRequestPaymentTokenByCardRequest {
+  struct.WebMsg msg = 1;
+  struct.WebInt64Value_1 amount = 2;
+  struct.WebStringValue regarding = 3;
+}
+
+message WebGetMostPopularStoriesRequest {
+  struct.WebBoolValue_1 getSpecialStories = 1;
+  int64 optimization = 2;
+}
+
+message WebGetMutualGroupsRequest {
+  struct.WebUserPeer peer = 1;
+}
+
+message WebGetMyContactPopularChannelsRequest {}
+
+message WebGetMyGroupsRequest {
+  int32 mode = 1;
+  bool isOwner = 2;
+  repeated struct.WebFilter filters = 3;
+}
+
+message WebGetMyKifpoolsRequest {
+  struct.WebStringValue invocationSpot = 1;
+  int64 pocketType = 2;
+}
+
+message WebGetMyUpvotesRequest {}
+
+message WebGetMyWalletsRequest {}
+
+message WebGetNasimFilePublicUrlRequest {
+  struct.WebBot peer = 1;
+  struct.WebFileLocation file = 2;
+  struct.WebStringValue filename = 3;
+}
+
+message WebGetNasimFileUploadResumeRequest {
+  struct.WebFileLocation file = 1;
+}
+
+message WebGetNasimFileUploadUrlRequest {
+  int32 expectedSize = 1;
+  int64 crc = 2;
+  int64 uid = 3;
+  string name = 4;
+  string mimeType = 5;
+  struct.WebExPeer exPeer = 6;
+  struct.WebSendType sendType = 7;
+  int64 chunkSize = 8;
+}
+
+message WebGetNasimFileUrlRequest {
+  struct.WebFileLocation file = 1;
+}
+
+message WebGetNasimFileUrlsRequest {
+  repeated struct.WebFileLocation files = 1;
+}
+
+message WebGetNumberOfSalesRequest {
+  struct.WebPeer peer = 1;
+}
+
+message WebGetOnBoardingChannelsRequest {}
+
+message WebGetOnboardingPeersRequest {}
+
+message WebGetOnboardingPostsRequest {
+  int32 categoryId = 1;
+}
+
+message WebGetOnboardingSpotDataRequest {
+  int32 onboardingSpot = 1;
+  int32 suggestedPeerType = 2;
+}
+
+message WebGetOnboardingStatusRequest {}
+
+message WebGetOngoingCallsRequest {
+  struct.WebInt64Value_1 pageNumber = 1;
+  struct.WebInt64Value_1 pageSize = 2;
+}
+
+message WebGetUploadLimitsRequest {}
+
+message WebGetOrganizationPaymentTokenRequest {
+  string organizationId = 1;
+  string invoiceId = 2;
+  int64 amount = 3;
+}
+
+message WebGetOTPTokenRequest {
+  string cardNumberStartingSix = 1;
+}
+
+message WebGetOTPTokenV2Request {
+  struct.WebBot messagePeer = 1;
+  int64 msgRid = 2;
+  int64 msgDate = 3;
+  struct.WebInt32Value peerUserId = 4;
+  string cardNumberStartingSix = 5;
+}
+
+message WebGetOwnerIdByPhoneRequest {
+  string phoneNumber = 1;
+}
+
+message WebGetPackagesRequest {}
+
+message WebGetPaidAdsByTimeRequest {
+  struct.WebPagingData pagingData = 1;
+  int64 startTime = 4;
+  int64 endTime = 5;
+}
+
+message WebGetParametersRequest {}
+
+message WebGetParticipantsRequest {
+  struct.WebMsg messageId = 1;
+  int64 limit = 3;
+  int64 offset = 4;
+}
+
+message WebGetPaymentDataRequest {
+  string adId = 1;
+}
+
+message WebGetPaymentDetailsRequest {
+  struct.WebMsg purchaseMessageId = 1;
+  struct.WebInvoiceIdentifier invoiceIdentifier = 2;
+}
+
+message WebGetPaymentTokenByCardRequest {
+  string targetWallet = 1;
+  int64 amount = 2;
+  struct.WebStringValue regarding = 3;
+}
+
+message WebGetPaymentTokenRequest {
+  struct.WebMsg msg = 1;
+  struct.WebStringValue description = 2;
+  struct.WebInt32Value amount = 3;
+}
+
+message WebGetPayMoneyRequestTokenRequest {
+  struct.WebBot messagePeer = 1;
+  int64 msgRid = 2;
+  int64 msgDate = 3;
+  int32 recipient = 4;
+  struct.WebStringValue description = 5;
+}
+
+message WebGetPayvandCardListRequest {}
+
+message WebGetPayvandCardRequest {
+  string index = 1;
+}
+
+message WebGetPendingCampaignMarketsRequest {}
+
+message WebGetPeriodCapacityDataRequest {
+  int64 beginDate = 1;
+  int64 endDate = 2;
+}
+
+message WebGetPinsRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message WebGetPollResultsRequest {}
+
+message WebGetPSProxyPaymentTokenRequest {
+  int64 paymentAmount = 1;
+  struct.WebMsg msg = 2;
+  struct.WebStringValue description = 3;
+}
+
+message WebGetPSProxyTokenRequest {}
+
+message WebGetRecentChargeOrdersRequest {
+  int64 count = 1;
+  repeated int64 types = 2;
+}
+
+message WebGetRecentChargesRequest {}
+
+message WebGetRecentInternetBundleOrdersRequest {
+  int64 count = 1;
+}
+
+message WebGetRecommendedBotsRequest {
+  int64 botId = 1;
+  struct.WebT_n8_51787 pagination = 2;
+}
+
+message WebGetRelatedChannelsRequest {
+  struct.WebExPeer exPeer = 1;
+}
+
+message WebGetRelatedGroupsRequest {
+  struct.WebExPeer exPeer = 1;
+}
+
+message WebGetRemainTokenRequest {
+  string cardNumberStartingSix = 1;
+}
+
+message WebGetRoutesStatesRequest {
+  repeated struct.WebGroupPeer groupPeers = 1;
+  repeated int64 optimizations = 2;
+}
+
+message WebGetSadadPSPPaymentTokenRequest {
+  struct.WebMsg msg = 1;
+  int64 paymentAmount = 2;
+  struct.WebStringValue description = 3;
+}
+
+message WebGetSavedGifsRequest {
+  struct.WebOffset offset = 1;
+}
+
+message WebGetSectionPageRequest {
+  int32 sectionId = 1;
+}
+
+message WebGetServicesRequest {
+  int64 version = 1;
+}
+
+message WebGetShowReactionFlagRequest {}
+
+message WebGetSimilarPostsRequest {
+  struct.WebMsg message = 1;
+  struct.WebBytesValue loadMoreState = 2;
+}
+
+message WebGetStoriesByListRequest {
+  repeated struct.WebExPeer exPeers = 1;
+}
+
+message WebGetStoriesRequest {
+  struct.WebBoolValue_1 getUnmutual = 1;
+}
+
+message WebGetStoryByIdRequest {
+  bytes storyId = 1;
+}
+
+message WebGetStoryReactionEmojisRequest {}
+
+message WebGetStoryTagsRequest {}
+
+message WebGetStoryWidgetsRequest {
+  bytes storyId = 1;
+}
+
+message WebGetSubTransactionsRequest {
+  struct.WebId transactionId = 1;
+}
+
+message WebGetTagsRequest {
+  int64 categoryId = 1;
+}
+
+message WebGetTicketRequest {
+  string jsonRequest = 1;
+  string jsonSign = 2;
+}
+
+message WebGetTokenInvoiceRequest {
+  int32 service = 1;
+}
+
+message WebGetTopicByIDRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebMessageId topicId = 2;
+}
+
+message WebGetTopicsRequest {
+  struct.WebExPeer exPeer = 1;
+  int64 minDate = 2;
+  int32 limit = 3;
+}
+
+message WebGetTopMarketsRequest {
+  int64 ratingType = 1;
+  struct.WebPagination pagination = 2;
+}
+
+message WebGetTopPeerRequest {}
+
+message WebGetTopUpChargePaymentTokenRequest {
+  bytes providerCode = 1;
+  bytes topupType = 2;
+  int64 amount = 3;
+  bytes targetPhoneNumber = 4;
+  struct.WebInt32Value targetUserId = 5;
+}
+
+message WebGetTotalPaidAmountRequest {
+  struct.WebMsg messageId = 1;
+}
+
+message WebGetTransactionTagsRequest {
+  struct.WebId id = 1;
+}
+
+message WebGetTranscriptRequest {
+  struct.WebMedia voice = 1;
+  struct.WebOutPeer outPeer = 2;
+  struct.WebMessageId messageId = 3;
+}
+
+message WebGetTrendBotsRequest {}
+
+message WebGetUserAccountsRequest {}
+
+message WebGetUserAdsRequest {
+  struct.WebPagingData pagingData = 1;
+  int32 userId = 2;
+}
+
+message WebGetUserAuthDataRequest {
+  struct.WebGroupPeer channelId = 1;
+}
+
+message WebGetUserCampaignsRequest {
+  struct.WebPagingData pagingData = 1;
+  int32 userId = 2;
+}
+
+message WebGetUserContextRequest {
+  int32 botUserId = 1;
+}
+
+message WebGetUserFullPrivacyRequest {
+  int32 userId = 1;
+}
+
+message WebGetUserIdTokenRequest {
+  string ticket = 1;
+}
+
+message WebGetUserOnboardingScenarioRequest {}
+
+message WebGetUserOrganizationalContactsRequest {}
+
+message WebGetUserOrganizationInfoRequest {}
+
+message WebGetUserPrivacyConfigRequest {}
+
+message WebGetUserPrivacyStatusRequest {
+  int32 userId = 1;
+  int32 type = 2;
+}
+
+message WebGetUserRepeatedBotsRequest {}
+
+message WebGetUsersAuthDataByStateRequest {
+  int32 state = 1;
+}
+
+message WebGetUsersDefaultCardNumberRequest {}
+
+message WebGetUsersPresenceRequest {}
+
+message WebGetUserStatusRequest {
+  int64 userId = 1;
+}
+
+message WebGetUserStoryConfigRequest {
+  repeated int64 key = 1;
+  struct.WebExPeer exPeer = 2;
+}
+
+message WebGetUserTagsRequest {
+  int64 getUserTagType = 1;
+}
+
+message WebGetViewersCountRequest {
+  bytes storyId = 1;
+}
+
+message WebGetViewersRequest {
+  bytes storyId = 1;
+  struct.WebT_eC pagination = 2;
+}
+
+message WebGetVODContentsRequest {}
+
+message WebGetVoucherChargePaymentTokenRequest {
+  bytes providerCode = 1;
+  int64 amount = 3;
+  struct.WebInt32Value targetUserId = 4;
+}
+
+message WebGetWalletChargeTokenRequest {
+  string walletId = 1;
+  int64 amount = 2;
+}
+
+message WebGetWalletContractsRequest {}
+
+message WebGetWalletInvoiceRequest {
+  string walletId = 1;
+  struct.WebInt32Value pageNumber = 2;
+}
+
+message WebGetWebappHashRequest {
+  int32 botUserId = 1;
+  string data = 2;
+}
+
+message WebGetWinnerIDsRequest {
+  int64 giftPacketId = 1;
+}
+
+message WebGetWssURLRequest {
+  int64 callId = 1;
+}
+
+message WebGrantBankiAccessRequest {
+  struct.WebUserPeer bot = 1;
+  string serviceKey = 2;
+}
+
+message WebImportContactsRequest {
+  repeated struct.WebPhone phones = 1;
+  repeated int32 optimizations = 3;
+}
+
+message WebInviteToCallRequest {
+  int64 callId = 1;
+  repeated struct.WebOutPeer invitees = 2;
+}
+
+message WebInviteUserRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  struct.WebUserPeer user = 3;
+  int64 rid = 4;
+  repeated int32 optimizations = 5;
+  struct.WebInt32Value messageCount = 6;
+}
+
+message WebInviteUsersRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int64 rid = 2;
+  repeated struct.WebUserPeer users = 3;
+}
+
+message WebInvoiceRequest {
+  bytes token = 1;
+  int64 pageSize = 2;
+  int64 pageNumber = 3;
+}
+
+message WebInvokeCustomActionRequest {
+  string id = 1;
+  struct.WebMessageId messageId = 2;
+  struct.WebOutPeer peer = 3;
+  struct.WebOpenDialogAction openDialogAction = 4;
+  struct.WebDone done = 5;
+}
+
+message WebInvokeCustomMethodRequest {
+  int64 botUserId = 1;
+  bytes method = 2;
+  bytes params = 3;
+}
+
+message WebIsNameAllowedRequest {
+  string name = 1;
+}
+
+message WebIsPremiumBatchRequest {
+  repeated int32 userIds = 1;
+  struct.WebWithDetailOption withDetailOption = 2;
+}
+
+message WebIsPremiumRequest {
+  int32 userId = 1;
+  struct.WebWithDetailOption withDetailOption = 2;
+}
+
+message WebIsTwoFactorAuthenticationEnabledRequest {}
+
+message WebJoinGroupCallRequest {
+  int64 callId = 1;
+  struct.WebOffset name = 2;
+}
+
+message WebJoinGroupRequest {
+  string token = 1;
+  repeated int32 optimizations = 2;
+}
+
+message WebJoinPublicGroupRequest {
+  struct.WebBot peer = 1;
+  repeated int32 optimizations = 2;
+}
+
+message WebKickUserRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  struct.WebUserPeer user = 3;
+  int64 rid = 4;
+  repeated int32 optimizations = 5;
+}
+
+message WebLeaveGroupCallRequest {
+  int64 callId = 1;
+  bool end = 2;
+}
+
+message WebLeaveGroupRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int64 rid = 2;
+  repeated int32 optimizations = 3;
+  struct.WebBoolValue_1 makeOrphan = 4;
+}
+
+message WebListTasksRequest {
+  struct.WebExPeer exPeer = 1;
+  int64 type = 2;
+  int64 status = 3;
+}
+
+message WebLoadAvatarsRequest {
+  struct.WebUserPeer peer = 1;
+}
+
+message WebLoadBlockedUsersRequest {}
+
+message WebLoadCategoriesRequest {}
+
+message WebLoadCategoryFeedMessagesRequest {
+  int64 categoryId = 1;
+  struct.WebBytesValue loadMoreState = 2;
+}
+
+message WebLoadDialogsRequest {
+  int64 minDate = 1;
+  int32 limit = 2;
+  repeated int32 optimizations = 3;
+  int32 dialogType = 4;
+  bool excludePinnedDialogs = 5;
+  int32 archiveFilter = 6;
+}
+
+message WebLoadFolderDialogsRequest {
+  int64 minDate = 1;
+  int32 limit = 2;
+  int32 folderId = 3;
+  int32 archiveFilter = 4;
+}
+
+message WebLoadFoldersRequest {
+  bool includeMutedUnreadPeers = 1;
+  bool isNewUser = 2;
+}
+
+message WebLoadFullGroupsRequest {
+  repeated struct.WebGroupPeer groups = 1;
+}
+
+message WebLoadGroupAvatarsRequest {
+  struct.WebGroupPeer peer = 1;
+}
+
+message WebLoadGroupedDialogsRequest {
+  repeated int32 optimizations = 1;
+  int32 archiveFilter = 2;
+}
+
+message WebLoadGroupsRequest {
+  repeated struct.WebGroupPeer peers = 1;
+}
+
+message WebLoadHistoryRequest {
+  struct.WebPeer peer = 1;
+  int64 date = 2;
+  int32 loadMode = 4;
+  int32 limit = 5;
+  repeated int32 optimizations = 6;
+}
+
+message WebLoadMediaRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebInt64Value_1 date = 2;
+  int64 contentType = 3;
+  int64 loadMode = 4;
+  int64 minimumResults = 5;
+}
+
+message WebLoadMembersRequest {
+  struct.WebGroupPeer group = 1;
+  int32 limit = 2;
+  struct.WebBytesValue next = 3;
+  struct.WebCondition condition = 4;
+}
+
+message WebLoadOwnStickersRequest {
+  struct.WebOffset offset = 1;
+}
+
+message WebLoadPeerDialogsRequest {
+  repeated struct.WebPeer peers = 1;
+}
+
+message WebLoadPeersRequest {}
+
+message WebLoadPinnedDialogsRequest {
+  int32 folderId = 1;
+}
+
+message WebLoadPinnedMessagesRequest {
+  struct.WebExPeer peer = 1;
+}
+
+message WebLoadReactionsRequest {
+  struct.WebPeer peer = 1;
+  repeated struct.WebMessageId mids = 2;
+  bool ignoreCountViews = 3;
+}
+
+message WebLoadRepliesRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId threadId = 2;
+  int64 date = 3;
+  int32 loadMode = 4;
+  int32 limit = 5;
+}
+
+message WebLoadStickerCollectionRequest {
+  int32 id = 1;
+  int64 accessHash = 2;
+}
+
+message WebLoadTransactionsByIDsRequest {
+  repeated struct.WebId transactionIds = 1;
+}
+
+message WebLoadTransactionsRequest {
+  int64 accountNumber = 1;
+  struct.WebInt64Value_1 startDate = 2;
+  struct.WebInt64Value_1 endDate = 3;
+  int64 transactionType = 4;
+  repeated struct.WebTags label = 5;
+  int64 limit = 6;
+  struct.WebOffset loadMoreState = 7;
+  int64 loadMode = 8;
+  int64 userTagType = 9;
+}
+
+message WebLoadUsersRequest {
+  repeated struct.WebUserPeer peers = 1;
+}
+
+message WebLogOutRequest {}
+
+message WebMakePaymentRequest {
+  string paymentSessionId = 1;
+  string paymentOptionId = 2;
+  struct.WebT_yS wallet = 3;
+  struct.WebGateway gateway = 4;
+}
+
+message WebMakeUserAdminRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  struct.WebUserPeer userPeer = 2;
+  struct.WebStringValue adminTitle = 3;
+}
+
+message WebMarkDialogsAsReadRequest {
+  repeated struct.WebExPeer peers = 1;
+}
+
+message WebMarkDialogsAsUnreadRequest {
+  repeated struct.WebExPeer peers = 1;
+}
+
+message WebMentionReadRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId messageId = 2;
+}
+
+message WebMessageReactionsReadRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId messageId = 2;
+}
+
+message WebMessageReadRequest {
+  struct.WebPeer peer = 1;
+  int64 date = 2;
+  struct.WebExPeer exPeer = 3;
+}
+
+message WebMessageReceivedRequest {
+  struct.WebPeer peer = 1;
+  int64 date = 2;
+}
+
+message WebMessageRemoveReactionRequest {
+  struct.WebPeer peer = 1;
+  int64 rid = 2;
+  string code = 3;
+  int64 date = 4;
+}
+
+message WebMessageSetReactionRequest {
+  struct.WebPeer peer = 1;
+  int64 rid = 2;
+  string code = 3;
+  int64 date = 4;
+}
+
+message WebModifyCapacityRequest {
+  int64 date = 1;
+  int32 val = 2;
+}
+
+message WebMuteParticipantRequest {
+  int64 callId = 1;
+  string identity = 2;
+  string trackId = 3;
+  bool revokePublishPermission = 4;
+}
+
+message WebNotifyAboutDeviceInfoRequest {
+  repeated string preferredLanguages = 1;
+  struct.WebStringValue timeZone = 2;
+}
+
+message WebOpenGiftPacketRequest {
+  struct.WebMsg msgIdentifier = 1;
+  bytes receiverWalletId = 2;
+  struct.WebInt32Value pageNo = 3;
+  int64 orderType = 4;
+}
+
+message WebOpenGoldGiftPacketRequest {
+  int64 giftPacketId = 1;
+}
+
+message WebPayByWalletRequest {
+  string sourceWallet = 1;
+  string targetWallet = 2;
+  int64 amount = 3;
+  int32 currency = 4;
+  struct.WebStringValue regarding = 5;
+}
+
+message WebPayForMessageRequest {
+  int64 amount = 1;
+  int64 chargeAmount = 2;
+  struct.WebMsg message = 3;
+}
+
+message WebPayMoneyRequestByWalletRequest {
+  string sourceWalletId = 1;
+  struct.WebMsg msg = 2;
+  struct.WebInt64Value_1 amount = 3;
+  struct.WebStringValue regarding = 4;
+}
+
+message WebPeersWithScheduleTaskRequest {}
+
+message WebPinDialogsRequest {
+  repeated struct.WebExPeer peers = 1;
+  int32 folderId = 2;
+}
+
+message WebPinMessageRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId messageId = 2;
+  bool justMine = 3;
+}
+
+message WebPinMessageRequest_47679 {
+  int32 senderUserId = 1;
+  struct.WebGroupPeer groupPeer = 2;
+  int64 date = 3;
+  int64 msgRid = 4;
+}
+
+message WebPurchaseMessageRequest {
+  struct.WebMsg historyId = 2;
+  struct.WebInt64Value_1 amount = 3;
+  struct.WebStringValue description = 4;
+}
+
+message WebPurchaseMessageWithChargeRequest {
+  struct.WebMsg historyId = 2;
+  struct.WebInt64Value_1 amount = 3;
+  struct.WebStringValue description = 4;
+  int64 chargeAmount = 5;
+}
+
+message WebPurchasePackageRequest {
+  int64 packageId = 1;
+  struct.WebStringValue couponCode = 2;
+}
+
+message WebPurchaseRequest {
+  int64 amount = 1;
+  bytes dstToken = 2;
+  bytes srcToken = 3;
+  bytes description = 4;
+  struct.WebBoolValue_2 useCredit = 5;
+  struct.WebInt32Value couponId = 6;
+  struct.WebStringValue terminalNo = 7;
+  struct.WebInt64Value stan = 8;
+}
+
+message WebPurchaseWithChargeRequest {
+  int64 amount = 1;
+  bytes dstToken = 2;
+  bytes srcToken = 3;
+  bytes description = 4;
+  int64 chargeAmount = 5;
+  struct.WebBoolValue_2 useCredit = 6;
+  struct.WebInt32Value couponId = 7;
+  struct.WebStringValue terminalNo = 8;
+  struct.WebInt64Value stan = 9;
+}
+
+message WebReactivateAppRequest {}
+
+message WebReactToStoryRequest {
+  bytes storyId = 1;
+  bytes reaction = 2;
+  int64 type = 3;
+  int64 reactionType = 4;
+  struct.WebStringValue reactionText = 5;
+}
+
+message WebReceiveCallRequest {
+  int64 callId = 1;
+}
+
+message WebReceiveMessageStreamRequest {
+  struct.WebExPeer exPeer = 1;
+  struct.WebMessageId messageId = 2;
+  struct.WebInt32Value fromChunkId = 3;
+}
+
+message WebRecommendPeerRequest {
+  int64 exPeerType = 1;
+}
+
+message WebRecoverPasswordRequest {
+  string transactionHash = 2;
+}
+
+message WebRegisterForEarnMoneyRequest {
+  struct.WebT_eY_58187 info = 1;
+}
+
+message WebRegisterGooglePushRequest {
+  int64 projectId = 1;
+  string token = 2;
+}
+
+message WebRegisterPushRequest {
+  struct.WebRegister register = 1;
+  int32 pushVersion = 2;
+}
+
+message WebRejectCampaignMarketRequest {
+  int64 marketId = 1;
+  int64 isPermanent = 2;
+}
+
+message WebRejectMarketJoinRequestRequest {
+  int64 marketPeerId = 1;
+  int64 rejectCause = 2;
+  int64 requestId = 3;
+}
+
+message WebRemoveAvatarRequest {
+  struct.WebInt64Value_1 avaterId = 1;
+}
+
+message WebRemoveCardRequest {
+  bytes cardId = 1;
+}
+
+message WebRemoveContactRequest {
+  int32 uid = 1;
+  int64 accessHash = 2;
+}
+
+message WebRemoveDefaultCardNumberRequest {}
+
+message WebRemoveDefaultCardRequest {}
+
+message WebRemoveDestinationCardsRequest {
+  repeated bytes ids = 1;
+}
+
+message WebRemoveDiscussionGroupRequest {
+  int64 rid = 1;
+  struct.WebGroupPeer channel = 2;
+}
+
+message WebRemoveGifRequest {
+  struct.WebFileLocation gif = 1;
+}
+
+message WebRemoveGroupAvatarRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int64 rid = 4;
+  repeated int32 optimizations = 5;
+  struct.WebInt64Value_1 avaterId = 6;
+}
+
+message WebRemoveParticipantRequest {
+  int64 callId = 1;
+  string identity = 2;
+  bool blockFromCall = 3;
+}
+
+message WebRemovePeerRequest {
+  struct.WebPeer peer = 1;
+}
+
+message WebRemovePinRequest {
+  struct.WebGroupPeer groupPeer = 1;
+}
+
+message WebRemoveSinglePinRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int64 msgRid = 2;
+  int64 msgDate = 3;
+}
+
+message WebRemoveStickerCollectionRequest {
+  int32 id = 1;
+  int64 accessHash = 2;
+}
+
+message WebRemoveStickerPackRequest {
+  int32 id = 1;
+}
+
+message WebRemoveStoryRequest {
+  bytes storyId = 1;
+}
+
+message WebRemoveTransactionRequest {
+  repeated struct.WebId transactionIds = 1;
+}
+
+message WebRemoveTransactionTagsRequest {
+  struct.WebId id = 1;
+  repeated struct.WebTags tags = 2;
+}
+
+message WebRemoveUserAdminRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  struct.WebUserPeer userPeer = 2;
+}
+
+message WebRemoveUserTagsRequest {
+  repeated struct.WebTags tags = 1;
+}
+
+message WebReorderFoldersRequest {}
+
+message WebReorderPinnedDialogsRequest {
+  repeated struct.WebExPeer peers = 1;
+  int32 folderId = 2;
+}
+
+message WebReportDismissRequest {
+  struct.WebExPeer exPeer = 2;
+}
+
+message WebReportInappropriateContentRequest {
+  struct.WebReportType report = 1;
+}
+
+message WebReScheduleTaskRequest {
+  int64 taskID = 1;
+  bytes scheduledAt = 2;
+  struct.WebT_Q_ payload = 3;
+}
+
+message WebResetContactsRequest {}
+
+message WebReviveTransactionRequest {
+  struct.WebId transactionId = 1;
+}
+
+message WebRevokeInviteURLRequest {
+  struct.WebGroupPeer groupPeer = 1;
+}
+
+message WebRevokeUpvotedPostRequest {
+  struct.WebMsg message = 1;
+  struct.WebInt64Value_1 albumId = 2;
+}
+
+message WebScheduleTaskRequest {
+  struct.WebExPeer exPeer = 1;
+  bytes scheduledAt = 2;
+  struct.WebT_Q_ payload = 3;
+}
+
+message WebSearchContactsRequest {
+  string request = 1;
+  repeated int32 optimizations = 2;
+}
+
+message WebSearchContentRequest {
+  struct.WebQuery query = 1;
+  int64 contentType = 2;
+  struct.WebBytesValue loadMoreState = 3;
+}
+
+message WebSearchDialogRequest {
+  struct.WebQuery query = 1;
+}
+
+message WebSearchMarketPopularRequest {}
+
+message WebSearchMarketRequest {
+  struct.WebQuery query = 1;
+  struct.WebBoolValue_1 withCategory = 2;
+  struct.WebBytesValue loadMoreState = 3;
+}
+
+message WebSearchMediaRequest {
+  struct.WebAndQuery query = 1;
+  struct.WebInt64Value_1 date = 2;
+  repeated int64 optimizations = 3;
+  int64 loadMode = 4;
+}
+
+message WebSearchMembersRequest {
+  struct.WebQuery query = 1;
+  struct.WebExPeer exPeer = 2;
+  struct.WebBytesValue loadMoreState = 3;
+  repeated struct.WebUserPeer users = 4;
+}
+
+message WebSearchMessageMoreRequest {
+  struct.WebBytesValue loadMoreState = 1;
+  struct.WebAndQuery query = 2;
+  repeated int64 optimizations = 3;
+}
+
+message WebSearchMessagesRequest {
+  struct.WebAndQuery query = 1;
+  repeated int64 optimizations = 2;
+}
+
+message WebSearchPeerRequest {
+  repeated struct.WebAndQuery query = 1;
+  repeated int64 optimizations = 2;
+}
+
+message WebSearchProductRequest {
+  struct.WebQuery query = 1;
+  struct.WebBytesValue loadMoreState = 2;
+}
+
+message WebSendAdminMessageRequest {
+  int32 receiver = 1;
+  string messageText = 2;
+  int64 fileId = 3;
+  string fileName = 4;
+}
+
+message WebFanoosEvent {
+  string eventName = 1;
+  struct.MapValue items = 2;
+  int64 date = 3;
+}
+
+message WebSendBatchRequest {
+  repeated WebFanoosEvent events = 1;
+}
+
+message WebSendAuthenticatedInlineCallBackDataRequest {
+  struct.WebMsg templateMessageId = 1;
+  struct.WebStringValue data = 2;
+}
+
+message WebSendCallReactionRequest {
+  int64 callId = 1;
+  string reaction = 2;
+}
+
+message WebSendChangePhoneVerificationCodeRequest {}
+
+message WebSendDeleteAccountVerificationCodeRequest {}
+
+message WebSendEventRequest {
+  struct.WebTranscriptReactionEvent transcriptReactionEvent = 1;
+}
+
+message WebSendFactorMessageRequest {
+  int32 channelId = 1;
+  string messageText = 2;
+  int64 fileId = 3;
+  string fileName = 4;
+  int32 year = 5;
+  int32 month = 6;
+}
+
+message WebSendFanoosEventRequest {
+  string eventName = 1;
+  struct.WebExt items = 2;
+  int64 date = 3;
+}
+
+message WebSendGiftPacketWithWalletRequest {
+  struct.WebPeer peer = 1;
+  int64 randomId = 2;
+  struct.WebGiftPacketMessage message = 3;
+  bytes sourceWalletId = 4;
+}
+
+message WebSendGoldGiftPacketRequest {
+  int64 amount = 2;
+  int64 count = 3;
+  string description = 4;
+  int32 givingType = 5;
+  int64 randomId = 6;
+  struct.WebPeer peer = 7;
+}
+
+message WebSendInlineCallBackDataRequest {
+  struct.WebMsg historyMessageIdentifier = 1;
+  struct.WebStringValue data = 2;
+}
+
+message WebSendInlineCallbackRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId messageId = 2;
+  struct.WebStringValue data = 3;
+}
+
+message WebSendMiniAppDataRequest {
+  int32 botUserId = 1;
+  struct.WebStringValue queryId = 2;
+  struct.WebStringValue data = 3;
+  struct.WebStringValue buttonText = 4;
+}
+
+message WebSendOTPRequest {}
+
+message WebSetAdTargetRequest {
+  string adId = 1;
+  struct.WebTargeting targeting = 2;
+}
+
+message WebSetAvailableReactionsRequest {
+  struct.WebGroupPeer group = 1;
+  repeated string codes = 2;
+}
+
+message WebSetCanSeeHistoryRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  bool canSeeHistory = 2;
+}
+
+message WebSetCanSeeMessagesRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int32 userId = 2;
+  bool canSeeMessages = 3;
+}
+
+message WebSetChannelInvoiceInfoRequest {
+  struct.WebGroupPeer peerId = 1;
+  string nationalCode = 2;
+  string address = 3;
+  string postalCode = 4;
+  string name = 5;
+  int32 tag1 = 6;
+  int32 tag2 = 7;
+  string birthDate = 8;
+}
+
+message WebSetChannelOwnerBankInformationRequest {
+  struct.WebGroupPeer channelId = 1;
+  string nationalCode = 2;
+  string birthDate = 3;
+  string address = 4;
+  string postalCode = 5;
+  string melliAccountNumber = 6;
+}
+
+message WebSetConfigRequest {
+  struct.WebT_tl_91847 config = 1;
+}
+
+message WebSetDefaultCardRequest {
+  bytes cardId = 1;
+}
+
+message WebSetDiscussionGroupRequest {
+  int64 rid = 1;
+  struct.WebGroupPeer channel = 2;
+}
+
+message WebSetGenericDeepLinksRequest {
+  repeated struct.WebLink links = 1;
+}
+
+message WebSetGroupDefaultPermissionsRequest {
+  struct.WebGroupPeer group = 1;
+  struct.WebPermissions permissions = 2;
+}
+
+message WebSetLinkTitleRequest {
+  string title = 1;
+  struct.WebInt64Value_1 callId = 2;
+  struct.WebOffset linkUrl = 3;
+}
+
+message WebSetMarketBannersRequest {
+  repeated struct.WebT_ib_88717 banners = 1;
+}
+
+message WebSetMemberCustomTitleRequest {
+  int32 groupId = 1;
+  int32 memberId = 2;
+  string title = 3;
+}
+
+message WebSetMemberPermissionsRequest {
+  struct.WebGroupPeer group = 1;
+  struct.WebUserPeer user = 2;
+  struct.WebPermissions permissions = 3;
+}
+
+message WebSetNewPasswordRequest {
+  string newPassword = 1;
+  string transactionHash = 2;
+}
+
+message WebSetOnBoardingChannelsRequest {
+  repeated struct.WebChannel channels = 1;
+}
+
+message WebSetOnboardingDataRequest {
+  repeated int64 categoryIds = 1;
+  int64 gender = 2;
+  struct.WebBoolValue_1 isSkipped = 3;
+}
+
+message WebSetOnlineRequest {
+  bool isOnline = 1;
+  int64 timeout = 2;
+  int32 deviceType = 3;
+  struct.WebStringValue deviceCategory = 4;
+}
+
+message WebSetPasswordRequest {
+  string password = 1;
+}
+
+message WebSetPopularSearchesRequest {
+  repeated struct.WebT_i__88717 items = 1;
+}
+
+message WebSetRestrictionRequest {
+  struct.WebGroupPeer groupOutPeer = 1;
+  int32 restriction = 2;
+  struct.WebStringValue nick = 3;
+}
+
+message WebSetUserAuthDataRequest {
+  struct.WebGroupPeer channelId = 1;
+  string nationalCode = 2;
+  string birthDate = 3;
+  string address = 4;
+  string postalCode = 5;
+  string melliAccountNumber = 6;
+}
+
+message WebSetUserBadgeRequest {
+  int64 badgeId = 1;
+}
+
+message WebSetUserPrivacyConfigRequest {
+  struct.WebPrivacyConfig config = 1;
+}
+
+message WebSetUserPrivacyStatusRequest {
+  int32 userId = 1;
+  int32 type = 2;
+  int32 status = 3;
+}
+
+message WebSetUserStoryConfigRequest {
+  int64 setType = 1;
+  struct.WebConfig config = 2;
+  struct.WebExPeer exPeer = 3;
+}
+
+message WebSignOutRequest {}
+
+message WebSignUpRequest {
+  string transactionHash = 1;
+  string name = 2;
+  int32 sex = 3;
+  struct.WebStringValue password = 4;
+}
+
+message WebSplitTransactionRequest {
+  struct.WebId transactionId = 1;
+  repeated struct.WebUnit units = 2;
+}
+
+message WebStartAdRequest {
+  string adId = 1;
+  int64 startTime = 2;
+  int32 platform = 3;
+  bool autoFinish = 4;
+}
+
+message WebStartBaleCustomAdRequest {
+  string id = 1;
+  int32 platform = 2;
+  string pic = 3;
+  string title = 4;
+  string description = 5;
+  string link = 6;
+  int64 startTime = 7;
+  int32 viewCount = 8;
+  int32 clickCount = 9;
+}
+
+message WebStartCallRequest {
+  struct.WebPeer peer = 1;
+  int64 rid = 2;
+  bool video = 3;
+  struct.WebInternalCall internalCall = 4;
+  struct.WebSipCall sipCall = 5;
+  struct.WebLiveKitCall liveKitCall = 6;
+}
+
+message WebStartChannelAdFromOrderRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string link = 4;
+  int64 startTime = 5;
+  int32 viewCount = 6;
+  int32 clickCount = 7;
+  int32 platform = 8;
+}
+
+message WebStartFromOrderRequest {
+  string id = 1;
+  int32 platform = 2;
+  string pic = 3;
+  string title = 4;
+  string description = 5;
+  string link = 6;
+  int64 startTime = 7;
+  int64 viewCount = 8;
+  int64 clickCount = 9;
+}
+
+message WebStartGroupCallRequest {
+  struct.WebOutPeer peer = 1;
+  int64 randomId = 2;
+  bool video = 3;
+  int32 mode = 4;
+  repeated struct.WebOutPeer invitees = 5;
+}
+
+message WebStartPhoneAuthRequest {
+  int64 phoneNumber = 1;
+  int32 appId = 2;
+  string apiKey = 3;
+  bytes deviceHash = 4;
+  string deviceTitle = 5;
+  struct.WebStringValue timeZone = 6;
+  repeated string preferredLanguages = 7;
+  struct.WebValue imeiList = 8;
+  int32 sendCodeType = 9;
+  repeated int32 options = 10;
+}
+
+message WebStartRecordingRequest {
+  int64 callId = 1;
+  string layout = 2;
+  int32 quality = 3;
+}
+
+message WebStartStreamRequest {
+  struct.WebExPeer streamUser = 1;
+  string url = 2;
+  string rtmpServer = 3;
+}
+
+message WebStopAllBaleCustomAdsRequest {}
+
+message WebStopRecordingRequest {
+  int64 callId = 1;
+}
+
+message WebStopTypingRequest {
+  struct.WebPeer peer = 1;
+  int32 typingType = 2;
+}
+
+message WebSubmitCallFeedbackRequest {
+  int64 callId = 1;
+  int32 rate = 2;
+  struct.WebOffset userOpinion = 3;
+  int32 client = 4;
+  struct.WebOffset clientVersion = 5;
+  map<string, bytes> extraFields = 6;
+  struct.WebBoolValue_2 isStream = 7;
+}
+
+message WebSubmitChannelAdOrderRequest {
+  struct.WebOrder order = 1;
+}
+
+message WebSubmitDialogAdOrderRequest {
+  struct.WebDialogAdOrder dialogAdOrder = 1;
+}
+
+message WebSubmitMarketFeedbackRequest {
+  int64 rate = 1;
+  struct.WebOffset userOpinion = 2;
+  struct.WebOffset clientVersion = 3;
+  map<string, bytes> extraFields = 4;
+}
+
+message WebSubmitPhotoForBaleCustomAdRequest {
+  string adId = 1;
+  string pic = 2;
+}
+
+message WebSubmitReviewRequest {
+  int32 botId = 1;
+  struct.WebInt32Value rating = 2;
+  struct.WebStringValue comment = 3;
+  struct.WebStringValue payload = 4;
+  int32 origin = 5;
+  struct.WebStringValue language = 6;
+}
+
+message WebSubscribeFromGroupOnlineRequest {
+  repeated struct.WebGroupPeer groups = 1;
+}
+
+message WebSubscribeFromOnlineRequest {
+  repeated struct.WebUserPeer users = 1;
+}
+
+message WebSubscribeToGroupOnlineRequest {
+  repeated struct.WebGroupPeer groups = 1;
+}
+
+message WebSubscribeToOnlineRequest {
+  repeated struct.WebUserPeer users = 1;
+}
+
+message WebSubscribeToThreadUpdatesRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId threadId = 2;
+}
+
+message WebSubscribeToUpdatesRequest {
+  int64 isMtProto = 1;
+}
+
+message WebT_iU_58187 {
+  struct.WebGroupPeer peerId = 1;
+  int32 payType = 2;
+}
+
+message WebT_O_54329 {
+  struct.WebBytesValue loadMoreState = 2;
+}
+
+message WebT_sx_88717 {
+  int64 version = 1;
+}
+
+message WebT_z_53871 {
+  repeated struct.WebUserPeer userPeers = 1;
+}
+
+message WebTakeCallActionRequest {
+  int64 callId = 1;
+  struct.WebLowerHand lowerHand = 2;
+  struct.WebRaiseHand raiseHand = 3;
+}
+
+message WebTerminateAllSessionsRequest {}
+
+message WebTerminateSessionRequest {
+  int32 id = 1;
+}
+
+message WebTransferMoneyByCardRequest {
+  bytes cardId = 1;
+  int64 transferCode = 2;
+  bytes destinationPan = 3;
+  int64 amount = 4;
+  bytes pin = 5;
+  bytes cvv2 = 6;
+  bytes expiryDate = 7;
+  bytes sourceAddress = 8;
+  int64 localize = 9;
+  bytes approvalCode = 10;
+  struct.WebOffset encryptedTransferInfo = 11;
+  struct.WebMsg messageData = 12;
+  struct.WebInt32Value_1 targetUserId = 13;
+  struct.WebOffset description = 14;
+  struct.WebOffset ramzToken = 15;
+}
+
+message WebTransferOwnershipRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  int32 newOwner = 2;
+}
+
+message WebTransferRequest {
+  bytes sourceToken = 1;
+  struct.WebStringValue destinationToken = 2;
+  struct.WebStringValue destinationPhone = 3;
+  struct.WebInt32Value destinationUserid = 4;
+  int64 amount = 5;
+  struct.WebStringValue description = 6;
+}
+
+message WebTypingRequest {
+  struct.WebPeer peer = 1;
+  int32 typingType = 3;
+}
+
+message WebUnArchiveDialogsRequest {
+  repeated struct.WebExPeer exPeers = 1;
+}
+
+message WebUnBanUserRequest {
+  struct.WebGroupPeer groupPeer = 1;
+  struct.WebUserPeer user = 2;
+  repeated int32 optimizations = 3;
+}
+
+message WebUnblockUserRequest {
+  struct.WebUserPeer peer = 1;
+}
+
+message WebUnpinDialogsRequest {
+  repeated struct.WebExPeer peers = 1;
+  int32 folderId = 2;
+}
+
+message WebUnPinMessagesRequest {
+  struct.WebExPeer peer = 1;
+  repeated struct.WebMessageId messageIds = 2;
+  bool all = 3;
+}
+
+message WebUnregisterAllPushCredentialsRequest {}
+
+message WebUnregisterGooglePushRequest {
+  string token = 1;
+}
+
+message WebUnregisterPushRequest {
+  struct.WebUnregister unregister = 1;
+}
+
+message WebUnScheduleTaskRequest {}
+
+message WebUnsubscribeFromThreadUpdatesRequest {
+  struct.WebExPeer peer = 1;
+  struct.WebMessageId threadId = 2;
+}
+
+message WebUpdateBusinessAdRequest {
+  struct.WebUpdatedAd updatedAd = 1;
+}
+
+message WebUpdateClickRequest {
+  string id = 1;
+  int32 count = 2;
+  struct.WebExPeer peer = 3;
+}
+
+message WebUpdateCRMIssueRequest {
+  struct.WebAddIssue addIssue = 1;
+  struct.WebAddComment addComment = 2;
+  struct.WebResolveIssue resolveIssue = 3;
+  struct.WebIgnoreUser ignoreUser = 4;
+}
+
+message WebUpdateGroupStatusRequest {
+  struct.WebPeer groupId = 1;
+}
+
+message WebUpdateLayoutRequest {
+  int64 callId = 1;
+  string requestedLayout = 2;
+}
+
+message WebUpdateMarketInfoRequest {
+  int64 peerId = 1;
+  struct.WebStringValue displayName = 2;
+  struct.WebInt32Value primaryCategoryId = 3;
+  struct.WebBoolValue_1 isBanned = 4;
+  struct.WebBoolValue_1 isActive = 5;
+}
+
+message WebUpdateMessageRequest {
+  struct.WebPeer peer = 1;
+  int64 rid = 2;
+  struct.WebMessage updatedMessage = 3;
+}
+
+message WebUpdateSearchContentClickRequest {
+  struct.WebMsg messageId = 1;
+  int64 searchTab = 2;
+}
+
+message WebUpdateViewRequest {
+  string id = 1;
+  int32 count = 2;
+  struct.WebGroupPeer peerId = 3;
+}
+
+message WebUpgradeKifpoolRequest {
+  bytes token = 1;
+  struct.WebStringValue nationalId = 2;
+  struct.WebStringValue cardNo = 3;
+  struct.WebStringValue accountNo = 4;
+  bytes remainReferenceNumber = 5;
+}
+
+message WebUpvotePostRequest {
+  struct.WebMsg message = 1;
+  struct.WebInt64Value_1 albumId = 2;
+}
+
+message WebUseGifRequest {
+  struct.WebFileLocation gif = 1;
+  int64 usedAt = 2;
+}
+
+message WebValidateCodeRequest {
+  string transactionHash = 1;
+  string code = 2;
+  struct.WebBoolValue_1 isJwt = 3;
+  repeated string futureAuthTokens = 4;
+}
+
+message WebValidateOTPRequest {
+  int32 otp = 1;
+  int32 servicesType = 2;
+}
+
+message WebValidatePasswordRequest {
+  string transactionHash = 1;
+  string password = 2;
+  struct.WebBoolValue_1 isJwt = 3;
+}
+
+message WebVerifyCashOutKifpoolRequest {
+  bytes token = 1;
+}
+
+message WebVerifyCashOutRequest {
+  string walletId = 1;
+  string accountNo = 2;
+  string nationalId = 3;
+}
+
+message WebVerifyEmailRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message WebVerifyPasswordRecoveryRequest {
+  string code = 1;
+  string transactionHash = 2;
+}
+
+message WebVerifyPasswordRequest {
+  string password = 1;
+}
+
+message WebVerifyPeerRequest {
+  struct.WebBot targetPeer = 1;
+}
+
+message WebVerifyPurchaseMessageRequest {
+  struct.WebMsg historyId = 1;
+}
+
+message WebVerifyQRCodeRequest {
+  string targetWalletId = 1;
+}
+
+message WebVoteRequest {
+  int64 pollId = 1;
+  int64 isRetract = 2;
+  int64 voteAt = 3;
+  repeated int64 optionIds = 4;
+}
+
+message WebExtMyBankGetMyBankRequest {
+}
+
+message WebExtGoldWalletGetBalanceRequest {
+}
+
+message WebExtNegahGetMessageSeenListRequest {
+  struct.WebExtNegahPeer peer = 1;
+  struct.WebExtNegahMessageId messageId = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message WebExtFalakeGetLinkStatusRequest {
+    string link = 1;
+}
+
+message WebExtAnonymousContactGetUserAnonymousContactPageRequest {
+  int32 userId = 1;
+  int64 serviceMessageRid = 2;
+  int64 serviceMessageDate = 3;
+}
+
+message WebExtLLMAuthServiceGetAuthTokenRequest {
+}
+
+message WebExtFanoosSendRequest {
+  string eventName = 1;
+  optional struct.WebExtFanoosItems items = 2;
+  int64 date = 3;
+}
+
+message WebExtFeedBackSendFeedBackRequest {
+  int32 rate = 1;
+  string title = 2;
+  string description = 3;
+  map<string, string> details = 4;
+  struct.WebExtFeedBackMtDetails mtDetails = 5;
+}

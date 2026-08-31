@@ -385,15 +385,15 @@ message DoubleValue {
 }
 
 message ArrayValue {
-  repeated bytes array = 1;
+  repeated RawValue array = 1;
 }
 
 message RawValue {
-  StringValue string_value = 1;
-  BoolValue boolean_value = 2;
-  Int32Value int32_value = 3;
-  Int64Value int64_value = 4;
-  DoubleValue double_value = 5;
+  string string_value = 1;
+  bool boolean_value = 2;
+  int32 int32_value = 3;
+  int64 int64_value = 4;
+  double double_value = 5;
   ArrayValue array_value = 6;
 }
 
@@ -805,4 +805,4971 @@ message Report {
   string description = 2;
   PeerReport peer_report = 101;
   MessageReport message_report = 102;
+}
+
+// ===== BEGIN COMPLETE PROTOCOL TYPES =====
+
+message WebAccount {
+  int64 accountNumber = 1;
+  bytes accountCardNumber = 2;
+  bytes amount = 3;
+}
+
+message WebAccountDeleted {
+  int32 userId = 1;
+}
+
+message WebAction {
+  WebRaiseHand raiseHand = 1;
+  WebLowerHand lowerHand = 2;
+}
+
+message WebAd {
+  string id = 1;
+  string pic = 2;
+  string title = 3;
+  string description = 4;
+  string link = 5;
+  int32 status = 6;
+}
+
+message WebAddComment {
+  int32 userId = 1;
+  string comment = 2;
+}
+
+message WebAddIssue {
+  WebT_tw_58187 data = 1;
+}
+
+message WebAds {
+  string id = 1;
+  string title = 2;
+  string picUrl = 3;
+  string description = 4;
+  string link = 5;
+  string linkTitle = 6;
+  int32 ownerId = 7;
+  int32 viewCount = 8;
+  int32 clickCount = 9;
+  int64 createdAt = 10;
+  int64 desiredStartTime = 11;
+  int64 startTime = 12;
+  int64 finishTime = 13;
+  int32 state = 14;
+  int32 spot = 15;
+  int32 platform = 16;
+  int32 topic = 17;
+  string rejectionReason = 18;
+  bool autoFinish = 19;
+  int32 setView = 20;
+  int32 setClick = 21;
+  string discountCode = 22;
+  int64 totalPrice = 23;
+  int64 payedPrice = 24;
+  string phoneNo = 25;
+  WebSponsoredMessageOption sponsoredMessageOption = 26;
+  int32 tag1 = 27;
+  int32 tag2 = 28;
+  int32 ownerType = 29;
+  bool isInstant = 30;
+  int32 targetType = 31;
+  repeated int32 targetIds = 32;
+  bool isOnlyTargeted = 33;
+  WebTargeting targeting = 34;
+}
+
+message WebAdvertisementMessage {}
+
+message WebAlbumMessage {
+  repeated WebMedia documentMessages = 1;
+  repeated WebT___54329 items = 2;
+}
+
+message WebAllContactsRemoved {}
+
+message WebAllIssue {
+  int32 type = 1;
+  WebBoolValue_1 isResolved = 2;
+  WebPagingData pagingData = 3;
+}
+
+message WebAndQuery {
+  WebSearchAndCondition searchAndCondition = 1;
+  WebSearchOrCondition searchOrCondition = 2;
+  WebSearchPeerCondition searchPeerCondition = 3;
+  WebSearchPeerContentType searchPeerContentType = 4;
+  WebSearchPeerTypeCondition searchPeerTypeCondition = 5;
+  WebQuery searchPieceText = 6;
+  WebSearchDate searchDate = 7;
+  WebSearchSender searchSender = 8;
+  WebSearchHasLink searchHasLink = 9;
+  WebSearchDocumentName searchDocumentName = 10;
+  WebSearchScopeCondition searchScopeCondition = 11;
+}
+
+message WebAnimatedSticker {
+  int32 id = 1;
+  WebStringValue emoji = 2;
+  WebImageLocation fileLocation = 3;
+}
+
+message WebAnimatedStickerMessage {
+  WebInt32Value stickerId = 1;
+  WebBytesValue fastPreview = 2;
+  WebImageLocation fileLocation = 3;
+  WebInt32Value stickerCollectionId = 5;
+  WebInt64Value_1 stickerCollectionAccessHash = 6;
+}
+
+message WebAnswer {
+  bytes text = 1;
+  int64 type = 2;
+}
+
+message WebApnRegister {
+  string deviceToken = 1;
+  string VoIPDeviceToken = 2;
+}
+
+message WebApnUnregister {
+  string deviceToken = 1;
+  string VoIPDeviceToken = 2;
+}
+
+message WebAskBotReview {
+  int32 botId = 1;
+  WebInt32Value previousRating = 2;
+  WebStringValue previousComment = 3;
+  WebStringValue payload = 4;
+}
+
+message WebAttache {
+  WebStringValue title = 1;
+  WebStringValue titleUrl = 2;
+  WebImageLocation titleIcon = 3;
+  WebStringValue text = 4;
+  WebStyle style = 5;
+  repeated WebField fields = 6;
+}
+
+message WebAttendanceConfig {
+  int64 count = 1;
+}
+
+message WebAttributes {
+  WebBoolValue_1 isMentioned = 1;
+  WebBoolValue_1 isHighlighted = 2;
+  WebBoolValue_1 isNotified = 3;
+  WebBoolValue_1 isOnlyForYou = 4;
+}
+
+message WebAudience {
+  repeated int32 audienceIds = 1;
+  int64 fileId = 2;
+}
+
+message WebAuthentication {}
+
+message WebAvatar {
+  WebSmallImage smallImage = 1;
+  WebSmallImage largeImage = 2;
+  WebSmallImage fullImage = 3;
+  WebInt64Value_1 id = 4;
+  WebInt64Value_1 date = 5;
+}
+
+message WebAvatars {
+  repeated WebAvatar avatars = 1;
+}
+
+message WebBadge {
+  int64 badgeId = 1;
+  string faName = 2;
+  string enName = 3;
+  string mediaUrl = 4;
+  int32 mediaFormat = 5;
+}
+
+message WebBalance {
+  int32 currency = 1;
+  int64 amount = 2;
+}
+
+message WebBaleAd {
+  int64 peerUniqueId = 1;
+}
+
+message WebBaleChannelAd {
+  string adTitle = 1;
+  string description = 2;
+  string linkTitle = 3;
+  string link = 4;
+  string id = 5;
+  int32 tag1 = 7;
+  int32 tag2 = 8;
+  WebOutPeer peer = 9;
+}
+
+message WebBaleCustomAd {
+  string pic = 1;
+  string title = 2;
+  string description = 3;
+  string link = 4;
+  string id = 5;
+  int64 accessHash = 6;
+  int32 tag1 = 7;
+  int32 tag2 = 8;
+  string linkTitle = 9;
+  WebOutPeer peer = 10;
+  int32 ownerType = 11;
+  WebImageLocation imageLocation = 12;
+}
+
+message WebBaleSponsoredMessageAd {
+  string id = 1;
+  string caption = 2;
+  WebImageLocation imageLocation = 3;
+  int32 tag1 = 4;
+  int32 tag2 = 5;
+  string link = 6;
+  string linkTitle = 7;
+  WebOutPeer peer = 8;
+}
+
+message WebBaleUnderPeerAd {
+  string id = 1;
+  WebFileLocation fileLocation = 2;
+  string link = 3;
+  int64 expireTime = 4;
+  int32 bannerWidth = 5;
+  int32 bannerHeight = 6;
+}
+
+message WebBankEx {
+  WebBankMoneyTransfer bankMoneyTransfer = 1;
+  WebBankRemain bankRemain = 2;
+  WebBankTransaction bankTransaction = 3;
+  WebReceiptMessage receiptMessage = 4;
+  WebDeprecatedReceipt deprecatedReceipt = 5;
+  WebDeprecatedReceiptMessage deprecatedReceiptMessage = 6;
+}
+
+message WebBankMessage {
+  WebBankEx bankEx = 1;
+}
+
+message WebBankMoneyTransfer {
+  WebOriginAccount originAccount = 1;
+  WebOriginAccount destAccount = 2;
+  int64 moneyTransferVal = 3;
+  int64 referenceNumber = 4;
+  int64 paymentCode = 5;
+  WebStringValue description = 6;
+  int64 moneyTransferDate = 7;
+  WebInt32Value branch = 8;
+}
+
+message WebBankRemain {
+  WebOriginAccount bankAccount = 1;
+  int64 remainDate = 2;
+}
+
+message WebBankTransaction {
+  repeated WebT_t6_95053 transactions = 1;
+}
+
+message WebBannedMessage {
+  int32 banReason = 1;
+}
+
+message WebBannedUser {
+  WebUserPeer bannedUser = 1;
+  WebUserPeer bannerUser = 2;
+}
+
+message WebBanner {
+  WebT_n0_51787 action = 1;
+  bytes url = 2;
+  int64 fileIdBanner = 3;
+}
+
+message WebBanners {
+  repeated WebBanner banners = 1;
+}
+
+message WebBillOrderMessage {
+  string billId = 1;
+  string payId = 2;
+  int32 amount = 3;
+  string terminalId = 4;
+  string cardAcqId = 5;
+  int32 billType = 6;
+}
+
+message WebBinaryMessage {
+  string contentTag = 1;
+  bytes msg = 2;
+}
+
+message WebBoolValue_1 {
+  bool value = 1;
+}
+
+message WebBoolValue_2 {
+  bool value = 1;
+}
+
+message WebBot {
+  int32 type = 1;
+  int32 id = 2;
+}
+
+message WebBotCommand {
+  string slashCommand = 1;
+  string description = 2;
+  WebStringValue locKey = 3;
+}
+
+message WebBotExInfo {
+  WebStringValue botActiveUsers = 1;
+  WebBoolValue_1 hasMainMiniApp = 2;
+  WebIntro intro = 3;
+  WebIntroMessage introMessage = 4;
+  WebBoolValue_1 hasTimcheProfile = 5;
+  bool hasMultipleTopics = 6;
+  bool allowTopicCreation = 7;
+}
+
+message WebBotInfo {
+  repeated WebT_k_22369 webApp = 2;
+  WebInlineMode inlineMode = 3;
+}
+
+message WebBotInlineMediaResult {
+  WebFileLocation file = 1;
+  bytes mimeType = 2;
+  WebT_LnR extra = 3;
+  int64 fileSize = 4;
+  bytes fileName = 5;
+  WebThumb thumb = 6;
+}
+
+message WebBotInlineMessage {
+  WebBotInlineMessageText botInlineMessageText = 1;
+  WebBotInlineMessageMediaAuto botInlineMessageMediaAuto = 2;
+}
+
+message WebBotInlineMessageMediaAuto {
+  bytes caption = 1;
+}
+
+message WebBotInlineMessageText {
+  bytes text = 1;
+}
+
+message WebBotInlineResult {
+  bytes url = 1;
+}
+
+message WebBots {
+  int64 botUserId = 1;
+  bytes description = 2;
+}
+
+message WebBotStoryResult {
+  bytes id = 1;
+  int64 ownerUserId = 2;
+  WebStringValue reaction = 3;
+  int64 createdAt = 4;
+  WebStoryContent storyContent = 5;
+  int64 hasReply = 6;
+  WebExPeer exPeer = 7;
+  int64 hasWidget = 8;
+  repeated int64 tagIds = 9;
+  int64 storyContentType = 10;
+  repeated WebReactionData reactions = 11;
+  int64 isHidden = 12;
+}
+
+message WebBotsVitrine {
+  repeated WebBots bots = 1;
+}
+
+message WebBoughtPremiumMessage {
+  WebMessage originalMessage = 1;
+}
+
+message WebBtnList {
+  string text = 1;
+  string value = 2;
+  int32 action = 3;
+}
+
+message WebBundle {
+  int64 id = 1;
+  bytes title = 2;
+  int64 amount = 3;
+  int64 billAmount = 4;
+}
+
+message WebBundleList {
+  int64 type = 1;
+  repeated WebBundle bundles = 2;
+}
+
+message WebButtonNavigation {
+  int64 type = 1;
+  int64 serviceCategoryId = 2;
+  WebStringValue destinationUrl = 3;
+}
+
+message WebBytesValue {
+  bytes value = 1;
+}
+
+message WebCall {
+  int64 id = 1;
+  string token = 2;
+  string room = 3;
+  WebStringValue url = 4;
+  bool video = 5;
+  int64 createDate = 6;
+  int64 startDate = 7;
+  int32 adminUid = 8;
+  WebBot peer = 9;
+  int32 duration = 10;
+  int32 discardReason = 11;
+  bool isLivekit = 12;
+  WebInt64Value_1 discardServiceMessageRid = 13;
+  WebInt64Value_1 discardServiceMessageDate = 14;
+  map<string, bytes> extra = 15;
+  map<string, bytes> ext = 16;
+}
+
+message WebCallAccepted {
+  WebCall call = 1;
+  repeated WebPeer participants = 2;
+}
+
+message WebCallAction {
+  int64 callId = 1;
+  WebExPeer actionTaker = 2;
+  WebAction action = 3;
+}
+
+message WebCallDiscarded {
+  WebCall call = 1;
+  repeated WebPeer participants = 2;
+}
+
+message WebCallEvent {
+  int64 callId = 1;
+  string triggererIdentity = 2;
+  int32 type = 3;
+  map<string, bytes> extraData = 4;
+}
+
+message WebCallJoinRequestAnswered {
+  bool isAllowed = 1;
+  int64 callId = 2;
+}
+
+message WebCallJoinRequestReceived {
+  int64 callId = 1;
+  string requesterIdentifier = 2;
+  string name = 3;
+}
+
+message WebCallLinkGenerated {
+  WebGroupCall groupCall = 1;
+}
+
+message WebCallLog {
+  WebOutPeer initiator = 1;
+  WebOutPeer peer = 2;
+  WebOutPeer finisher = 3;
+  int64 duration = 4;
+  int64 startDate = 5;
+  map<string, bytes> extra = 6;
+  WebPrivateCallLog privateCallLog = 7;
+  WebGroupCallLog groupCallLog = 8;
+  map<string, bytes> ext = 9;
+  WebInt64Value_1 callId = 10;
+  WebMultiPeerCallLog multiPeerCallLog = 11;
+  string title = 12;
+  string link = 13;
+  bool isPublic = 14;
+  int64 endDate = 15;
+  int64 creationDate = 16;
+}
+
+message WebCallReactionSent {
+  WebOutPeer sender = 1;
+  WebOutPeer peer = 2;
+  string reaction = 3;
+}
+
+message WebCallReceived {
+  int64 callId = 1;
+  repeated WebPeer participants = 2;
+}
+
+message WebCallStarted {
+  WebCall call = 1;
+  repeated WebPeer participants = 2;
+}
+
+message WebCallUpgraded {
+  int32 previousMode = 1;
+  int32 currentMode = 2;
+  int64 callId = 3;
+}
+
+message WebCampaign {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string picUrl = 4;
+  string link = 5;
+  int32 spot = 6;
+  int32 type = 7;
+  int32 tag1 = 8;
+  int32 tag2 = 9;
+  int32 ownerId = 10;
+  WebTargeting targeting = 11;
+  bool isOnlyTargeted = 12;
+  int32 state = 13;
+  string rejectionReason = 14;
+  int64 startTime = 15;
+  int64 acceptDate = 16;
+  bool isCopied = 17;
+  int64 createdAt = 18;
+  string linkTitle = 19;
+}
+
+message WebCard {
+  bytes id = 1;
+  bytes number = 2;
+  bytes holderName = 3;
+}
+
+message WebCardExpDate {
+  int64 cardExpirationMonth = 1;
+  int64 cardExpirationYear = 2;
+}
+
+message WebCardExtra {
+  WebExtra servicesSection = 1;
+}
+
+message WebCardInfo {
+  bytes cardNumber = 1;
+  WebCardExpDate cardExpDate = 2;
+}
+
+message WebCardinalityChanged {
+  WebBot peer = 1;
+  int64 rid = 2;
+  int64 cardinality = 3;
+  int32 type = 4;
+}
+
+message WebCategorizedBot {
+  WebT_n5_51787 category = 1;
+  repeated WebBots bots = 2;
+}
+
+message WebCategory {
+  int32 id = 1;
+  string title = 2;
+  bool isActive = 3;
+  repeated WebSubcategory subcategories = 4;
+}
+
+message WebCategoryFilter {
+  repeated WebCategory categories = 1;
+}
+
+message WebChannel {
+  int32 id = 1;
+  string nickname = 2;
+  string title = 3;
+  int32 membersCount = 4;
+  int32 order = 5;
+  bool isSelected = 6;
+}
+
+message WebChannelAdTagIdChanged {
+  int32 groupId = 1;
+  string channelNativeAdTagId = 3;
+  string channelBannerAdTagId = 4;
+}
+
+message WebChannelAdvertisementTypeChanged {
+  int32 groupId = 1;
+  int32 advertisementType = 2;
+}
+
+message WebChannelMembers {}
+
+message WebChannelNickChanged {
+  int32 groupId = 1;
+  string nick = 2;
+}
+
+message WebChannels {}
+
+message WebChannelsView {
+  WebGroupPeer channelId = 1;
+  int64 viewCount = 2;
+  int32 memberCount = 3;
+}
+
+message WebChargeOrderMessage {
+  string providerId = 1;
+  string phoneNo = 2;
+  int32 amount = 3;
+  string terminalId = 4;
+  string cardAcqId = 5;
+}
+
+message WebChatArchive {
+  WebBot peer = 1;
+  bool is = 2;
+}
+
+message WebChatClear {
+  WebBot peer = 1;
+}
+
+message WebChatDelete {
+  WebBot peer = 1;
+}
+
+message WebChatFavourite {
+  WebBot peer = 1;
+  bool is = 2;
+}
+
+message WebChatGroupsChanged {
+  repeated WebT_wpU dialogs = 1;
+}
+
+message WebChatShow {
+  WebBot peer = 1;
+  bool is = 2;
+}
+
+message WebChunk {
+  int32 id = 1;
+  WebT_d_61936 data = 2;
+}
+
+message WebCollection {
+  int32 id = 1;
+  int64 accessHash = 2;
+  repeated WebSticker stickers = 3;
+  WebBoolValue_1 animated = 4;
+  repeated WebAnimatedSticker animatedStickers = 5;
+  WebStringValue name = 6;
+}
+
+message WebCommands {}
+
+message WebComment {
+  string comment = 1;
+  int64 createdAt = 2;
+  int32 writerPeerId = 3;
+}
+
+message WebCondition {
+  WebBoolValue_1 exceptedPermissions = 1;
+  WebBoolValue_1 contacts = 2;
+  WebStringValue query = 3;
+}
+
+message WebConfig {
+  int64 key = 1;
+  WebPrivacyConfig privacyConfig = 10;
+  WebReplyConfig replyConfig = 11;
+  WebTextStoryBackgroundConfig textStoryBackgroundConfig = 13;
+  WebIgnoredUnmutualContactsConfig ignoredUnmutualContactsConfig = 14;
+  WebNotificationConfig notificationConfig = 15;
+  WebTagsConfig tagsConfig = 16;
+  WebPopularStoryChannelBlacklistConfig popularStoryChannelBlacklistConfig = 17;
+  WebAttendanceConfig attendanceConfig = 18;
+  WebHiddenPeersConfig hiddenPeersConfig = 19;
+}
+
+message WebContactChannels {
+  repeated WebT_tv_58187 channels = 1;
+  string bannerUrl = 2;
+}
+
+message WebContactInfo {
+  int32 type = 1;
+  WebStringValue stringValue = 2;
+  WebInt64Value_1 longValue = 3;
+  WebStringValue title = 4;
+  WebStringValue subtitle = 5;
+  WebStringValue typeSpec = 6;
+}
+
+message WebContactRegistered {
+  int32 uid = 1;
+  bool isSilent = 2;
+  int64 date = 3;
+  int64 rid = 4;
+}
+
+message WebContactsAdded {
+  repeated int32 uids = 1;
+  WebExt phones = 2;
+}
+
+message WebContactsRemoved {}
+
+message WebContainer {
+  int64 rid = 1;
+  int64 date = 2;
+  repeated WebReaction reactions = 3;
+}
+
+message WebContent {
+  WebYektanetAd yektanetAd = 1;
+  WebTapsellAd tapsellAd = 2;
+  WebBaleAd baleAd = 3;
+  WebNoAd noAd = 4;
+  WebBaleCustomAd baleCustomAd = 5;
+  WebBaleChannelAd baleChannelAd = 6;
+  WebBaleSponsoredMessageAd baleSponsoredMessageAd = 7;
+  WebBaleUnderPeerAd baleUnderPeerAd = 8;
+}
+
+message WebContentResult {
+  WebMsg messageId = 1;
+  WebMessage content = 2;
+}
+
+message WebConvertToGiftPacket {
+  WebPeer peer = 1;
+  WebGiftPacketMessage message = 2;
+}
+
+message WebConvertToGiftPacketForChannelOwner {
+  int32 groupId = 1;
+  int64 amount = 2;
+}
+
+message WebConvertToPoints {
+  int32 groupId = 1;
+  int64 points = 2;
+}
+
+message WebCoordinate {
+  fixed32 x = 1;
+  fixed32 y = 2;
+}
+
+message WebCopyText {
+  string text = 1;
+}
+
+message WebCreditHistory {
+  int64 amount = 1;
+  int64 date = 2;
+  int32 reason = 3;
+}
+
+message WebCrowdFundingMessage {
+  int64 totalAmount = 1;
+  string cardNumber = 2;
+  int64 sliceAmount = 3;
+  string title = 4;
+  string description = 5;
+  int64 endDate = 6;
+  int32 status = 7;
+  WebMedia photo = 8;
+  bool openWebView = 9;
+}
+
+message WebCryptoPocket {
+  bytes pocketId = 1;
+  int64 balance = 2;
+  bytes token = 3;
+  int64 pocketType = 4;
+  int64 isMerchant = 5;
+}
+
+message WebCustomAction {
+  string id = 1;
+  WebType type = 2;
+}
+
+message WebCustomDoNothingAction {}
+
+message WebCustomItems {}
+
+message WebCustomOpenUrlAction {
+  string url = 1;
+  string buttonTitle = 2;
+  bool shouldSearchInternal = 3;
+}
+
+message WebData {
+  string id = 1;
+  int32 ownerId = 2;
+  string name = 3;
+  int32 type = 4;
+  int64 createdAt = 5;
+  int32 state = 6;
+  string ownerName = 7;
+  string fullName = 8;
+  string shenaseMelli = 9;
+  string economicNumber = 10;
+  string phone = 11;
+  string address = 12;
+  string zipCode = 13;
+  int64 establishmentFileId = 14;
+  int64 changesFileId = 15;
+  int64 permissionFileId = 16;
+  bool shahkarValidated = 17;
+  string nationalCode = 18;
+  string reason = 19;
+  string landlinePhone = 20;
+  int64 credit = 21;
+  int64 creditExpireTime = 22;
+  repeated int32 featureScopes = 23;
+  int32 campaignViewCoef = 24;
+  int32 campaignClickCoef = 25;
+  int64 campaignDailyCapacity = 26;
+  int32 allowedConcurrentCampaign = 27;
+  int64 creditStartDate = 28;
+  int32 campaignPackageType = 29;
+  int32 customerType = 30;
+}
+
+message WebDates {}
+
+message WebDefaultCardNo {
+  int32 userId = 1;
+  string defaultCardNo = 2;
+}
+
+message WebDeletedMessage {}
+
+message WebDeleteMessageRequest {
+  WebPeer peer = 1;
+  repeated int64 rids = 2;
+  WebT_LWL dates = 3;
+  WebBoolValue_1 justMine = 4;
+}
+
+message WebDeprecatedReceipt {
+  WebMessage originalMessage = 1;
+  int32 receiptType = 2;
+  map<string, bytes> transferInfo = 3;
+}
+
+message WebDeprecatedReceiptMessage {
+  WebMessage orginalMessage = 1;
+  int32 receiptType = 2;
+  map<string, bytes> transferInfo = 3;
+  WebInt64Value_1 orginalMessageRid = 4;
+  WebStringValue orginalMessageUid = 5;
+}
+
+message WebDetail {
+  WebBadge badge = 1;
+}
+
+message WebDialog {
+  WebBot peer = 1;
+  int32 unreadCount = 2;
+  int64 sortDate = 3;
+  int32 senderUid = 4;
+  int64 rid = 5;
+  int64 date = 6;
+  WebMessage message = 7;
+  int32 state = 8;
+  WebInt64Value_1 firstUnreadDate = 9;
+  WebAttributes attributes = 10;
+  WebExInfo exInfo = 13;
+  bool isMessageForwarded = 14;
+  repeated WebMessageId unreadMentions = 15;
+  repeated WebMessageId unreadReactions = 16;
+  bool markedAsUnread = 17;
+  bool isMute = 18;
+}
+
+message WebDialogAdOrder {
+  string adId = 1;
+  string title = 2;
+  string description = 3;
+  string link = 4;
+  string image = 5;
+  int64 viewCount = 6;
+  int64 clickCount = 7;
+  int32 status = 8;
+  int64 startTime = 9;
+  int64 createdAt = 10;
+  string rejectionReason = 11;
+  int64 expirationDate = 12;
+  int64 endTime = 13;
+  int64 clickRate = 14;
+  int64 viewRate = 15;
+  int32 spot = 16;
+}
+
+message WebDialogArchiveStatus {
+  repeated WebExPeer exPeers = 1;
+  bool isArchived = 2;
+}
+
+message WebDialogResult {
+  WebExPeer exPeer = 1;
+}
+
+message WebDialogsMarkedAsRead {
+  repeated WebExPeer peers = 1;
+}
+
+message WebDialogsMarkedAsUnread {
+  repeated WebExPeer peers = 1;
+}
+
+message WebDialogsUnpinned {
+  int32 folderId = 1;
+  repeated WebExPeer unpinnedPeers = 3;
+}
+
+message WebDirectLink {
+  bytes shortName = 1;
+  WebStringValue startParam = 2;
+  WebExPeer peer = 3;
+}
+
+message WebDisapproved {
+  int64 reason = 1;
+}
+
+message WebDocumentExAudio {
+  int32 duration = 1;
+  string album = 2;
+  string artist = 3;
+  string genre = 4;
+  string track = 5;
+  WebBytesValue cover = 6;
+}
+
+message WebDocumentExGif {
+  int32 w = 1;
+  int32 h = 2;
+  int32 duration = 3;
+}
+
+message WebDocumentExPhoto {
+  int32 w = 1;
+  int32 h = 2;
+}
+
+message WebDocumentExVideo {
+  int32 w = 1;
+  int32 h = 2;
+  int32 duration = 3;
+}
+
+message WebDocumentExVoice {
+  int32 duration = 1;
+  WebStringValue transcript = 2;
+}
+
+message WebDone {}
+
+message WebDoNothingAction {}
+
+message WebDoubleValue {
+  double value = 1;
+}
+
+message WebDownloadSource {
+  WebMedia documentMessage = 1;
+}
+
+message WebEmoji {
+  bytes emoji = 1;
+}
+
+message WebEmpty {}
+
+message WebEmptyMessage {}
+
+message WebEmptyUpdate {}
+
+message WebEndLive {
+  WebInfo info = 1;
+}
+
+message WebEndpoint {
+  int32 id = 1;
+  string host = 2;
+  int32 port = 3;
+  repeated string tlsPublicKeyHash = 4;
+  string knownIp = 5;
+  int32 type = 6;
+}
+
+message WebEndpointChanged {
+  repeated WebEndpoint endpoints = 1;
+}
+
+message WebError {
+  int32 code = 1;
+  string message = 2;
+  WebExt details = 3;
+}
+
+message WebExInfo {
+  int32 exPeerType = 1;
+  int32 peerIdentity = 2;
+  WebStringValue peerCategory = 3;
+}
+
+message WebExInfoAddress {
+  int32 key = 1;
+  string value = 2;
+}
+
+message WebExPeer {
+  int32 type = 1;
+  int32 id = 2;
+  int64 accessHash = 3;
+}
+
+message WebExt {
+  repeated WebT_d_46216 items = 1;
+}
+
+message WebExtra {
+  bytes title = 1;
+  WebButtonNavigation buttonNavigation = 2;
+  bytes buttonText = 3;
+  int64 badgeType = 4;
+  repeated WebT_as_51787 items = 5;
+  int64 displayType = 6;
+}
+
+message WebExtraInfo {
+  WebKey key = 1;
+  WebKey value = 2;
+}
+
+message WebFactor {
+  WebGroupPeer channelId = 1;
+  int32 ownerId = 2;
+  int64 fileId = 3;
+}
+
+message WebFeature {
+  int64 featureId = 1;
+  string faTitle = 2;
+  string enTitle = 3;
+  string faShortDescription = 4;
+  string enShortDescription = 5;
+  string faLongDescription = 6;
+  string enLongDescription = 7;
+  string faUnit = 8;
+  string enUnit = 9;
+  int32 minAppVersion = 10;
+  string iconSvg = 11;
+  string mediaUrl = 12;
+  int32 mediaFormat = 13;
+  int64 quota = 14;
+  int64 resetPeriod = 15;
+}
+
+message WebField {
+  string title = 1;
+  string value = 2;
+  WebBoolValue_1 isShort = 3;
+}
+
+message WebFileLocation {
+  int64 fileId = 1;
+  int64 accessHash = 2;
+  WebInt32Value fileStorageVersion = 3;
+}
+
+message WebFileUrl {
+  int64 fileId = 1;
+  string url = 2;
+  int32 timeout = 3;
+  WebStringValue unsignedUrl = 5;
+  repeated WebUnsignedUrlHeader unsignedUrlHeaders = 6;
+  WebInt32Value chunkSize = 7;
+}
+
+message WebFilter {
+  WebFilterOwner filterOwner = 1;
+  WebFilterAdmin filterAdmin = 2;
+  WebFilterGroupType filterGroupType = 3;
+  WebFilterRestriction filterRestriction = 4;
+  WebFilterMembersCount filterMembersCount = 5;
+}
+
+message WebFilterAdmin {
+  bool isAdmin = 1;
+}
+
+message WebFilterGroupType {
+  int32 groupType = 1;
+}
+
+message WebFilterMembersCount {
+  int32 minCount = 1;
+}
+
+message WebFilterOwner {
+  bool isOwner = 1;
+}
+
+message WebFilterRestriction {
+  int32 restriction = 1;
+}
+
+message WebFirebaseRegister {
+  string token = 1;
+  int64 projectId = 2;
+  WebInt64Value_1 expirationTime = 3;
+  bool isWeb = 4;
+}
+
+message WebFloatValue {
+  float value = 1;
+}
+
+message WebFolder {
+  int32 id = 1;
+  string name = 2;
+  repeated WebExPeer peers = 3;
+  repeated WebExPeer unreadPeers = 4;
+  bool isReserved = 5;
+}
+
+message WebFolderCreated {
+  WebFolder folder = 1;
+  int32 index = 2;
+}
+
+message WebFolderDeleted {
+  int32 folderId = 1;
+}
+
+message WebFolderEdited {
+  int32 folderId = 1;
+  WebStringValue newName = 2;
+  repeated WebExPeer addedPeers = 3;
+  repeated WebExPeer deletedPeers = 4;
+  repeated WebExPeer unreadPeers = 5;
+}
+
+message WebFoldersReordered {}
+
+message WebForceClearCache {
+  repeated string backupOptions = 1;
+}
+
+message WebFullGroup {
+  int32 id = 1;
+  int64 accessHash = 2;
+  string title = 3;
+  WebAvatar avatar = 4;
+  int32 ownerUid = 5;
+  int64 createDate = 6;
+  int32 groupType = 7;
+  WebBoolValue_1 isMember = 8;
+  WebExt ext = 9;
+  WebInt32Value membersCount = 10;
+  WebStringValue nick = 11;
+  WebBoolValue_1 becameOrphaned = 12;
+  WebPermissions permissions = 13;
+  WebPermissions defaultPermissions = 14;
+  WebStringValue theme = 15;
+  WebStringValue about = 16;
+  repeated WebMember members = 17;
+  WebExInfo exInfo = 18;
+  WebHistory pin = 19;
+  int32 restriction = 20;
+  int32 advertisementType = 21;
+  WebStringValue channelNativeAdTagId = 22;
+  WebStringValue channelBannerAdTagId = 23;
+  repeated string availableReactions = 24;
+  WebBoolValue_1 isSuspend = 25;
+  WebInt32Value linkedGroupPeerId = 26;
+  WebBoolValue_1 discussionGroupEnabled = 27;
+  int32 privacyBarMode = 28;
+}
+
+message WebFullPollResult {
+  int32 optionId = 1;
+  int32 votesCount = 2;
+  repeated WebVoter voters = 3;
+}
+
+message WebFullUser {
+  int32 id = 1;
+  repeated WebContactInfo contactInfo = 2;
+  WebStringValue about = 3;
+  repeated string preferredLanguages = 4;
+  WebStringValue timeZone = 5;
+  repeated WebBotCommand botCommands = 6;
+  map<string, bytes> ext = 7;
+  WebBoolValue_1 isBlocked = 8;
+  WebExInfo exInfo = 9;
+  WebStringValue defaultBankAccount = 10;
+  WebStringValue defaultCardNumber = 11;
+  WebBoolValue_1 isDeleted = 12;
+  WebBoolValue_1 isContact = 13;
+  int32 puppeteer = 14;
+  WebInt64Value_1 createdAt = 15;
+  int32 privacyBarMode = 16;
+  WebBoolValue_1 privacyAllowedToInvite = 17;
+}
+
+message WebGateway {}
+
+message WebGatewayRedirect {
+  bytes paymentToken = 1;
+  bytes paymentUrl = 2;
+}
+
+message WebGender {
+  int32 gender = 1;
+}
+
+message WebGeneralNotificationMessage {
+  string title = 1;
+  string description = 2;
+  WebT_f_68220 action = 3;
+}
+
+message WebGifs {
+  WebFileLocation gifLocation = 1;
+  int32 width = 2;
+  int32 height = 3;
+  int64 fileSize = 4;
+  int32 duration = 5;
+  int64 usedAt = 6;
+  bytes thumb = 7;
+  WebStringValue mimeType = 8;
+}
+
+message WebGiftPacketMessage {
+  int32 giftCount = 1;
+  int64 totalAmount = 2;
+  int32 givingType = 3;
+  WebStringValue walletId = 4;
+  WebStringValue regarding = 5;
+  int32 ownerUserId = 6;
+  WebInt32Value coverId = 7;
+  WebBoolValue_1 showTotalAmount = 8;
+}
+
+message WebGiftReceiver {
+  int32 userId = 1;
+  int64 amount = 2;
+  int64 date = 3;
+}
+
+message WebGlobalConfig {
+  int32 type = 1;
+  bool enable = 2;
+}
+
+message WebGoldGiftPacketMessage {
+  int64 id = 1;
+  int64 amount = 2;
+  int64 count = 3;
+  string description = 4;
+  int32 givingType = 5;
+}
+
+message WebGroup {
+  int32 id = 1;
+  int64 accessHash = 2;
+  string title = 3;
+  WebAvatar avatar = 4;
+  WebBoolValue_1 isMember = 5;
+  WebBoolValue_1 isHidden = 12;
+  WebExt ext = 13;
+  int32 groupType = 15;
+  WebBoolValue_1 canSendMessage = 16;
+  WebStringValue nick = 17;
+  WebBoolValue_1 becameOrphaned = 18;
+  WebInt64Value_1 stateVersion = 19;
+  WebInt32Value membersCount = 20;
+  WebPermissions permissions = 30;
+  WebPermissions defaultPermissions = 31;
+  WebInt32Value ownerUid = 32;
+  repeated string availableReactions = 33;
+  WebBoolValue_1 isSuspend = 36;
+  WebExInfo exInfo = 37;
+  WebInt32Value linkedGroupPeerId = 38;
+  WebBoolValue_1 discussionGroupEnabled = 39;
+  int32 restriction = 40;
+}
+
+message WebGroupAboutChanged {
+  int32 groupId = 1;
+  WebStringValue about = 2;
+}
+
+message WebGroupAboutChangedObsolete {
+  int32 groupId = 1;
+  WebStringValue about = 2;
+}
+
+message WebGroupAvatarChanged {
+  int32 groupId = 1;
+  WebAvatar avatar = 2;
+  WebAvatars avatars = 3;
+}
+
+message WebGroupAvatarChangedObsolete {
+  int32 groupId = 1;
+  int32 uid = 2;
+  WebAvatar avatar = 3;
+  int64 date = 4;
+  int64 rid = 5;
+}
+
+message WebGroupBecameOrphaned {
+  int32 groupId = 1;
+}
+
+message WebGroupCall {
+  int64 id = 1;
+  string room = 2;
+  string token = 3;
+  WebOffset url = 4;
+  bool video = 5;
+  WebInt64Value_1 createDate = 6;
+  WebInt32Value_1 duration = 7;
+  int32 initiatorUserId = 8;
+  WebOutPeer peer = 9;
+  map<string, bytes> ext = 10;
+  int32 mode = 11;
+  string link = 12;
+  bool isPublic = 13;
+  map<string, bytes> extra = 15;
+  string title = 16;
+  repeated WebOutPeer inCallParticipants = 17;
+  WebInt64Value_1 endDate = 18;
+  repeated WebPendingRequest pendingRequests = 19;
+  repeated string raisedHandsUserIdentities = 20;
+}
+
+message WebGroupCallEnded {
+  WebGroupCall groupCall = 1;
+}
+
+message WebGroupCallLog {
+  int32 status = 1;
+  WebBoolValue_2 missed = 2;
+  repeated WebOutPeer peers = 3;
+}
+
+message WebGroupCallStarted {
+  WebGroupCall groupCall = 1;
+  int32 seq = 2;
+}
+
+message WebGroupCanInviteMembersChanged {
+  int32 groupId = 1;
+  bool canInviteMembers = 2;
+}
+
+message WebGroupCanSendMessagesChanged {
+  int32 groupId = 1;
+  bool canSendMessages = 2;
+}
+
+message WebGroupCanViewMembersChanged {
+  int32 groupId = 1;
+  bool canViewMembers = 2;
+}
+
+message WebGroupDefaultPermissionsChanged {
+  WebGroupPeer group = 1;
+  WebPermissions permissions = 2;
+}
+
+message WebGroupExInfoChanged {
+  int32 groupId = 1;
+  WebExInfo exInfo = 2;
+}
+
+message WebGroupExtChanged {
+  int32 groupId = 1;
+  WebExt ext = 2;
+}
+
+message WebGroupFullExtChanged {
+  int32 groupId = 1;
+  WebExt ext = 2;
+}
+
+message WebGroupHistoryShared {
+  int32 groupId = 1;
+}
+
+message WebGroupInviteObsolete {
+  int32 groupId = 1;
+  int32 inviteUid = 5;
+  int64 date = 8;
+  int64 rid = 9;
+  WebInt32Value seq = 10;
+  bool isJoined = 11;
+}
+
+message WebGroupMemberAdminChanged {
+  int32 groupId = 1;
+  int32 userId = 2;
+  bool isAdmin = 3;
+}
+
+message WebGroupMemberChanged {
+  int32 groupId = 1;
+  bool isMember = 2;
+}
+
+message WebGroupMemberDiff {
+  repeated int32 removedUsers = 1;
+  repeated WebMember addedMembers = 2;
+  int32 membersCount = 3;
+}
+
+message WebGroupMemberPermissionsChanged {
+  int32 groupId = 1;
+  int32 uid = 2;
+  WebPermissions permissions = 3;
+}
+
+message WebGroupMembersBecameAsync {
+  int32 groupId = 1;
+}
+
+message WebGroupMembersCountChanged {
+  int32 groupId = 1;
+  int32 membersCount = 2;
+}
+
+message WebGroupMembersUpdated {
+  int32 groupId = 1;
+  repeated WebMember members = 2;
+}
+
+message WebGroupMembersUpdateObsolete {
+  int32 groupId = 1;
+  repeated WebMember members = 2;
+}
+
+message WebGroupMessagePinned {
+  int32 groupId = 1;
+  WebHistory message = 2;
+}
+
+message WebGroupNicknameChanged {
+  int32 groupId = 1;
+  int32 uid = 2;
+  WebStringValue nick = 3;
+  int64 date = 4;
+  int64 rid = 5;
+}
+
+message WebGroupOnline {
+  int32 groupId = 1;
+  int32 count = 2;
+}
+
+message WebGroupOwnerChanged {
+  int32 groupId = 1;
+  int32 userId = 2;
+}
+
+message WebGroupPeer {
+  int32 groupId = 1;
+  int64 accessHash = 2;
+}
+
+message WebGroupPinRemoved {
+  int32 groupId = 1;
+  WebMessageId messageId = 2;
+}
+
+message WebGroupRestrictionChanged {
+  int32 groupId = 1;
+  int32 restriction = 2;
+}
+
+message WebGroupTitleChanged {
+  int32 groupId = 1;
+  string title = 2;
+}
+
+message WebGroupTitleChangedObsolete {
+  int32 groupId = 1;
+  int32 uid = 2;
+  string title = 3;
+  int64 date = 4;
+  int64 rid = 5;
+}
+
+message WebGroupTopicChanged {
+  int32 groupId = 1;
+  WebStringValue topic = 2;
+}
+
+message WebGroupTopicChangedObsolete {
+  int32 groupId = 1;
+  int64 rid = 2;
+  int32 uid = 3;
+  WebStringValue topic = 4;
+  int64 date = 5;
+}
+
+message WebGroupUserInvitedObsolete {
+  int32 groupId = 1;
+  int32 uid = 2;
+  int32 inviterUid = 3;
+  int64 date = 4;
+  int64 rid = 5;
+  bool isJoined = 6;
+}
+
+message WebGroupUserKickObsolete {
+  int32 groupId = 1;
+  int32 uid = 2;
+  int32 kickerUid = 3;
+  int64 date = 4;
+  int64 rid = 5;
+}
+
+message WebGroupUserLeaveObsolete {
+  int32 groupId = 1;
+  int32 uid = 2;
+  int64 date = 3;
+  int64 rid = 4;
+}
+
+message WebHandshakeRequest {
+  int32 mkprotoVersion = 1;
+  int64 apiVersion = 2;
+}
+
+message WebHandshakeResponse {
+  int32 mkprotoVersion = 1;
+  int64 apiVersion = 2;
+}
+
+message WebHashEndpoint {
+  string host = 1;
+  string knownIp = 2;
+  repeated string tlsPublicKeyHash = 3;
+}
+
+message WebHashEndpointChanged {
+  repeated WebHashEndpoint hashEndpoints = 1;
+}
+
+message WebHiddenPeersConfig {
+  repeated WebExPeer peers = 1;
+}
+
+message WebHidePrivacyBar {
+  WebExPeer exPeer = 1;
+}
+
+message WebHistory {
+  int32 senderUid = 1;
+  int64 rid = 2;
+  int64 date = 3;
+  WebMessage message = 4;
+  int32 state = 5;
+  repeated WebReaction reactions = 6;
+  WebAttributes attribute = 7;
+  WebQuotedMessage quotedMessage = 8;
+  WebInt64Value_1 seq = 9;
+  WebMessageId previousMessageId = 10;
+  WebMessageId nextMessageId = 11;
+  WebInt64Value_1 editedAt = 12;
+  WebInt32Value editorUserId = 13;
+  WebInt64Value_1 groupedId = 14;
+  WebBoolValue_1 hasComment = 15;
+  WebRepliesInfo replies = 16;
+  WebMessageId replyToTopId = 17;
+}
+
+message WebId {
+  int64 accountNumber = 1;
+  int64 id = 2;
+  int64 date = 3;
+  int64 type = 4;
+}
+
+message WebIgnoredUnmutualContactsConfig {}
+
+message WebIgnoreUser {
+  int32 userId = 1;
+}
+
+message WebImage {
+  bytes url = 1;
+  int64 width = 2;
+  int64 height = 3;
+  bytes alt = 4;
+}
+
+message WebImageLocation {
+  WebFileLocation fileLocation = 1;
+  int32 width = 2;
+  int32 height = 3;
+  int32 fileSize = 4;
+}
+
+message WebIncomeReport {
+  int32 year = 1;
+  int32 month = 2;
+  int64 amount = 3;
+  bool isPayed = 4;
+  bool isPayable = 5;
+  WebInt64Value_1 payedAt = 6;
+  int32 state = 7;
+  int32 type = 8;
+}
+
+message WebInfo {
+  int64 key = 1;
+  int32 groupId = 2;
+  int32 userCount = 3;
+  bool isLive = 4;
+  string link = 5;
+  string hlsLink = 6;
+  string rtmpLink = 7;
+  int64 mainMessageId = 8;
+  int64 mainMessageDate = 9;
+}
+
+message WebInlineKeyboardMarkup {
+  repeated WebListOfInlineList listOfInlineList = 1;
+}
+
+message WebInlineList {
+  string text = 1;
+  WebStringValue url = 2;
+  WebStringValue callbackData = 3;
+  WebWebApp webApp = 4;
+  WebLoginUrl loginUrl = 5;
+  WebStringValue switchInlineQuery = 6;
+  WebStringValue switchInlineQueryCurrentChat = 7;
+  WebSwitchInlineQueryChosenChat switchInlineQueryChosenChat = 8;
+  WebCopyText copyText = 9;
+  WebAuthentication authentication = 10;
+  WebCustomAction customAction = 11;
+  WebBoolValue_1 sendData = 12;
+}
+
+message WebInlineMode {
+  int64 enabled = 1;
+  WebOffset placeholder = 2;
+}
+
+message WebInt32Value {
+  int32 value = 1;
+}
+
+message WebInt32Value_1 {
+  int32 value = 1;
+}
+
+message WebInt64Value {
+  int64 value = 1;
+}
+
+message WebInt64Value_1 {
+  int64 value = 1;
+}
+
+message WebInternalCall {
+  WebPeer peer = 1;
+  int64 rid = 2;
+  bool video = 3;
+}
+
+message WebIntro {
+  WebStringValue text = 1;
+  WebFileLocation fileLocation = 2;
+  int32 width = 3;
+  int32 height = 4;
+  int32 fileSize = 5;
+  string mimeType = 6;
+  string fileName = 7;
+  WebThumb thumb = 8;
+}
+
+message WebIntroGif {
+  WebThumb thumb = 1;
+  int32 width = 2;
+  int32 height = 3;
+}
+
+message WebIntroMessage {
+  WebStringValue text = 1;
+  WebT_w_59727 media = 2;
+}
+
+message WebIntroPhoto {
+  WebThumb thumb = 1;
+  int32 width = 2;
+  int32 height = 3;
+}
+
+message WebInvoice {
+  int64 amount = 1;
+  int32 currency = 2;
+  WebStringValue description = 3;
+  int64 dateTime = 4;
+  WebStringValue sourceWalletId = 5;
+  WebStringValue targetWalletId = 6;
+}
+
+message WebInvoiceIdentifier {
+  WebPeer peer = 1;
+  bytes invoiceId = 2;
+  int64 botId = 3;
+}
+
+message WebItem {
+  int64 id = 1;
+  bytes title = 2;
+  bytes badge = 3;
+  bytes icon = 4;
+  int64 action = 5;
+  WebPayload payload = 6;
+  int64 minAppVersion = 7;
+  int64 maxAppVersion = 8;
+  bytes customIcon = 9;
+  bytes label = 10;
+}
+
+message WebJsonMessage {
+  string rawJson = 1;
+}
+
+message WebKey {
+  bytes fa = 1;
+  bytes en = 2;
+}
+
+message WebKeyboardButton {
+  bytes url = 1;
+}
+
+message WebKeyboardList {
+  string text = 1;
+  WebBoolValue_1 requestContact = 2;
+  WebBoolValue_1 requestLocation = 3;
+  WebRequestUser requestUser = 4;
+  WebRequestChat requestChat = 5;
+  WebRequestPoll requestPoll = 6;
+  WebWebApp webApp = 7;
+  WebCustomAction customAction = 8;
+  WebBoolValue_1 sendMessage = 9;
+}
+
+message WebKnown {}
+
+message WebLabeledPrice {
+  bytes label = 1;
+  int64 price = 2;
+}
+
+message WebLimitation {
+  WebInt64Value_1 highCeilingPrice = 1;
+  WebStringValue limitationType = 2;
+  WebStringValue limitationPeriod = 3;
+  WebStringValue limitationPriority = 4;
+  WebStringValue status = 5;
+  WebInt64Value_1 value = 6;
+}
+
+message WebLink {
+  bytes link = 1;
+  WebStringValue android = 2;
+  WebStringValue web = 3;
+}
+
+message WebLinkPreview {
+  int32 linkPreviewType = 1;
+  WebOpenGraphObject openGraphObject = 2;
+}
+
+message WebLinkWidget {
+  bytes link = 1;
+  bytes title = 2;
+}
+
+message WebList {
+  repeated WebValue array = 1;
+}
+
+message WebListOfInlineList {
+  repeated WebInlineList inlineList = 1;
+}
+
+message WebListOfKeyboardList {
+  repeated WebKeyboardList keyboardList = 1;
+}
+
+message WebLiveKitCall {
+  WebPeer peer = 1;
+  int64 rid = 2;
+  bool video = 3;
+  WebBoolValue_2 inviteEnable = 4;
+}
+
+message WebLiveMessage {
+  string link = 1;
+  int32 userCount = 2;
+  bool isLive = 3;
+  WebMedia media = 4;
+  int64 key = 5;
+}
+
+message WebLocations {}
+
+message WebLoginUrl {
+  string url = 1;
+  string forwardText = 2;
+  string botUsername = 3;
+  bool requestWriteAccess = 4;
+}
+
+message WebLongTextMessage {
+  string text = 1;
+  repeated int32 mentions = 2;
+  WebFileLocation extendedText = 3;
+  int32 extendedTextFileSize = 4;
+}
+
+message WebLowerHand {
+  string userIdentity = 1;
+}
+
+message WebMain {
+  WebStringValue startParam = 1;
+  WebExPeer peer = 2;
+}
+
+message WebMarketResult {
+  int64 channelId = 1;
+  bytes channelTitle = 2;
+  WebStringValue channelNick = 3;
+  WebStringValue channelAbout = 4;
+}
+
+message WebMarketType {
+  int64 id = 1;
+  bytes title = 2;
+  bytes url = 3;
+  repeated WebT_iM_88717 posts = 4;
+  int64 discount = 5;
+  repeated WebProduct products = 6;
+  WebBoolValue_1 isActive = 7;
+  WebInt32Value categoryId = 8;
+  WebBoolValue_1 isBanned = 9;
+}
+
+message WebMedia {
+  int64 fileId = 1;
+  int64 accessHash = 2;
+  int32 fileSize = 3;
+  string name = 4;
+  string mimeType = 5;
+  WebThumb thumb = 6;
+  WebT_LnR ext = 7;
+  WebTextMessage caption = 8;
+  WebStringValue checkSum = 9;
+  WebStringValue algorithm = 10;
+  WebInt32Value fileStorageVersion = 11;
+  WebInt64Value_1 groupedId = 12;
+  WebMessageTag messageTag = 13;
+}
+
+message WebMediaExtra {
+  WebIntroGif introGif = 1;
+  WebIntroPhoto introPhoto = 2;
+}
+
+message WebMediaResult {
+  WebExPeer exPeer = 1;
+  int64 rid = 2;
+  int64 date = 3;
+  int64 senderId = 4;
+  WebMessage content = 5;
+}
+
+message WebMember {
+  int32 uid = 1;
+  int32 inviterUid = 2;
+  int64 date = 3;
+  WebBoolValue_1 isAdmin = 4;
+  WebInt32Value promoterUserId = 5;
+  WebInt64Value_1 promotedAt = 6;
+  WebPermissions permissions = 7;
+  WebStringValue title = 8;
+}
+
+message WebMentionReadByMe {
+  WebExPeer peer = 1;
+  WebMessageId messageId = 2;
+}
+
+message WebMenu {
+  repeated WebT_ap_51787 items = 1;
+}
+
+message WebMenuButton {
+  WebStringValue url = 1;
+}
+
+message WebMessage {
+  WebBankMessage bankMessage = 1;
+  WebBinaryMessage binaryMessage = 2;
+  WebDeletedMessage deletedMessage = 3;
+  WebMedia documentMessage = 4;
+  WebEmptyMessage emptyMessage = 5;
+  WebJsonMessage jsonMessage = 7;
+  WebNasimEncryptedMessage nasimEncryptedMessage = 8;
+  WebOrderMessage orderMessage = 9;
+  WebPurchaseMessage purchaseMessage = 10;
+  WebServiceMessage serviceMessage = 11;
+  WebStickerMessage stickerMessage = 12;
+  WebTemplateMessage templateMessage = 13;
+  WebTemplateMessageResponse templateMessageResponse = 14;
+  WebTextMessage textMessage = 15;
+  WebUnsupportedMessage unsupportedMessage = 16;
+  WebGiftPacketMessage giftPacketMessage = 17;
+  WebPremiumMessage premiumMessage = 18;
+  WebNewPremiumMessage newPremiumMessage = 19;
+  WebBoughtPremiumMessage boughtPremiumMessage = 20;
+  WebAdvertisementMessage advertisementMessage = 21;
+  WebCrowdFundingMessage crowdFundingMessage = 23;
+  WebAnimatedStickerMessage animatedStickerMessage = 24;
+  WebBannedMessage bannedMessage = 25;
+  WebLiveMessage liveMessage = 26;
+  WebProtectedMessage protectedMessage = 27;
+  WebGoldGiftPacketMessage goldGiftPacketMessage = 28;
+  WebPollMessage pollMessage = 29;
+  WebLongTextMessage longTextMessage = 30;
+  WebStreamedMessage streamedMessage = 31;
+  WebStoryType story = 100;
+}
+
+message WebMessageDateChanged {
+  WebBot peer = 1;
+  int64 rid = 2;
+  int64 date = 3;
+}
+
+message WebMessageId {
+  int64 date = 1;
+  int64 rid = 2;
+  int64 seq = 3;
+}
+
+message WebMessageNewReaction {
+  WebExPeer exPeer = 1;
+  WebMessageId messageId = 2;
+}
+
+message WebMessagePinned {
+  WebExPeer peer = 1;
+  WebHistory pinnedMessage = 2;
+}
+
+message WebMessageQuotedChanged {
+  WebBot peer = 1;
+  int64 rid = 2;
+  WebQuotedMessage quotedMessage = 3;
+}
+
+message WebMessageReaction {
+  WebBot peer = 1;
+  int64 rid = 2;
+  repeated WebReaction reactions = 3;
+  int64 date = 4;
+}
+
+message WebMessageReactionsReadByMe {
+  WebExPeer exPeer = 1;
+  WebMessageId messageId = 2;
+}
+
+message WebMessageRead {
+  WebBot peer = 1;
+  int64 startDate = 2;
+  int64 readDate = 3;
+}
+
+message WebMessageReadByMe {
+  WebBot peer = 1;
+  int64 startDate = 2;
+  WebInt32Value unreadCounter = 3;
+  WebInt64Value_1 endDate = 4;
+}
+
+message WebMessageReceived {
+  WebBot peer = 1;
+  int64 startDate = 2;
+  int64 receivedDate = 3;
+}
+
+message WebMessageReport {
+  WebExPeer peer = 1;
+  repeated WebMessageId mids = 2;
+}
+
+message WebMessages {
+  WebExPeer peer = 1;
+  repeated WebHistory messageContainers = 2;
+}
+
+message WebMessageSent {
+  WebBot peer = 1;
+  int64 rid = 2;
+  int64 date = 3;
+  WebMessageId previousMessageId = 4;
+}
+
+message WebMessageStreamChunks {
+  WebExPeer exPeer = 1;
+  WebMessageId messageId = 2;
+  repeated WebChunk chunks = 3;
+}
+
+message WebMessagesUnPinned {
+  repeated WebMessageId messageIds = 1;
+  WebExPeer peer = 2;
+  bool all = 3;
+}
+
+message WebMessageTag {
+  string text = 1;
+}
+
+message WebMiniApp {
+  bytes text = 1;
+  bytes url = 2;
+}
+
+message WebMsg {
+  WebPeer peer = 1;
+  int64 randomId = 2;
+  int64 date = 3;
+}
+
+message WebMtupdate {
+  int64 header = 1;
+  bytes body = 2;
+  repeated int64 userIds = 3;
+  repeated int64 groupIds = 4;
+}
+
+message WebMultiMedia {
+  int64 randomId = 1;
+  WebMedia media = 2;
+}
+
+message WebMultiPeerCallLog {
+  int32 status = 1;
+  bool missed = 2;
+  repeated WebOutPeer peers = 3;
+}
+
+message WebMultiPeerCallStarted {
+  int64 id = 1;
+  string room = 2;
+  string url = 3;
+  int32 initiator = 4;
+  WebOutPeer peer = 5;
+  int32 mode = 6;
+  map<string, bytes> extra = 7;
+  int64 callCreateDate = 8;
+  int64 updateCreateDate = 9;
+  repeated WebOutPeer participants = 10;
+}
+
+message WebMultiplexingData {
+  int32 multiplexingType = 1;
+  repeated WebMultiplexingRow multiplexingRows = 2;
+}
+
+message WebMultiplexingRow {
+  int32 ibanNumber = 1;
+  int32 value = 2;
+}
+
+message WebMyWallet {
+  int64 isMerchant = 1;
+  bytes app = 2;
+  int64 balance = 3;
+  bytes token = 4;
+  int64 level = 5;
+  WebStringValue pan = 6;
+  WebStringValue account = 7;
+  WebCryptoPocket cryptoPocket = 8;
+}
+
+message WebNasimEncryptedMessage {
+  bytes key = 1;
+  bytes message = 2;
+  int32 messageLength = 3;
+  bytes signature = 4;
+}
+
+message WebNewPremiumMessage {
+  int64 amount = 1;
+  string targetWalletId = 2;
+  WebMessage originalMessage = 3;
+  WebMessage preview = 4;
+  int32 minimumRequiredDrmLevel = 5;
+}
+
+message WebNewUpdate {
+  WebUpdate update = 1;
+  int64 date = 2;
+}
+
+message WebNoAd {}
+
+message WebNotificationConfig {
+  int64 IsActive = 1;
+}
+
+message WebOffset {
+  string text = 1;
+}
+
+message WebOpenDialogAction {
+  int64 result = 1;
+}
+
+message WebOpenGraphObject {
+  string type = 1;
+  string url = 2;
+  string title = 3;
+  string description = 4;
+  repeated WebT_E_95053 images = 5;
+}
+
+message WebOpenUrlAction {
+  string url = 1;
+  int32 browserType = 2;
+}
+
+message WebOption {
+  int32 id = 1;
+  string text = 2;
+}
+
+message WebOptionResult {
+  int32 optionId = 1;
+  int32 votesCount = 2;
+}
+
+message WebOrder {
+  string adId = 1;
+  string title = 2;
+  string description = 3;
+  string link = 4;
+  int64 viewCount = 5;
+  int64 clickCount = 6;
+  int32 status = 7;
+  int64 startTime = 8;
+  int64 createdAt = 9;
+  string rejectionReason = 10;
+  int64 expirationDate = 11;
+  int64 endTime = 12;
+  int64 clickRate = 13;
+  int64 viewRate = 14;
+  string phoneNumber = 15;
+}
+
+message WebOrderExt {
+  WebBillOrderMessage billOrderMessage = 1;
+  WebChargeOrderMessage chargeOrderMessage = 2;
+  WebPsProxyOrderMessage psProxyOrderMessage = 3;
+}
+
+message WebOrderMessage {
+  WebOrderExt orderExt = 1;
+}
+
+message WebOrganization {
+  int64 id = 1;
+  bytes name = 2;
+  repeated int64 orgPackage = 3;
+}
+
+message WebOriginAccount {
+  string accountNumber = 1;
+  int32 branchCode = 2;
+  int64 openDate = 3;
+  int32 rate = 4;
+  int64 availableBalance = 5;
+  int64 lastMoneyTransferDate = 6;
+  string firstName = 7;
+  string lastName = 8;
+}
+
+message WebOutPeer {
+  int32 type = 1;
+  int32 id = 2;
+  int64 accessHash = 3;
+}
+
+message WebOwnStickersChanged {
+  repeated WebCollection collections = 1;
+}
+
+message WebPackage {
+  int64 id = 1;
+  int64 bundleId = 2;
+  string faTitle = 3;
+  string enTitle = 4;
+  string faDescription = 5;
+  string enDescription = 6;
+  int64 price = 8;
+  int64 finalPrice = 9;
+  int64 duration = 10;
+  bool isSpecial = 11;
+}
+
+message WebPagination {
+  int64 page = 1;
+  int64 limit = 2;
+}
+
+message WebPagingData {
+  int32 pageNumber = 1;
+  int32 pageSize = 2;
+}
+
+message WebParagraphColor {
+  WebRgbColor rgbColor = 1;
+  WebPredefinedColor predefinedColor = 2;
+}
+
+message WebParameter {
+  string key = 1;
+  string value = 2;
+}
+
+message WebParameterChanged {
+  string key = 1;
+  WebStringValue value = 2;
+}
+
+message WebParentId {
+  WebExPeer exPeer = 1;
+  WebMessageId messageId = 2;
+}
+
+message WebPayload {
+  WebEmpty empty = 1;
+  bytes url = 2;
+  WebPeer peer = 3;
+  WebMenu menu = 4;
+}
+
+message WebPayment {
+  int64 id = 1;
+  WebBot receiptPeer = 2;
+  int64 receiptRandomId = 3;
+  int64 receiptDate = 4;
+  int64 traceNumber = 5;
+  int64 amount = 6;
+  int64 date = 7;
+  int32 payerUserId = 8;
+}
+
+message WebPaymentOption {
+  bytes paymentOptionId = 1;
+  int64 paymentType = 2;
+}
+
+message WebPaymentsHistory {
+  bytes trackCode = 1;
+  int64 unixDate = 2;
+  WebStringValue botMessage = 3;
+  int64 status = 4;
+}
+
+message WebPayvandCard {
+  string index = 1;
+  string bankCode = 2;
+  string last4Digit = 3;
+}
+
+message WebPeer {
+  int32 type = 1;
+  int32 id = 2;
+  int64 accessHash = 3;
+}
+
+message WebPeerConfig {
+  WebExPeer exPeer = 1;
+  int32 type = 2;
+  bool enable = 3;
+}
+
+message WebPeerHaveScheduleTask {
+  WebExPeer exPeer = 1;
+}
+
+message WebPeerReport {
+  int32 source = 1;
+  WebExPeer peer = 2;
+}
+
+message WebPeersInvited {
+  int64 callId = 1;
+  repeated WebOutPeer invitees = 2;
+  int64 updateCreateDate = 9;
+}
+
+message WebPeersStateChanged {
+  int64 callId = 1;
+  repeated WebPeerState peerStates = 2;
+}
+
+message WebPeerState {
+  int32 id = 1;
+  int64 date = 2;
+  int32 peerStateEnum = 3;
+  map<string, bytes> extra = 4;
+}
+
+message WebPendingRequest {
+  string requesterIdentifier = 1;
+  string name = 2;
+}
+
+message WebPermissions {
+  bool seeMessage = 1;
+  bool deleteMessage = 2;
+  bool kickUser = 3;
+  bool pinMessage = 4;
+  bool inviteUser = 5;
+  bool addAdmin = 6;
+  bool changeInfo = 7;
+  bool sendMessage = 8;
+  bool seeMembers = 9;
+  bool editMessage = 10;
+  WebBoolValue_1 sendMedia = 11;
+  WebBoolValue_1 sendGifStickers = 12;
+  WebBoolValue_1 replyToStory = 13;
+  WebBoolValue_1 forwardMessageFrom = 14;
+  WebBoolValue_1 sendGiftPacket = 15;
+  WebBoolValue_1 startCall = 16;
+  WebBoolValue_1 sendLinkMessage = 17;
+  WebBoolValue_1 sendForwardedMessage = 18;
+  WebBoolValue_1 addStory = 19;
+  WebBoolValue_1 manageCall = 20;
+}
+
+message WebPhone {
+  int64 phoneNumber = 1;
+  WebStringValue name = 2;
+}
+
+message WebPhoneNumberChanged {
+  int32 userId = 1;
+  int64 phoneNumber = 2;
+}
+
+message WebPing {
+  int64 ID = 1;
+}
+
+message WebPinnedDialogsChanged {
+  int32 folderId = 1;
+  repeated WebDialog pinnedDialogs = 2;
+  repeated WebExPeer pinnedPeers = 3;
+}
+
+message WebPointBalanceInfo {
+  int64 totalPoint = 1;
+  int64 redeemPoint = 2;
+  int64 burnPoint = 3;
+  int64 availablePoint = 4;
+  int64 currency = 5;
+  bytes currencyName = 6;
+}
+
+message WebPointDetailsInfo {
+  int64 transactionDateTime = 1;
+  int64 transactionType = 2;
+  bytes campaignName = 3;
+  int64 point = 4;
+  int64 opType = 5;
+  WebStringValue processName = 6;
+  WebStringValue description = 7;
+}
+
+message WebPointSummeryInfo {
+  int64 key = 1;
+  int64 value = 2;
+}
+
+message WebPollMessage {
+  string question = 1;
+  repeated WebOption options = 2;
+  bool isAnonymous = 3;
+  int32 type = 4;
+  WebPollResult result = 5;
+  int64 pollId = 6;
+}
+
+message WebPollResult {
+  repeated WebOptionResult optionResults = 1;
+  repeated int64 recentVoters = 2;
+  repeated int64 chosenOptionIds = 3;
+  bool isClosed = 4;
+  int64 pollId = 5;
+  int32 votersCount = 6;
+}
+
+message WebPollWidget {
+  bytes question = 1;
+}
+
+message WebPong {
+  int64 ID = 1;
+}
+
+message WebPopularityList {
+  WebExPeer exPeer = 1;
+  fixed32 popularity = 2;
+}
+
+message WebPopularResult {
+  bytes demonstrativeName = 1;
+  WebStringValue link = 2;
+  WebPopularSearchResult popularSearchResult = 3;
+  WebGroupPeer groupOutPeer = 4;
+  WebSearchAds searchAds = 5;
+  int64 minAppVersion = 6;
+  int64 maxAppVersion = 7;
+}
+
+message WebPopularSearchResult {}
+
+message WebPopularStoryChannelBlacklistConfig {}
+
+message WebPosition {
+  repeated WebCoordinate coordinates = 1;
+}
+
+message WebPost {
+  WebExPeer peer = 1;
+  string nickname = 2;
+  string title = 3;
+  int32 membersCount = 4;
+  WebHistory message = 5;
+  WebImageLocation avatar = 6;
+}
+
+message WebPostWidget {
+  bytes link = 1;
+}
+
+message WebPredefinedColor {
+  int32 color = 1;
+}
+
+message WebPremiumMessage {
+  int64 amount = 1;
+  string targetWalletId = 2;
+  WebMessage originalMessage = 3;
+  WebMessage preview = 4;
+  WebStringValue fileMimeType = 5;
+}
+
+message WebPremiumPurchaseStatus {
+  WebBoolValue_1 successful = 1;
+  WebBoolValue_1 failed = 2;
+  WebBoolValue_1 unknown = 3;
+}
+
+message WebPresenceType {
+  WebT_l_10824 userOnline = 1;
+  WebT_f_10824 userOffline = 2;
+}
+
+message WebPrivacy {
+  int32 invitePrivacy = 1;
+  int32 presencePrivacy = 2;
+  int32 moneyTransferPrivacy = 3;
+}
+
+message WebPrivacyConfig {
+  int64 userId = 1;
+  repeated int64 exceptionUserIds = 2;
+  int64 exception = 3;
+  int64 createdAt = 4;
+  int64 isActive = 5;
+  int64 exceptionToggle = 6;
+}
+
+message WebPrivateCallLog {
+  int32 status = 1;
+}
+
+message WebProduct {
+  WebImageLocation productImageLocation = 1;
+  bytes productImageName = 2;
+  WebMsg productMessage = 3;
+  WebStringValue marketId = 4;
+  WebStringValue title = 5;
+  WebInt32Value price = 6;
+  WebInt32Value finalPrice = 7;
+  WebInt32Value discountPercent = 8;
+  WebStringValue score = 9;
+  WebInt32Value numberOfParticipants = 10;
+  WebStringValue imageUrl = 11;
+  WebStringValue url = 12;
+}
+
+message WebProductResult {
+  WebMsg messageId = 1;
+  WebMedia content = 2;
+}
+
+message WebProtectedMessage {
+  WebMessage message = 1;
+}
+
+message WebPsProxyOrderMessage {
+  string psp = 1;
+  string productType = 2;
+  int32 productVersion = 3;
+  WebExt parameters = 4;
+}
+
+message WebPurchaseMessage {
+  WebMessage msg = 1;
+  string accountNumber = 2;
+  int64 amount = 3;
+  WebStringValue regexAmount = 4;
+  int32 requestType = 5;
+  WebMultiplexingData multiplexingData = 6;
+  WebExt additionalInfo = 7;
+  WebStringValue targetWalletId = 8;
+}
+
+message WebQuery {
+  bytes query = 1;
+}
+
+message WebQuotedMessage {
+  WebInt64Value_1 messageId = 1;
+  WebInt32Value publicGroupId = 2;
+  int32 senderUserId = 3;
+  int64 messageDate = 4;
+  WebMessage quotedMessageContent = 5;
+  WebPeer quotedPeer = 6;
+  WebStoryType story = 8;
+}
+
+message WebQuotedMessageReference {
+  WebPeer peer = 1;
+  int64 rid = 2;
+  WebInt64Value_1 date = 3;
+  WebInt64Value_1 seq = 4;
+  WebStoryType story = 5;
+}
+
+message WebRaiseHand {
+  string userIdentity = 1;
+}
+
+message WebRawUpdate {
+  WebStringValue type = 1;
+  bytes bytes = 2;
+}
+
+message WebReaction {
+  repeated int32 users = 1;
+  string code = 2;
+  WebInt64Value_1 cardinality = 3;
+  map<string, bytes> ext = 4;
+}
+
+message WebReactionData {
+  int64 reactionType = 1;
+  WebStringValue reactionText = 2;
+}
+
+message WebReactionsUpdate {
+  WebBot peer = 1;
+  int64 rid = 2;
+  repeated WebReaction reactions = 3;
+  bool reactionByMe = 4;
+}
+
+message WebReceipt {
+  int64 orderId = 1;
+  int64 baleClubScore = 2;
+  WebOffset chargeCode = 3;
+  WebOffset transactionKey = 4;
+}
+
+message WebReceiptMessage {
+  WebExt message = 1;
+  WebExt transferInfo = 2;
+}
+
+message WebRecentCharge {
+  int64 amount = 1;
+  WebStringValue phoneNo = 2;
+  int32 operator = 3;
+  int32 chargeType = 4;
+}
+
+message WebRecord {
+  int64 amount = 1;
+  int64 transactionType = 2;
+  bytes app = 3;
+  int64 date = 4;
+  int64 creditDebit = 5;
+  int64 approvalCode = 6;
+  bytes trxRef = 7;
+}
+
+message WebRegister {
+  WebWebRegister webRegister = 1;
+  WebFirebaseRegister firebaseRegister = 2;
+  WebApnRegister apnRegister = 3;
+}
+
+message WebRelatedChannel {
+  WebExPeer exPeer = 1;
+}
+
+message WebRelatedGroup {
+  WebExPeer exPeer = 1;
+}
+
+message WebRepliesInfo {
+  int32 repliesCount = 1;
+  repeated WebUserPeer recentRepliers = 2;
+  WebMessageId lastMessage = 3;
+}
+
+message WebReplyConfig {
+  int64 hasReply = 1;
+}
+
+message WebReplyKeyboardMarkup {
+  repeated WebListOfKeyboardList listOfKeyboardList = 1;
+}
+
+message WebReplyKeyboardRemove {
+  bool removeKeyboard = 1;
+  WebBoolValue_1 selective = 2;
+}
+
+message WebReportType {
+  int32 kind = 1;
+  string description = 2;
+  WebPeerReport peerReport = 101;
+  WebMessageReport messageReport = 102;
+  WebStoryReport storyReport = 103;
+}
+
+message WebRequest {
+  int64 status = 1;
+  bytes description = 2;
+  int64 marketPeerId = 3;
+  int64 createdAt = 4;
+  int64 updatedAt = 5;
+  bytes displayName = 6;
+  bytes nickName = 7;
+  int64 requestId = 8;
+  int64 categoryId = 9;
+}
+
+message WebRequestBankiAccessFor {
+  WebBot bot = 1;
+  WebService service = 2;
+}
+
+message WebRequestChat {
+  int32 requestId = 1;
+  bool chatIsChannel = 2;
+  bool chatIsForum = 3;
+  bool chatHasUsername = 4;
+  bool chatIsCreated = 5;
+  WebUserAdministratorRights userAdministratorRights = 6;
+  WebUserAdministratorRights botAdministratorRights = 7;
+  bool botIsMember = 8;
+}
+
+message WebRequestLogin {
+  WebBot bot = 1;
+  WebService service = 3;
+}
+
+message WebRequestPoll {
+  string type = 1;
+}
+
+message WebRequestUser {
+  int32 requestId = 1;
+  bool userIsBot = 2;
+  bool userIsPremium = 3;
+}
+
+message WebResolveIssue {
+  int32 userId = 1;
+}
+
+message WebResponse {
+  bytes error = 1;
+  bytes response = 2;
+  int64 index = 3;
+}
+
+message WebRestoryWidget {
+  bytes storyId = 1;
+  WebExPeer exPeer = 2;
+}
+
+message WebResult {
+  bytes id = 1;
+  int64 ownerUserId = 2;
+  WebStringValue reaction = 3;
+  int64 createdAt = 4;
+  WebStoryContent storyContent = 5;
+  int64 hasReply = 6;
+  WebExPeer exPeer = 7;
+  int64 hasWidget = 8;
+  repeated int64 tagIds = 9;
+  int64 storyContentType = 10;
+  repeated WebReactionData reactions = 11;
+  int64 isHidden = 12;
+}
+
+message WebRgbColor {
+  int32 rgb = 1;
+}
+
+message WebRouteSequence {
+  int64 routeId = 1;
+  int64 lastSequence = 2;
+}
+
+message WebSavedGifsChanged {}
+
+message WebSearchAds {}
+
+message WebSearchAndCondition {
+  repeated WebAndQuery andQuery = 1;
+}
+
+message WebSearchDate {
+  int64 date = 1;
+}
+
+message WebSearchDocumentName {
+  bytes documentName = 1;
+}
+
+message WebSearchHasLink {
+  int64 hasLink = 1;
+}
+
+message WebSearchOrCondition {
+  repeated WebAndQuery orQuery = 2;
+}
+
+message WebSearchPeerCondition {
+  WebPeer peer = 1;
+}
+
+message WebSearchPeerContentType {
+  int64 contentType = 1;
+}
+
+message WebSearchPeerTypeCondition {
+  int64 peerType = 1;
+}
+
+message WebSearchResult {
+  WebT_U_34523 result = 1;
+}
+
+message WebSearchScopeCondition {
+  int64 scope = 1;
+}
+
+message WebSearchSender {
+  int64 userId = 1;
+}
+
+message WebSection {
+  int64 type = 1;
+  WebKnown known = 2;
+  WebShortcuts shortcuts = 3;
+  WebCustomItems customServices = 4;
+  WebBanners banners = 5;
+  WebBotsVitrine botsVitrine = 6;
+  WebExtra extra = 7;
+  int64 sectionId = 8;
+  WebCardExtra cardExtra = 9;
+}
+
+message WebSendMessageRequest {
+  WebPeer peer = 1;
+  int64 rid = 2;
+  WebMessage message = 3;
+  WebInt32Value isOnlyForUser = 4;
+  WebQuotedMessageReference quotedMessageReference = 5;
+  WebOutPeer exPeer = 6;
+  bool isSilent = 7;
+  WebMessageId threadId = 8;
+}
+
+message WebSendMultiMediaMessageRequest {
+  WebOutPeer peer = 1;
+  repeated WebMultiMedia multiMedia = 2;
+  WebQuotedMessageReference repliedMessage = 3;
+  int64 groupedId = 4;
+}
+
+message WebSendType {
+  int32 type = 1;
+}
+
+message WebService {
+  string serviceKey = 1;
+  string serviceFaName = 2;
+  string serviceEnName = 3;
+}
+
+message WebServiceExAnonymousContact {
+  WebStringValue desc = 1;
+}
+
+message WebServiceExBecameOrphaned {}
+
+message WebServiceExCallRecordStateChanged {
+  int32 starterUserId = 1;
+  bool isStarted = 2;
+}
+
+message WebServiceExChangedAbout {
+  WebStringValue about = 1;
+}
+
+message WebServiceExChangedAvatar {
+  WebAvatar avatar = 1;
+}
+
+message WebServiceExChangedNick {
+  WebStringValue nick = 1;
+}
+
+message WebServiceExChangedTitle {
+  string title = 1;
+}
+
+message WebServiceExChangedTopic {
+  WebStringValue topic = 1;
+}
+
+message WebServiceExChatArchived {}
+
+message WebServiceExChatRestored {}
+
+message WebServiceExContactRegistered {
+  int32 uid = 1;
+}
+
+message WebServiceExGiftPacketOpened {
+  int32 userId = 1;
+  int64 msgRid = 2;
+  int64 msgDate = 3;
+}
+
+message WebServiceExGiftPacketOpenedCompact {
+  int32 lastUserId = 1;
+  int32 othersCount = 2;
+  int64 msgRid = 3;
+  int64 msgDate = 4;
+}
+
+message WebServiceExGroupCallEnded {
+  WebGroupCall groupCall = 1;
+  bool missed = 2;
+  map<string, bytes> extra = 3;
+  map<string, bytes> ext = 4;
+}
+
+message WebServiceExGroupCallStarted {
+  WebGroupCall groupCall = 1;
+  map<string, bytes> extra = 2;
+  map<string, bytes> ext = 3;
+}
+
+message WebServiceExGroupCreated {}
+
+message WebServiceExMiniAppDataSent {}
+
+message WebServiceExNewUserWelcome {}
+
+message WebServiceExPassportDataSent {}
+
+message WebServiceExPhoneCall {
+  int32 duration = 1;
+  WebInt64Value_1 startDate = 2;
+  int32 discardReason = 3;
+  WebBoolValue_1 isVideo = 5;
+  map<string, bytes> extra = 6;
+  map<string, bytes> ext = 7;
+  WebCall call = 8;
+}
+
+message WebServiceExPhoneMissed {}
+
+message WebServiceExTopicCreated {
+  WebStringValue title = 1;
+}
+
+message WebServiceExUserInvited {
+  int32 invitedUid = 1;
+}
+
+message WebServiceExUserJoined {}
+
+message WebServiceExUserKicked {
+  int32 kickedUid = 1;
+}
+
+message WebServiceExUserLeft {
+  int32 leftUid = 1;
+}
+
+message WebServiceMessage {
+  string text = 1;
+  WebT_ev_95053 ext = 2;
+}
+
+message WebServices {
+  repeated WebT_ad_51787 categories = 1;
+}
+
+message WebSession {
+  bytes paymentSessionId = 1;
+  repeated WebPaymentOption paymentOptions = 2;
+}
+
+message WebShortcut {
+  WebButtonNavigation navigation = 1;
+  bytes title = 2;
+  bytes icon = 3;
+  bytes bgColor = 4;
+  int64 shortcutId = 5;
+  bytes darkBgColor = 6;
+}
+
+message WebShortcuts {
+  repeated WebShortcut shortcuts = 1;
+}
+
+message WebShowAds {
+  bool showSponsoredAd = 1;
+}
+
+message WebShowSnackBarAction {
+  string text = 1;
+}
+
+message WebSimilarPost {
+  WebT_A_54329 message = 1;
+  WebParentId parentId = 2;
+}
+
+message WebSipCall {
+  int64 rid = 1;
+  string callerPhone = 2;
+  string calleePhone = 3;
+  WebStringValue imei = 4;
+  double lat = 5;
+  double lon = 6;
+}
+
+message WebSmallImage {
+  WebFileLocation fileLocation = 1;
+  int32 width = 2;
+  int32 height = 3;
+  int32 fileSize = 4;
+}
+
+message WebSponsoredMessageOption {
+  int32 minChannelMembers = 1;
+  int32 maxChannelMembers = 2;
+}
+
+message WebStartLive {
+  WebInfo info = 1;
+}
+
+message WebState {
+  WebGroupPeer groupPeer = 1;
+  int64 seq = 2;
+}
+
+message WebSticker {
+  int32 id = 1;
+  WebStringValue emoji = 2;
+  WebImageLocation image128 = 3;
+  WebImageLocation image512 = 4;
+  WebImageLocation image256 = 5;
+}
+
+message WebStickerCollectionsChanged {
+  repeated WebCollection collections = 1;
+}
+
+message WebStickerMessage {
+  WebInt32Value stickerId = 1;
+  WebBytesValue fastPreview = 2;
+  WebImageLocation image512 = 3;
+  WebImageLocation image256 = 4;
+  WebInt32Value stickerCollectionId = 5;
+  WebInt64Value_1 stickerCollectionAccessHash = 6;
+}
+
+message WebStickerPacksChanged {}
+
+message WebStoryContent {
+  WebFileLocation fileLocation = 1;
+  WebThumb fastThumb = 2;
+  int64 fileSize = 3;
+  WebVideo video = 4;
+  repeated WebWidget widget = 5;
+}
+
+message WebStoryReport {
+  repeated WebStringValue storyId = 1;
+}
+
+message WebStoryType {
+  string storyId = 1;
+  WebOutPeer owner = 2;
+}
+
+message WebStreamedMessage {
+  WebMessage message = 1;
+  int32 messageStreamStatus = 2;
+}
+
+message WebStringValue {
+  string value = 1;
+}
+
+message WebStyle {
+  WebBoolValue_1 showParagraph = 1;
+  WebParagraphColor paragraphColor = 2;
+  WebParagraphColor bgColor = 3;
+}
+
+message WebSubcategory {
+  int32 id = 1;
+  string title = 2;
+  bool isActive = 3;
+}
+
+message WebSuggestedChannels {
+  repeated WebT_tm_58187 peers = 1;
+  string bannerUrl = 2;
+  WebOffset title = 3;
+  WebOffset description = 4;
+  int32 dialogImagePosition = 5;
+  int32 imageCover = 6;
+  string innerBannerUrl = 7;
+  string innerBannerTitle = 8;
+}
+
+message WebSwitchInlineQueryChosenChat {
+  string query = 1;
+  bool allowUserChats = 2;
+  bool allowBotChats = 3;
+  bool allowGroupChats = 4;
+  bool allowChannelChats = 5;
+}
+
+message WebT___29176 {
+  WebStoryContent media = 1;
+  WebTextStory text = 2;
+}
+
+message WebT___54329 {
+  WebMedia documentMessage = 1;
+  WebMessageId messageId = 2;
+}
+
+message WebT___64113 {
+  bytes update = 1;
+}
+
+message WebT__c {
+  int64 id = 1;
+  string faName = 2;
+  string enName = 3;
+  string mediaUrl = 4;
+  int32 mediaFormat = 5;
+  repeated WebBadge badges = 6;
+}
+
+message WebT_A_54329 {
+  int64 senderUid = 1;
+  int64 rid = 2;
+  int64 date = 3;
+  WebT_R_54329 message = 4;
+  WebExPeer exPeer = 5;
+  repeated WebReaction reactions = 6;
+  WebTag tag = 7;
+  WebInt32Value_1 forwardedCount = 8;
+  WebInt32Value_1 upvoteCount = 9;
+  WebBoolValue_2 isUpvotedByMe = 10;
+  WebOffset category = 11;
+  WebInt64Value_1 groupedId = 12;
+  WebRepliesInfo repliesInfo = 13;
+  WebBoolValue_2 hasComment = 14;
+}
+
+message WebT_ad_51787 {
+  int64 id = 1;
+  bytes title = 2;
+  int64 badgeType = 3;
+  bytes badge = 4;
+  repeated WebItem items = 5;
+}
+
+message WebT_aI_88717 {
+  int64 userId = 1;
+  int64 serviceMessageRid = 2;
+  int64 serviceMessageDate = 3;
+}
+
+message WebT_ai_88717 {
+  int64 linkStatus = 1;
+}
+
+message WebT_ap_51787 {
+  int64 id = 1;
+  bytes title = 2;
+  bytes icon = 3;
+  int64 action = 4;
+  WebPayload payload = 5;
+}
+
+message WebT_aR_88717 {
+  bytes countryNumber = 1;
+  WebInt64Value registerAccountTime = 2;
+  WebInt64Value lastTimeNameChanged = 3;
+  WebInt64Value lastTimeAvatarChanged = 4;
+  repeated WebGroupPeer commonGroups = 5;
+  repeated WebExtraInfo extraInfo = 6;
+}
+
+message WebT_as_51787 {
+  WebItem service = 1;
+  WebBots bot = 2;
+}
+
+message WebT_at_88717 {
+  bytes link = 1;
+}
+
+message WebT_B_59727 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_b_64786 {
+  int64 key = 1;
+  WebT_NC value = 2;
+}
+
+message WebT_C_50010 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_c_72802 {
+  int32 id = 1;
+  string name = 2;
+  WebAvatar avatar = 3;
+  WebFloatValue averageRating = 4;
+  string description = 5;
+}
+
+message WebT_cC {
+  int64 userId = 1;
+  bytes username = 2;
+  int64 score = 3;
+  bytes title = 4;
+}
+
+message WebT_d_46216 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_D_50010 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_d_61936 {
+  WebTerminationSignal terminationSignal = 1;
+  WebTextChunk textChunk = 2;
+}
+
+message WebT_Dc {
+  int64 seconds = 1;
+  int64 nanos = 2;
+}
+
+message WebT_E_27207 {
+  int64 key = 1;
+  WebT_I_27207 value = 2;
+}
+
+message WebT_E_44179 {}
+
+message WebT_E_95053 {
+  string url = 1;
+  string secureUrl = 2;
+  string type = 3;
+  int32 height = 4;
+  int32 width = 5;
+}
+
+message WebT_e2_95053 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_e4_95053 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_e7_95053 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_eC {
+  int64 page = 1;
+  int64 limit = 2;
+}
+
+message WebT_eI_14892 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_ei_76777 {
+  int64 orderId = 1;
+  int64 baleClubScore = 2;
+  WebOffset transactionKey = 3;
+}
+
+message WebT_eJ_95053 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_en_76777 {
+  int64 id = 1;
+  int64 operatorType = 2;
+  bytes phoneNumber = 3;
+  int64 bundleType = 4;
+  WebBoolValue_2 isStillValid = 5;
+  WebBundle bundleInfo = 6;
+  WebInt32Value_1 targetUserId = 7;
+}
+
+message WebT_eo_76777 {
+  bytes accessHash = 1;
+  int64 operatorCode = 2;
+  int64 type = 3;
+  int64 amount = 5;
+  bytes phoneNumber = 6;
+  int64 date = 7;
+  WebInt32Value_1 targetUserId = 8;
+}
+
+message WebT_ev_95053 {
+  WebServiceExBecameOrphaned serviceExBecameOrphaned = 1;
+  WebServiceExChangedAbout serviceExChangedAbout = 2;
+  WebServiceExChangedAvatar serviceExChangedAvatar = 3;
+  WebServiceExChangedNick serviceExChangedNick = 4;
+  WebServiceExChangedTitle serviceExChangedTitle = 5;
+  WebServiceExChangedTopic serviceExChangedTopic = 6;
+  WebServiceExChatArchived serviceExChatArchived = 7;
+  WebServiceExChatRestored serviceExChatRestored = 8;
+  WebServiceExContactRegistered serviceExContactRegistered = 9;
+  WebServiceExGroupCreated serviceExGroupCreated = 10;
+  WebServiceExPhoneCall serviceExPhoneCall = 11;
+  WebServiceExPhoneMissed serviceExPhoneMissed = 12;
+  WebServiceExUserInvited serviceExUserInvited = 13;
+  WebServiceExUserJoined serviceExUserJoined = 14;
+  WebServiceExUserKicked serviceExUserKicked = 15;
+  WebServiceExUserLeft serviceExUserLeft = 16;
+  WebServiceExGiftPacketOpened serviceExGiftPacketOpened = 17;
+  WebServiceExGiftPacketOpenedCompact serviceExGiftPacketOpenedCompact = 18;
+  WebServiceExNewUserWelcome serviceExNewUserWelcome = 19;
+  WebServiceExGroupCallStarted serviceExGroupCallStarted = 20;
+  WebServiceExGroupCallEnded serviceExGroupCallEnded = 21;
+  WebServiceExCallRecordStateChanged serviceExCallRecordStateChanged = 22;
+  WebServiceExMiniAppDataSent serviceExMiniAppDataSent = 23;
+  WebServiceExAnonymousContact serviceExAnonymousContact = 24;
+  WebServiceExPassportDataSent serviceExPassportDataSent = 25;
+  WebServiceExTopicCreated serviceExTopicCreated = 26;
+}
+
+message WebT_eY_58187 {
+  int32 userId = 1;
+  int32 status = 2;
+  int64 requestDate = 3;
+  int64 acceptDate = 4;
+  string rejectReason = 5;
+  string name = 6;
+  string family = 7;
+  string nationalCode = 8;
+  string postalCode = 9;
+  string phone = 10;
+  string address = 11;
+  string cardImage = 12;
+  int32 associatedGroupId = 13;
+}
+
+message WebT_ez_58187 {
+  int64 date = 1;
+}
+
+message WebT_eZ_95053 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_f_10824 {
+  WebUserPeer peer = 1;
+  WebBoolValue_1 userLastSeenUnknown = 2;
+  WebInt64Value_1 date = 3;
+}
+
+message WebT_f_1431 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_f_44179 {
+  int64 balance = 1;
+}
+
+message WebT_F_50010 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_f_68220 {
+  WebCustomOpenUrlAction customOpenUrlAction = 1;
+  WebCustomDoNothingAction customDoNothingAction = 2;
+}
+
+message WebT_G_50010 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_H_14892 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_H_64113 {
+  WebT_j_64113 request = 1;
+  WebPing ping = 2;
+  WebHandshakeRequest handshakeRequest = 3;
+}
+
+message WebT_hI {
+  int32 id = 1;
+  WebStringValue theme = 2;
+  WebStringValue about = 3;
+  int32 ownerUid = 4;
+  int64 createDate = 5;
+  WebExt ext = 6;
+  WebBoolValue_1 canViewMembers = 7;
+  WebBoolValue_1 canInvitePeople = 8;
+  WebBoolValue_1 isSharedHistory = 9;
+  WebBoolValue_1 isAsyncMembers = 10;
+  repeated WebMember members = 11;
+  WebExInfo exInfo = 12;
+  WebHistory pin = 13;
+  int32 restriction = 14;
+  int32 advertisementType = 15;
+  WebStringValue channelNativeAdTagId = 17;
+  WebStringValue channelBannerAdTagId = 18;
+  repeated string availableReactions = 19;
+  WebBoolValue_1 isSuspend = 20;
+  int32 privacyBarMode = 21;
+}
+
+message WebT_HS {
+  int64 id = 1;
+  int64 createDate = 2;
+  int64 startDate = 3;
+  int32 duration = 4;
+  int32 callerUid = 5;
+  string callerPhone = 6;
+  string switchIp = 7;
+  string switchPort = 8;
+  string tempVoipToken = 9;
+  string calleePhone = 10;
+  int32 discardReason = 11;
+}
+
+message WebT_I_ {
+  WebBot peer = 1;
+  bytes title = 2;
+  WebStringValue description = 3;
+  WebInt32Value membersCount = 4;
+  WebInt64Value_1 dateCreated = 5;
+  WebInt32Value creator = 6;
+  WebBoolValue_1 isPublic = 7;
+  WebBoolValue_1 isJoined = 8;
+}
+
+message WebT_I_14892 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_I_27207 {
+  int64 lastSequence = 2;
+  int64 needMore = 3;
+  repeated WebUpdate updates = 4;
+  WebBoolValue_1 tooLong = 5;
+}
+
+message WebT_i__88717 {
+  bytes term = 1;
+  int64 defaultTab = 2;
+  bytes displayName = 3;
+  WebInt32Value_1 peerId = 4;
+}
+
+message WebT_ib_88717 {
+  WebT_iy_88717 action = 1;
+  bytes imageUrl = 2;
+  int64 fileId = 3;
+}
+
+message WebT_iE_88717 {
+  int64 id = 1;
+  bytes title = 2;
+  bytes drawableId = 3;
+  repeated WebMarketType markets = 4;
+  WebT_iT_88717 dialog = 5;
+  int64 parentId = 6;
+  WebBoolValue_1 pinned = 7;
+  int64 categoryItemsType = 8;
+}
+
+message WebT_iG_95053 {
+  string title = 1;
+  string description = 2;
+  string agreeButton = 3;
+  string disagreeButton = 4;
+}
+
+message WebT_iM_88717 {
+  int64 fileId = 1;
+  int64 accessHash = 2;
+  bytes fileName = 3;
+  int64 fileSize = 4;
+  WebInt32Value fileStorageVersion = 5;
+  int64 randomId = 6;
+  int64 date = 7;
+  int64 MarketId = 8;
+}
+
+message WebT_iR_88717 {
+  int64 id = 1;
+  bytes title = 2;
+  int64 categoryId = 3;
+  int64 isDefault = 4;
+}
+
+message WebT_iS_88717 {
+  int64 peerId = 1;
+  bytes displayName = 2;
+  int64 categoryId = 3;
+  int64 primaryCategoryId = 4;
+  int64 createdAt = 5;
+  bytes nickName = 6;
+  int64 isActive = 7;
+  int64 isBasalam = 8;
+  int64 isTazenafas = 9;
+  int64 isBanned = 10;
+}
+
+message WebT_iT_88717 {
+  bytes title = 1;
+  bytes description = 2;
+}
+
+message WebT_iy_88717 {
+  int64 type = 1;
+  int64 id = 2;
+  bytes url = 3;
+}
+
+message WebT_J_50010 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_j_64113 {
+  string serviceName = 1;
+  string method = 2;
+  bytes payload = 3;
+  WebExt metadata = 4;
+  int64 index = 5;
+}
+
+message WebT_jq {
+  int64 page = 1;
+  int64 limit = 2;
+}
+
+message WebT_k_22369 {
+  bytes url = 1;
+  bytes shortName = 2;
+  bytes title = 3;
+  bytes description = 4;
+  WebImageLocation image = 5;
+}
+
+message WebT_KW {
+  WebInt64Value_1 startDate = 1;
+}
+
+message WebT_L {
+  int64 type = 1;
+  WebOffset title = 2;
+  WebOffset description = 3;
+  WebBotInlineMessage botInlineMessage = 8;
+  WebBotInlineResult botInlineResult = 101;
+  WebBotInlineMediaResult botInlineMediaResult = 102;
+}
+
+message WebT_l_10824 {
+  WebUserPeer peer = 1;
+}
+
+message WebT_L_54329 {
+  int64 categoryId = 1;
+  WebTag name = 2;
+}
+
+message WebT_LF {
+  WebCommands commands = 1;
+  WebMiniApp miniApp = 2;
+}
+
+message WebT_LnR {
+  WebDocumentExPhoto documentExPhoto = 1;
+  WebDocumentExVideo documentExVideo = 2;
+  WebDocumentExVoice documentExVoice = 3;
+  WebDocumentExGif documentExGif = 4;
+  WebDocumentExAudio documentExAudio = 5;
+}
+
+message WebT_LWL {}
+
+message WebT_M_50010 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_N_50010 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_n0_51787 {
+  int64 type = 1;
+  WebPayload payload = 2;
+}
+
+message WebT_n0_95053 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_n4 {
+  int32 id = 1;
+  int64 accessHash = 2;
+  string name = 3;
+  WebStringValue localName = 4;
+  WebStringValue nick = 5;
+  WebAvatar avatar = 6;
+  WebStringValue about = 7;
+  repeated WebContactInfo contactInfo = 8;
+  WebBoolValue_1 isBot = 9;
+  int32 sex = 10;
+  WebExInfo exInfo = 11;
+  repeated WebBotCommand botCommands = 12;
+  WebBoolValue_1 isBlocked = 13;
+  WebBoolValue_1 isDeleted = 14;
+  WebBoolValue_1 isContact = 15;
+  map<string, bytes> ext = 16;
+  repeated string preferredLanguages = 17;
+  WebStringValue timeZone = 18;
+  WebStringValue defaultBankAccount = 19;
+  WebStringValue defaultCardNumber = 20;
+  int32 puppeteer = 21;
+  WebInt64Value_1 createdAt = 22;
+  int32 privacyBarMode = 23;
+  WebBoolValue_1 privacyAllowedToInvite = 24;
+  WebBotExInfo botExInfo = 25;
+}
+
+message WebT_n5_51787 {
+  int64 id = 1;
+  bytes text = 2;
+}
+
+message WebT_n8_51787 {
+  int64 page = 1;
+  int64 limit = 2;
+}
+
+message WebT_NC {
+  repeated WebFeature features = 6;
+}
+
+message WebT_nd_95053 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_nh_95053 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_nK_95053 {
+  WebBot peer = 1;
+  int32 counter = 2;
+  int64 date = 3;
+  WebExInfo exInfo = 4;
+  WebInt64Value_1 firstUnreadDate = 5;
+  WebBoolValue_1 markedAsUnread = 6;
+}
+
+message WebT_nP_88717 {}
+
+message WebT_nw_88717 {
+  bytes token = 1;
+  bytes url = 2;
+  int64 expiresIn = 3;
+}
+
+message WebT_Q_ {
+  WebTaskSendMessage taskSendMessage = 1;
+  WebTaskDeleteMessage taskDeleteMessage = 2;
+  WebTaskSendMultiMediaMessage taskSendMultiMediaMessage = 3;
+}
+
+message WebT_q_64113 {
+  int32 code = 1;
+  string message = 2;
+  WebExt details = 3;
+}
+
+message WebT_R_54329 {
+  WebMedia documentMessage = 1;
+  WebTextMessage textMessage = 2;
+  WebAlbumMessage albumMessage = 3;
+}
+
+message WebT_rg_58187 {
+  string id = 1;
+  int32 userId = 2;
+  string title = 3;
+  string description = 4;
+  string link = 5;
+  string image = 6;
+  int64 askedViewCnt = 7;
+  int32 status = 8;
+  int64 startTime = 9;
+  int64 askedClickCnt = 10;
+  int64 viewCnt = 11;
+  int64 clickCnt = 12;
+}
+
+message WebT_rt_88717 {
+  bytes key = 1;
+  bytes value = 2;
+}
+
+message WebT_t6_95053 {
+  int64 id = 1;
+  string transactionName = 2;
+  string transactionChannel = 3;
+  int64 transactionDate = 4;
+  string transactionAmountWithSign = 5;
+  string transactionType = 6;
+  int32 categoryId = 7;
+  string comment = 8;
+  int32 brno = 9;
+  string transactionTrace = 10;
+  WebInt32Value hyperLink = 11;
+}
+
+message WebT_tB_58187 {
+  WebImageLocation providerIcon = 1;
+  string providerName = 2;
+  string contentName = 3;
+  string contentType = 4;
+  string contentLink = 5;
+  string moreContentLink = 6;
+  WebImageLocation contentBanner = 7;
+}
+
+message WebT_te_58187 {
+  int64 date = 1;
+  repeated int32 segmentCapacityUsed = 2;
+  repeated int32 maxAddsPerSegment = 3;
+  int32 currentReservedViews = 4;
+  int32 maxViews = 5;
+  int32 campaignReservedViews = 6;
+  int32 sponsoredReservedViews = 7;
+}
+
+message WebT_tE_58187 {
+  string campaignId = 1;
+  string id = 2;
+  string title = 3;
+  string picUrl = 4;
+  string description = 5;
+  string link = 6;
+  string linkTitle = 7;
+  int32 type = 8;
+  int64 viewCount = 9;
+  int64 clickCount = 10;
+  int32 spot = 11;
+  int32 platform = 12;
+  int32 topic = 13;
+  int64 cost = 14;
+  int32 tag1 = 15;
+  int32 tag2 = 16;
+  WebTargeting targeting = 17;
+  bool isOnlyTargeted = 18;
+}
+
+message WebT_te_95053 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_tf_58187 {
+  int32 type = 1;
+  repeated WebAds ads = 2;
+  string token = 3;
+}
+
+message WebT_tG_91847 {
+  int32 rate = 1;
+  string title = 2;
+  string description = 3;
+  map<string, bytes> details = 4;
+  WebExt mtDetails = 5;
+}
+
+message WebT_th_58187 {
+  string id = 1;
+  string title = 2;
+  string picUrl = 3;
+  string description = 4;
+  string link = 5;
+  string linkTitle = 6;
+  int32 ownerId = 7;
+  int32 viewCount = 8;
+  int32 clickCount = 9;
+  int64 createdAt = 10;
+  int64 paidAt = 11;
+  int32 spot = 12;
+  int32 platform = 13;
+  int64 totalPrice = 14;
+  int64 payedPrice = 15;
+  string phoneNo = 16;
+  int32 pricePerUnit = 17;
+  int32 accountType = 18;
+  string ownerName = 19;
+  string address = 20;
+  string nationalCode = 21;
+  string melliShenase = 22;
+  string postalCode = 23;
+  string name = 24;
+  string fullName = 25;
+}
+
+message WebT_THn {
+  WebMessageId mId = 1;
+  WebInt64Value_1 views = 2;
+}
+
+message WebT_tI_58187 {
+  string adId = 1;
+  int64 rialAmount = 2;
+  int64 discountFixedAmount = 3;
+  int32 discountPercent = 4;
+  int64 createdAt = 5;
+  int32 serialNumber = 6;
+}
+
+message WebT_ti_88717 {
+  WebExPeer peer = 1;
+  WebMessageId messageId = 2;
+  int64 page = 3;
+  int64 limit = 4;
+}
+
+message WebT_tk_51787 {
+  bytes data = 1;
+  int64 version = 2;
+  int64 itemsVersion = 3;
+  int64 isChanged = 4;
+}
+
+message WebT_tk_58187 {
+  int32 channelId = 1;
+  int32 contactMemberCount = 2;
+}
+
+message WebT_tl_91847 {
+  WebGlobalConfig globalConfig = 1;
+  WebPeerConfig peerConfig = 2;
+}
+
+message WebT_tm_58187 {
+  WebExPeer peer = 1;
+  int32 peerIdentity = 2;
+  string title = 3;
+  string description = 4;
+  string callToActionTxt = 5;
+  bool isStarted = 6;
+}
+
+message WebT_tN_58187 {
+  string id = 1;
+  int32 ownerId = 2;
+  int32 state = 3;
+  int64 createdAt = 4;
+  int64 acceptDate = 5;
+  string rejectionReason = 6;
+  int64 startTime = 7;
+  int64 finishTime = 8;
+  repeated WebT_tE_58187 ads = 9;
+}
+
+message WebT_tn_91847 {
+  string auth = 1;
+  string p256dh = 2;
+}
+
+message WebT_tp_58187 {
+  string id = 1;
+  int32 ownerId = 2;
+  string code = 3;
+  int32 type = 4;
+  int32 value = 5;
+  string adId = 6;
+  int64 createTime = 7;
+  int32 state = 8;
+  int64 expDate = 9;
+  bool isSpecial = 10;
+  repeated int32 allowedUsers = 11;
+  int32 useCounts = 12;
+  bool doesExpire = 13;
+  int32 condition = 14;
+  int64 priceThreshold = 15;
+  int64 timePeriodBegin = 16;
+  int64 timePeriodEnd = 17;
+  int32 audienceId = 18;
+  int32 maxMemberCount = 19;
+  int64 discountCelling = 20;
+}
+
+message WebT_tr_91847 {
+  string token = 1;
+}
+
+message WebT_TS {
+  int32 maxGroupSize = 1;
+}
+
+message WebT_tS_58187 {
+  bool showWithTimeLimit = 1;
+  WebInt32Value startHour = 2;
+  WebInt32Value endHour = 3;
+}
+
+message WebT_ts_88717 {
+  repeated WebUsersSeen usersSeen = 1;
+  int64 count = 2;
+}
+
+message WebT_tu_58187 {
+  string adId = 1;
+  int64 viewCount = 2;
+  int64 clickCount = 3;
+  repeated int64 viewSegment = 4;
+  repeated int64 clickSegment = 5;
+  int64 startTime = 6;
+}
+
+message WebT_tv_58187 {
+  WebExPeer peer = 1;
+  int32 peerIdentity = 2;
+  int32 contactMemberCount = 3;
+}
+
+message WebT_tV_58187 {
+  string id = 1;
+  int32 type = 2;
+  int64 amount = 3;
+  string description = 4;
+  int64 createdAt = 5;
+  int32 createdBy = 6;
+  int32 customerUserId = 7;
+  int32 customerState = 8;
+  string customerName = 9;
+  int32 paymentMethod = 10;
+  int64 paymentDate = 11;
+}
+
+message WebT_tw_58187 {
+  int32 userId = 1;
+  string name = 2;
+  string phone = 3;
+  repeated WebComment comments = 4;
+  int32 type = 5;
+  bool isResolved = 6;
+  int64 lastUpdateDate = 7;
+}
+
+message WebT_tW_88717 {
+  WebState state = 1;
+  repeated WebUpdate updates = 2;
+  int64 needMore = 3;
+  WebBoolValue_1 tooLong = 4;
+  repeated WebNewUpdate newUpdates = 5;
+}
+
+message WebT_tx_51787 {}
+
+message WebT_tY_91847 {
+  string key = 1;
+  string value = 2;
+}
+
+message WebT_U_34523 {
+  WebBot peer = 1;
+  int64 rid = 2;
+  int64 date = 3;
+  int64 senderId = 4;
+  WebMessage content = 5;
+}
+
+message WebT_u_72802 {
+  int32 sectionId = 1;
+  string sectionName = 2;
+  repeated WebT_c_72802 bots = 3;
+}
+
+message WebT_V_59727 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_vw {
+  int64 id = 1;
+  bytes title = 2;
+  bytes color = 3;
+}
+
+message WebT_w_59727 {
+  WebFileLocation fileLocation = 1;
+  int32 fileSize = 2;
+  string mimeType = 3;
+  string fileName = 4;
+  WebMediaExtra mediaExtra = 5;
+}
+
+message WebT_wpU {
+  string title = 1;
+  string key = 2;
+  repeated WebT_nK_95053 dialogs = 3;
+}
+
+message WebT_x_59727 {
+  string key = 1;
+  WebValue value = 2;
+}
+
+message WebT_Y_29176 {
+  bytes textFont = 1;
+  bytes backgroundColor = 2;
+  bytes textColor = 3;
+}
+
+message WebT_yS {
+  int64 chargeAmount = 1;
+}
+
+message WebT_yze {
+  int64 rid = 1;
+  int64 date = 2;
+  WebRepliesInfo repliesInfo = 3;
+}
+
+message WebT_z_64113 {
+  WebResponse response = 1;
+  WebT___64113 update = 2;
+  WebTerminateSession terminateSession = 3;
+  WebPong pong = 4;
+  WebHandshakeResponse handshakeResponse = 5;
+}
+
+message WebT_Z_95053 {
+  WebTextCommand textCommand = 1;
+  WebTextExMarkdown textExMarkdown = 2;
+  WebTextModernMessage textModernMessage = 3;
+  WebTextLinkPreview textLinkPreview = 4;
+}
+
+message WebTag {
+  WebOffset fa = 1;
+  WebOffset en = 2;
+}
+
+message WebTags {
+  int64 userId = 1;
+  int64 id = 2;
+  bytes label = 3;
+  int64 transactionType = 4;
+  WebTags parentTag = 5;
+  WebStringValue color = 6;
+}
+
+message WebTagsConfig {
+  repeated WebT_vw tags = 1;
+}
+
+message WebTapsellAd {
+  string tag = 1;
+}
+
+message WebTargeting {
+  WebAudience audience = 1;
+  WebChannels channels = 2;
+  WebChannelMembers channelMembers = 3;
+  WebGender gender = 4;
+  WebLocations locations = 5;
+}
+
+message WebTask {
+  int64 taskId = 1;
+  int64 taskType = 2;
+  int64 status = 3;
+  WebExPeer exPeer = 4;
+  bytes scheduledAt = 5;
+  WebT_Q_ payload = 6;
+}
+
+message WebTaskDeleteMessage {
+  WebDeleteMessageRequest deleteMessage = 1;
+}
+
+message WebTaskSendMessage {
+  WebSendMessageRequest sendMessage = 1;
+  repeated WebQuotedMessage quotedMessage = 2;
+}
+
+message WebTaskSendMultiMediaMessage {
+  WebSendMultiMediaMessageRequest sendMultiMediaMessage = 1;
+  WebQuotedMessage quotedMessage = 2;
+}
+
+message WebTemplateMessage {
+  WebMessage generalMessage = 1;
+  int64 templateMessageId = 2;
+  repeated WebBtnList btnList = 3;
+  WebStringValue responseType = 4;
+  WebInlineKeyboardMarkup inlineKeyboardMarkup = 5;
+  WebReplyKeyboardMarkup replyKeyboardMarkup = 6;
+  WebReplyKeyboardRemove replyKeyboardRemove = 7;
+}
+
+message WebTemplateMessageResponse {
+  string tmrMessage = 1;
+  int64 templateMessageResponseId = 2;
+  WebMessage message = 3;
+}
+
+message WebTerminateSession {}
+
+message WebTerminationSignal {}
+
+message WebTextChunk {
+  string text = 1;
+}
+
+message WebTextCommand {
+  string command = 1;
+  string args = 2;
+}
+
+message WebTextExMarkdown {
+  string markdown = 2;
+}
+
+message WebTextLinkPreview {
+  WebLinkPreview linkPreview = 1;
+}
+
+message WebTextMessage {
+  string text = 1;
+  repeated int32 mentions = 2;
+  WebT_Z_95053 ext = 3;
+  WebMessageTag messageTag = 4;
+}
+
+message WebTextModernMessage {
+  WebStringValue text = 1;
+  WebStringValue senderNameOverride = 2;
+  WebAvatar senderPhotoOverride = 3;
+  WebStyle style = 4;
+  repeated WebAttache attaches = 5;
+}
+
+message WebTextStory {
+  bytes text = 1;
+  WebT_Y_29176 config = 2;
+}
+
+message WebTextStoryBackgroundConfig {
+  repeated WebStoryContent backgrounds = 1;
+}
+
+message WebThemeParams {
+  WebStringValue bgColor = 1;
+  WebStringValue secondaryBgColor = 2;
+  WebStringValue textColor = 3;
+  WebStringValue hintColor = 4;
+  WebStringValue linkColor = 5;
+  WebStringValue buttonColor = 6;
+  WebStringValue buttonTextColor = 7;
+  WebStringValue headerBgColor = 8;
+  WebStringValue accentTextColor = 9;
+  WebStringValue sectionBgColor = 10;
+  WebStringValue sectionHeaderTextColor = 11;
+  WebStringValue sectionSeparatorColor = 12;
+  WebStringValue subtitleTextColor = 13;
+  WebStringValue destructiveTextColor = 14;
+  WebStringValue bottomBarBgColor = 15;
+}
+
+message WebThreadDeleteMessage {
+  WebBot peer = 1;
+  repeated int64 rids = 2;
+  WebDates dates = 3;
+  repeated WebMessageId threadIds = 4;
+  repeated WebInt32Value_1 quotedCommentReplySenderIds = 5;
+}
+
+message WebThreadEditMessage {
+  WebBot peer = 1;
+  int64 rid = 2;
+  WebMessage message = 3;
+  WebInt64Value_1 date = 4;
+  WebInt32Value updaterUserId = 5;
+  WebMessageId threadId = 6;
+  WebInt32Value_1 quotedCommentReplySenderId = 7;
+  WebMessage updatedContentTypeMessage = 8;
+  WebExPeer exPeer = 9;
+}
+
+message WebThreadMessage {
+  WebBot peer = 1;
+  int32 senderUid = 2;
+  int64 date = 3;
+  int64 rid = 4;
+  WebMessage message = 5;
+  WebAttributes attributes = 6;
+  WebQuotedMessage quotedMessage = 7;
+  WebMessageId previousMessageId = 9;
+  WebInt64Value_1 groupedId = 10;
+  bool isSilent = 11;
+  bool hasComment = 12;
+  WebMessageId threadId = 13;
+  WebExPeer exPeer = 14;
+  WebMessageId threadPreviousMessageId = 15;
+}
+
+message WebThumb {
+  int32 w = 1;
+  int32 h = 2;
+  bytes thumb = 3;
+  WebFileLocation optFileLocation = 4;
+}
+
+message WebTimeRestrict {
+  WebT_tS_58187 data = 1;
+}
+
+message WebTopic {
+  WebMessageId topicId = 1;
+  string title = 2;
+  int64 lastMsgDate = 3;
+}
+
+message WebTopicCreated {
+  WebExPeer exPeer = 1;
+  WebMessageId topicId = 2;
+  string title = 3;
+}
+
+message WebTopicDeleted {
+  WebExPeer exPeer = 1;
+  WebMessageId topicId = 2;
+}
+
+message WebTopicEdited {
+  WebExPeer exPeer = 1;
+  WebMessageId topicId = 2;
+  string title = 3;
+}
+
+message WebTopPeerType {
+  int64 score = 1;
+  WebPeer peer = 2;
+}
+
+message WebTotalAmount {
+  int64 type = 1;
+  WebTags tag = 2;
+  bytes amount = 3;
+}
+
+message WebTotalAmountsPerDay {
+  WebTotalAmount amount = 1;
+  WebInt64Value_1 date = 2;
+}
+
+message WebTransaction {
+  int64 id = 1;
+  int64 date = 2;
+  bytes amount = 3;
+  int64 transactionType = 4;
+  int64 accountNumber = 5;
+  WebStringValue description = 6;
+  repeated WebTags tags = 7;
+  bytes detail = 8;
+  WebStringValue userTransactionDate = 9;
+  WebInt64Value_1 userTransactionTimestamp = 10;
+  int64 shreddingType = 11;
+}
+
+message WebTranscriptionStreamChunk {
+  int32 chunkId = 1;
+  string content = 2;
+  WebOutPeer outPeer = 3;
+  WebMessageId messageId = 4;
+}
+
+message WebTranscriptReactionEvent {
+  int64 voiceFileId = 1;
+  int64 voiceAccessHash = 2;
+  int32 reactionType = 3;
+  WebOutPeer outPeer = 4;
+}
+
+message WebTranscriptReady {
+  WebDownloadSource downloadSource = 1;
+  WebOutPeer outPeer = 2;
+  WebMessageId messageId = 3;
+  WebError error = 4;
+}
+
+message WebType {
+  WebT_iG_95053 openDialogAction = 1;
+  WebOpenUrlAction openUrlAction = 2;
+  WebShowSnackBarAction showSnackBarAction = 3;
+  WebDoNothingAction doNothingAction = 4;
+}
+
+message WebTyping {
+  WebBot peer = 1;
+  int32 uid = 2;
+  int32 typingType = 3;
+}
+
+message WebTypingStop {
+  WebBot peer = 1;
+  int32 uid = 2;
+  int32 typingType = 3;
+}
+
+message WebUnit {
+  bytes amount = 1;
+  WebTags tag = 2;
+  bytes detail = 3;
+}
+
+message WebUnreadPeer {
+  WebExPeer peer = 1;
+  int64 lastMessageDate = 2;
+  bool isMuted = 3;
+}
+
+message WebUnregister {
+  WebT_tn_91847 webRegister = 1;
+  WebT_tr_91847 firebaseRegister = 2;
+  WebApnUnregister apnUnregister = 3;
+}
+
+message WebUnsignedUrlHeader {
+  string key = 1;
+  string value = 2;
+}
+
+message WebUnsupportedMessage {}
+
+message WebUpdate {
+  WebChatGroupsChanged chatGroupsChanged = 1;
+  WebMessageSent messageSent = 4;
+  WebContactRegistered contactRegistered = 5;
+  WebTyping typing = 6;
+  WebUserOnline userOnline = 7;
+  WebUserOffline userOffline = 8;
+  WebUserLastSeen userLastSeen = 9;
+  WebUserAvatarChanged userAvatarChanged = 16;
+  WebMessageRead messageRead = 19;
+  WebGroupUserInvitedObsolete groupUserInvitedObsolete = 21;
+  WebGroupUserLeaveObsolete groupUserLeaveObsolete = 23;
+  WebGroupUserKickObsolete groupUserKickObsolete = 24;
+  WebUserNameChanged userNameChanged = 32;
+  WebGroupOnline groupOnline = 33;
+  WebUserLastSeenUnknown userLastSeenUnknown = 34;
+  WebGroupInviteObsolete groupInviteObsolete = 36;
+  WebGroupTitleChangedObsolete groupTitleChangedObsolete = 38;
+  WebGroupAvatarChangedObsolete groupAvatarChangedObsolete = 39;
+  WebContactsAdded contactsAdded = 40;
+  WebContactsRemoved contactsRemoved = 41;
+  WebGroupMembersUpdateObsolete groupMembersUpdateObsolete = 44;
+  WebThreadDeleteMessage messageDelete = 46;
+  WebChatClear chatClear = 47;
+  WebChatDelete chatDelete = 48;
+  WebMessageReadByMe messageReadByMe = 50;
+  WebUserLocalNameChanged userLocalNameChanged = 51;
+  WebMessageReceived messageReceived = 54;
+  WebThreadMessage message = 55;
+  WebGroupNicknameChanged groupNicknameChanged = 57;
+  WebRawUpdate rawUpdate = 80;
+  WebTypingStop typingStop = 81;
+  WebEmptyUpdate emptyUpdate = 85;
+  WebForceClearCache forceClearCache = 86;
+  WebChatShow chatShow = 93;
+  WebChatArchive chatArchive = 94;
+  WebChatFavourite chatFavourite = 95;
+  WebParameterChanged parameterChanged = 131;
+  WebUserContactsChanged userContactsChanged = 134;
+  WebOwnStickersChanged ownStickersChanged = 161;
+  WebThreadEditMessage messageContentChanged = 162;
+  WebMessageDateChanged messageDateChanged = 163;
+  WebStickerCollectionsChanged stickerCollectionsChanged = 164;
+  WebMessageQuotedChanged messageQuotedChanged = 169;
+  WebUserNickChanged userNickChanged = 209;
+  WebUserAboutChanged userAboutChanged = 210;
+  WebUserPreferredLanguagesChanged userPreferredLanguagesChanged = 212;
+  WebGroupTopicChangedObsolete groupTopicChangedObsolete = 213;
+  WebGroupAboutChangedObsolete groupAboutChangedObsolete = 214;
+  WebUserTimeZoneChanged userTimeZoneChanged = 216;
+  WebUserBotCommandsChanged userBotCommandsChanged = 217;
+  WebUserExtChanged userExtChanged = 218;
+  WebUserFullExtChanged userFullExtChanged = 219;
+  WebReactionsUpdate reactionsUpdate = 222;
+  WebUserExInfoChanged userExInfoChanged = 225;
+  WebUserDefaultBankAccountChanged userDefaultBankAccountChanged = 226;
+  WebUserDefaultCardNumberChanged userDefaultCardNumberChanged = 227;
+  WebUserDefaultCardNumberRemoved userDefaultCardNumberRemoved = 228;
+  WebCardinalityChanged cardinalityChanged = 254;
+  WebGroupMessagePinned groupMessagePinned = 721;
+  WebGroupPinRemoved groupPinRemoved = 722;
+  WebGroupRestrictionChanged groupRestrictionChanged = 723;
+  WebGroupTitleChanged groupTitleChanged = 2609;
+  WebGroupAvatarChanged groupAvatarChanged = 2610;
+  WebGroupMemberChanged groupMemberChanged = 2612;
+  WebGroupExtChanged groupExtChanged = 2613;
+  WebGroupMembersUpdated groupMembersUpdated = 2614;
+  WebGroupMembersBecameAsync groupMembersBecameAsync = 2615;
+  WebGroupTopicChanged groupTopicChanged = 2616;
+  WebGroupAboutChanged groupAboutChanged = 2617;
+  WebGroupFullExtChanged groupFullExtChanged = 2618;
+  WebGroupOwnerChanged groupOwnerChanged = 2619;
+  WebGroupHistoryShared groupHistoryShared = 2620;
+  WebGroupMembersCountChanged groupMembersCountChanged = 2622;
+  WebGroupMemberDiff groupMemberDiff = 2623;
+  WebGroupCanSendMessagesChanged groupCanSendMessagesChanged = 2624;
+  WebGroupCanViewMembersChanged groupCanViewMembersChanged = 2625;
+  WebGroupCanInviteMembersChanged groupCanInviteMembersChanged = 2626;
+  WebGroupMemberAdminChanged groupMemberAdminChanged = 2627;
+  WebGroupBecameOrphaned groupBecameOrphaned = 2628;
+  WebUserBlocked userBlocked = 2629;
+  WebUserUnblocked userUnblocked = 2630;
+  WebGroupExInfoChanged groupExInfoChanged = 2865;
+  WebChannelNickChanged channelNickChanged = 2880;
+  WebRequestLogin requestLogin = 3897;
+  WebAccountDeleted accountDeleted = 43607;
+  WebChannelAdvertisementTypeChanged channelAdvertisementTypeChanged = 52801;
+  WebChannelAdTagIdChanged channelAdTagIdChanged = 52802;
+  WebPhoneNumberChanged phoneNumberChanged = 52803;
+  WebGroupMemberPermissionsChanged groupMemberPermissionsChanged = 52804;
+  WebGroupDefaultPermissionsChanged groupDefaultPermissionsChanged = 52805;
+  WebVitrineChanged vitrineChanged = 52806;
+  WebCallStarted callStarted = 52807;
+  WebCallAccepted callAccepted = 52808;
+  WebCallDiscarded callDiscarded = 52809;
+  WebCallReceived callReceived = 52810;
+  WebGroupCallStarted groupCallStarted = 52811;
+  WebGroupCallEnded groupCallEnded = 52812;
+  WebCallReactionSent callReactionSent = 52813;
+  WebStickerPacksChanged stickerPacksChanged = 52814;
+  WebMessages messages = 52815;
+  WebCallUpgraded callUpgraded = 52816;
+  WebPeersInvited peersInvited = 52817;
+  WebMultiPeerCallStarted multiPeerCallStarted = 52818;
+  WebPeersStateChanged peersStateChanged = 52819;
+  WebSavedGifsChanged savedGifsChanged = 52820;
+  WebHidePrivacyBar hidePrivacyBar = 52824;
+  WebMessageReaction messageReactions = 52825;
+  WebCallLinkGenerated callLinkGenerated = 52826;
+  WebCallJoinRequestReceived callJoinRequestReceived = 52827;
+  WebCallJoinRequestAnswered callJoinRequestAnswered = 52828;
+  WebMentionReadByMe mentionReadByMe = 52829;
+  WebPinnedDialogsChanged pinnedDialogsChanged = 52830;
+  WebMessageReactionsReadByMe messageReactionsReadByMe = 52832;
+  WebMessageNewReaction messageNewReaction = 54323;
+  WebCallEvent callEvent = 54324;
+  WebStartLive startLive = 54328;
+  WebEndLive endLive = 54329;
+  WebFolderCreated folderCreated = 54332;
+  WebFolderDeleted folderDeleted = 54333;
+  WebFoldersReordered foldersReordered = 54334;
+  WebDialogsMarkedAsRead dialogsMarkedAsRead = 54335;
+  WebDialogsMarkedAsUnread dialogsMarkedAsUnread = 54336;
+  WebFolderEdited folderEdited = 54337;
+  WebCallAction callAction = 54338;
+  WebDialogsUnpinned dialogsUnpinned = 54339;
+  WebMessagePinned messagePinned = 54340;
+  WebMessagesUnPinned messagesUnPinned = 54341;
+  WebTranscriptReady transcriptReady = 54342;
+  WebGeneralNotificationMessage generalNotificationMessage = 54343;
+  WebAskBotReview askBotReview = 54344;
+  WebDialogArchiveStatus dialogArchiveStatus = 54345;
+  WebPremiumPurchaseStatus premiumPurchaseStatus = 54346;
+  WebEndpointChanged endpointChanged = 54347;
+  WebTopicCreated topicCreated = 54348;
+  WebTopicEdited topicEdited = 54349;
+  WebTopicDeleted topicDeleted = 54350;
+  WebMessageStreamChunks messageStreamChunks = 54351;
+  WebPeerHaveScheduleTask peerHaveScheduleTask = 54352;
+  WebAllContactsRemoved allContactsRemoved = 54353;
+  WebRequestBankiAccessFor requestBankiAccessFor = 62398;
+  WebWalletUpdated walletUpdated = 62732;
+  WebWalletBalanceUpdated walletBalanceUpdated = 62753;
+}
+
+message WebUpdatedAd {
+  string id = 1;
+  string businessName = 2;
+  int32 ownerId = 3;
+  int32 spot = 4;
+  int32 state = 5;
+  string phoneNo = 6;
+  string link = 7;
+  int64 createdAt = 8;
+}
+
+message WebUpdates {
+  repeated WebUpdate updates = 1;
+}
+
+message WebUpvotes {
+  repeated WebMsg messages = 1;
+  int64 upvotesLimit = 2;
+}
+
+message WebUser {
+  int32 id = 1;
+  int64 accessHash = 2;
+  string name = 3;
+  WebStringValue localName = 4;
+  int32 sex = 5;
+  WebAvatar avatar = 6;
+  WebBoolValue_1 isBot = 7;
+  WebStringValue nick = 9;
+  map<string, bytes> ext = 14;
+  WebInt64Value_1 stateVersion = 15;
+  WebBoolValue_1 isDeleted = 16;
+  repeated WebContactInfo contactInfo = 17;
+  int32 puppeteer = 18;
+  WebInt64Value_1 createdAt = 19;
+  WebExInfo exInfo = 20;
+  WebBotExInfo botExInfo = 21;
+}
+
+message WebUserAboutChanged {
+  int32 uid = 1;
+  WebStringValue about = 2;
+}
+
+message WebUserAdministratorRights {
+  bool isAnonymous = 1;
+  bool canManageChat = 2;
+  bool canDeleteMessages = 3;
+  bool canManageVideoChats = 4;
+  bool canRestrictMembers = 5;
+  bool canPromoteMembers = 6;
+  bool canChangeInfo = 7;
+  bool canInviteUsers = 8;
+  bool canPostMessages = 9;
+  bool canEditMessages = 10;
+  bool canPinMessages = 11;
+  bool canManageTopics = 12;
+}
+
+message WebUserAuth {
+  int32 id = 1;
+  int32 authHolder = 2;
+  int32 appId = 3;
+  string appTitle = 4;
+  string deviceTitle = 5;
+  int32 authTime = 6;
+  string authLocation = 7;
+  WebDoubleValue latitude = 8;
+  WebDoubleValue longitude = 9;
+  WebInt64Value_1 lastActivityAt = 10;
+  WebOffset lastIpAddress = 11;
+}
+
+message WebUserAvatarChanged {
+  int32 uid = 1;
+  WebAvatar avatar = 2;
+  WebAvatars avatars = 3;
+}
+
+message WebUserBlocked {
+  int32 uid = 1;
+}
+
+message WebUserBotCommandsChanged {
+  int32 uid = 1;
+  repeated WebBotCommand commands = 2;
+}
+
+message WebUserCard {
+  bytes cardId = 1;
+  WebCardInfo cardInfo = 2;
+  WebBoolValue_2 isEnrolled = 3;
+}
+
+message WebUserContactsChanged {
+  int32 uid = 1;
+  repeated WebContactInfo contactRecords = 4;
+}
+
+message WebUserDefaultBankAccountChanged {
+  int32 uid = 1;
+  WebStringValue defaultBankAccount = 2;
+}
+
+message WebUserDefaultCardNumberChanged {
+  int32 uid = 1;
+  WebStringValue defaultCardNumber = 2;
+}
+
+message WebUserDefaultCardNumberRemoved {
+  int32 uid = 1;
+}
+
+message WebUserExInfoChanged {
+  int32 uid = 1;
+  WebExInfo exInfo = 2;
+}
+
+message WebUserExtChanged {
+  int32 uid = 1;
+  WebExt ext = 2;
+}
+
+message WebUserFullExtChanged {
+  int32 uid = 1;
+  WebExt ext = 3;
+}
+
+message WebUserIssue {
+  int32 userId = 1;
+}
+
+message WebUserLastSeen {
+  int32 uid = 1;
+  int64 date = 2;
+  int32 deviceType = 3;
+  WebStringValue deviceCategory = 4;
+}
+
+message WebUserLastSeenUnknown {
+  int32 uid = 1;
+  int32 deviceType = 2;
+  WebStringValue deviceCategory = 3;
+  WebInt64Value_1 date = 4;
+}
+
+message WebUserLocalNameChanged {
+  int32 uid = 1;
+  WebStringValue localName = 2;
+}
+
+message WebUserNameChanged {
+  int32 uid = 1;
+  string name = 2;
+}
+
+message WebUserNickChanged {
+  int32 uid = 1;
+  WebStringValue nickname = 2;
+}
+
+message WebUserOffline {
+  int32 uid = 1;
+  int32 deviceType = 2;
+  WebStringValue deviceCategory = 3;
+}
+
+message WebUserOnline {
+  int32 uid = 1;
+  int32 deviceType = 2;
+  WebStringValue deviceCategory = 3;
+}
+
+message WebUserOrganization {
+  WebOrganization organization = 1;
+  int64 isAdmin = 2;
+  bytes organizationalName = 4;
+}
+
+message WebUserPayment {
+  int64 userId = 1;
+  int64 paymentAmount = 2;
+  int64 date = 3;
+}
+
+message WebUserPeer {
+  int32 uid = 1;
+  int64 accessHash = 2;
+}
+
+message WebUserPreferredLanguagesChanged {
+  int32 uid = 1;
+  repeated string preferredLanguages = 2;
+}
+
+message WebUserReaction {
+  int32 userId = 1;
+  string code = 2;
+  int64 reactionTime = 3;
+}
+
+message WebUsersData {
+  int32 userId = 1;
+  string nationalCode = 2;
+  string birthDate = 3;
+  string address = 4;
+  string postalCode = 5;
+  string melliAccountNumber = 6;
+  string firstName = 7;
+  string lastName = 8;
+  string phone = 9;
+  int32 state = 10;
+  int32 reason = 11;
+  string channelNick = 12;
+}
+
+message WebUsersSeen {
+  int64 userId = 1;
+}
+
+message WebUserStatus {
+  int32 userId = 1;
+  bool isPremium = 2;
+  int64 expirationTime = 3;
+  WebDetail detail = 4;
+}
+
+message WebUserStory {
+  bytes id = 1;
+  int64 ownerUserId = 2;
+  WebStringValue reaction = 3;
+  int64 createdAt = 4;
+  WebT___29176 storyContent = 5;
+  int64 hasWidget = 6;
+  int64 hasReply = 7;
+  int64 isHidden = 8;
+  int64 isMutual = 9;
+  repeated int64 tagIds = 10;
+  int64 storyContentType = 11;
+  repeated WebReactionData reactions = 12;
+  int64 exceptionType = 13;
+}
+
+message WebUserTimeZoneChanged {
+  int32 uid = 1;
+  WebStringValue timeZone = 2;
+}
+
+message WebUserUnblocked {
+  int32 uid = 1;
+}
+
+message WebValue {
+  string stringValue = 1;
+  bool booleanValue = 2;
+  int32 int32Value = 3;
+  int64 int64Value = 4;
+  double doubleValue = 5;
+  WebList arrayValue = 6;
+}
+
+message WebVideo {
+  WebFileLocation fileLocation = 1;
+  WebThumb fastThumb = 2;
+  int64 fileSize = 3;
+  fixed32 duration = 4;
+  bytes format = 5;
+}
+
+message WebViewer {
+  bytes reaction = 1;
+  int64 userId = 2;
+  int64 reactedAt = 3;
+  repeated WebReactionData reactionData = 4;
+}
+
+message WebViewGraph {
+  int64 date = 1;
+  int64 view = 2;
+}
+
+message WebVitrineChanged {
+  string version = 1;
+}
+
+message WebVoter {
+  int32 userId = 1;
+  int64 votedAt = 2;
+}
+
+message WebWalletBalanceUpdated {
+  string walletId = 1;
+  WebBalance newBalance = 2;
+}
+
+message WebWalletType {
+  string id = 1;
+  repeated WebBalance balances = 2;
+  WebStringValue walletLink = 3;
+  WebBoolValue_1 isActive = 4;
+}
+
+message WebWalletUpdated {
+  WebWalletType newWallet = 1;
+}
+
+message WebWeakEvent {
+  WebTyping typing = 1;
+  WebTypingStop typingStop = 2;
+  WebUserOnline userOnline = 3;
+  WebUserOffline userOffline = 4;
+  WebUserLastSeenUnknown userLastSeenUnknown = 5;
+  WebUserLastSeen userLastSeen = 6;
+  WebGroupOnline groupOnline = 7;
+  WebCallReactionSent callReactionSent = 8;
+  WebMessageReaction messageReaction = 9;
+  WebThreadMessage threadMessage = 10;
+  WebThreadEditMessage threadEditMessage = 11;
+  WebThreadDeleteMessage threadDeleteMessage = 12;
+  WebCallAction callAction = 13;
+  WebAskBotReview askBotReview = 14;
+  WebEndpointChanged endpointChanged = 15;
+  WebHashEndpointChanged hashEndpointChanged = 16;
+  WebTranscriptionStreamChunk transcriptionStreamChunk = 17;
+  WebMessageStreamChunks messageStreamChunks = 18;
+}
+
+message WebWebApp {
+  string url = 1;
+}
+
+message WebWebRegister {
+  string endpoint = 1;
+  string auth = 2;
+  string p256dh = 3;
+  WebInt64Value_1 expirationTime = 4;
+}
+
+message WebWidget {
+  bytes id = 1;
+  int64 type = 2;
+  WebPosition position = 3;
+  WebLinkWidget linkWidget = 20;
+  WebPollWidget pollWidget = 21;
+  WebPostWidget postWidget = 22;
+  WebRestoryWidget restoryWidget = 23;
+}
+
+message WebWinner {
+  int64 userIds = 1;
+  int64 amount = 2;
+}
+
+message WebWithDetailOption {
+  bool withBadge = 1;
+}
+
+message WebYektanetAd {
+  string placementId = 1;
+}
+
+message WebExtNegahPeer {
+  int32 type = 1;
+  int32 id = 2;
+  int64 accessHash = 3;
+}
+
+message WebExtNegahMessageId {
+  int64 date = 1;
+  int64 rid = 2;
+  int64 seq = 3;
+}
+
+message WebExtNegahUserSeen {
+  int32 userId = 1;
+}
+
+enum WebExtFalakeLinkStatus {
+    WebLINKSTATUS_APPROVED = 0;
+    WebLINKSTATUS_BLOCKED = 1;
+    WebLINKSTATUS_UNKNOWN = 2;
+}
+
+message WebExtAnonymousContactInt64Value {
+  int64 value = 1;
+}
+
+message WebExtAnonymousContactKey {
+  string fa = 1;
+  string en = 2;
+}
+
+message WebExtAnonymousContactExtraInfo {
+  WebExtAnonymousContactKey key = 1;
+  WebExtAnonymousContactKey value = 2;
+}
+
+message WebExtAnonymousContactGroupPeer {
+  int32 groupId = 1;
+  int64 accessHash = 2;
+}
+
+message WebExtFanoosValue {
+  optional string stringValue = 1;
+  optional bool booleanValue = 2;
+  optional int32 int32Value = 3;
+  optional int64 int64Value = 4;
+  optional double doubleValue = 5;
+  optional WebExtFanoosArrayValue arrayValue = 6;
+}
+
+message WebExtFanoosArrayValue {
+  repeated WebExtFanoosValue array = 1;
+}
+
+message WebExtFanoosItem {
+  string key = 1;
+  optional WebExtFanoosValue value = 2;
+}
+
+message WebExtFanoosItems {
+  repeated WebExtFanoosItem items = 1;
+}
+
+message WebExtFeedBackValue {
+  oneof kind {
+    string stringValue = 1;
+    bool booleanValue = 2;
+    int32 int32Value = 3;
+    int64 int64Value = 4;
+    double doubleValue = 5;
+    WebExtFeedBackArrayValue arrayValue = 6;
+  }
+}
+
+message WebExtFeedBackArrayValue {
+  repeated WebExtFeedBackValue array = 1;
+}
+
+message WebExtFeedBackMapEntry {
+  string key = 1;
+  WebExtFeedBackValue value = 2;
+}
+
+message WebExtFeedBackMtDetails {
+  repeated WebExtFeedBackMapEntry items = 1;
 }

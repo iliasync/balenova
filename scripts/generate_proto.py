@@ -31,6 +31,10 @@ def generate(output: Path) -> None:
             "import struct_pb2 as struct__pb2",
             "from . import struct_pb2 as struct__pb2",
         )
+        content = content.replace(
+            "import request_pb2 as request__pb2",
+            "from . import request_pb2 as request__pb2",
+        )
         path.write_text(content, encoding="utf-8")
 
 

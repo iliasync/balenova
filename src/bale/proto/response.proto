@@ -3,6 +3,7 @@ syntax = "proto3";
 package response;
 
 import "struct.proto";
+import "request.proto";
 
 message Response {
   WsResponse ws_response = 1;
@@ -529,4 +530,2690 @@ message GetMyKifpools {
   repeated struct.Wallet wallet = 1;
   struct.StringValue first_name = 2;
   struct.StringValue last_name = 3;
+}
+
+// ===== BEGIN COMPLETE PROTOCOL TYPES =====
+
+message WebAddCustomIncomeResponse {
+  string id = 1;
+}
+
+message WebAddDestinationCardsResponse {
+  repeated bytes ids = 1;
+}
+
+message WebAddNewCardsResponse {
+  repeated bytes cardId = 1;
+}
+
+message WebAskBotReviewCallbackResponse {}
+
+message WebBoolValue {
+  bool value = 1;
+}
+
+message WebBuyChargeResponse {
+  struct.WebOffset paymentToken = 1;
+  struct.WebReceipt receipt = 2;
+}
+
+message WebBuyFastChargeResponse {
+  int64 transactionDate = 1;
+  string refrenceNumber = 2;
+  struct.WebStringValue pin = 3;
+  struct.WebStringValue serial = 4;
+}
+
+message WebBuyInternetBundleResponse {
+  struct.WebOffset paymentToken = 1;
+  struct.WebT_ei_76777 receipt = 2;
+}
+
+message WebCalculateDiscountedPriceResponse {
+  int64 discountedPrice = 1;
+}
+
+message WebCanAddBotStoryResponse {
+  int64 canAddBotStory = 1;
+}
+
+message WebCancelMessageStreamResponse {}
+
+message WebCashOutResponse {
+  int64 referenceNo = 1;
+}
+
+message WebChangeAccountStateResponse {}
+
+message WebChangeChannelIncomeOwnerResponse {}
+
+message WebChannelIncomePaymentResponse {
+  string factorHtml = 1;
+}
+
+message WebChargeResponse {}
+
+message WebCheckChargePermissionResponse {}
+
+message WebCheckPasswordResponse {
+  string token = 1;
+}
+
+message WebCheckPasswordSetResponse {
+  bool hasSet = 1;
+  bool isSessionAuthorized = 2;
+}
+
+message WebCreateAdResponse {
+  string adId = 1;
+}
+
+message WebCreateAndStartChannelAdResponse {
+  string id = 1;
+}
+
+message WebCreateBaleDialogCustomAdResponse {
+  string id = 1;
+}
+
+message WebCreateBonusCodeResponse {
+  string code = 1;
+}
+
+message WebCreateChannelIncomeFactorResponse {
+  string factorHtml = 1;
+}
+
+message WebCreateFolderResponse {
+  int32 folderId = 1;
+  int32 index = 2;
+  repeated struct.WebExPeer unreadPeers = 3;
+}
+
+message WebCreateGroupResponse {
+  int32 seq = 1;
+  bytes state = 2;
+  struct.WebGroup group = 3;
+  repeated struct.WebUser users = 4;
+  repeated struct.WebUserPeer userPeers = 5;
+  repeated struct.WebUserPeer notAddedUserPeers = 6;
+  string inviteLink = 7;
+}
+
+message WebCreateKifpoolResponse {}
+
+message WebCreateMarketJoinRequestResponse {}
+
+message WebCreatePollResponse {
+  int64 pollId = 1;
+}
+
+message WebCreateReservedFolderResponse {
+  int32 index = 1;
+  repeated struct.WebExPeer unreadPeers = 2;
+}
+
+message WebCreateTagResponse {
+  struct.WebT_iR_88717 tag = 1;
+}
+
+message WebCreateThreadResponse {
+  int32 threadId = 1;
+}
+
+message WebCreateTopicResponse {
+  struct.WebMessageId topicId = 1;
+}
+
+message WebCryptoCashOutResponse {
+  int64 referenceNo = 1;
+}
+
+message WebCryptoInvoiceResponse {
+  repeated struct.WebRecord records = 1;
+}
+
+message WebCryptoPurchaseResponse {}
+
+message WebCryptoTransferResponse {
+  int64 amount = 1;
+  int64 date = 2;
+  int64 approvalCode = 3;
+  bytes srcToken = 4;
+  bytes dstToken = 5;
+}
+
+message WebDeletePasswordResponse {}
+
+message WebDeliverOtpResponse {
+  struct.WebBoolValue_2 isDone = 1;
+}
+
+message WebEditAvatarResponse {
+  struct.WebAvatar avatar = 1;
+  int32 seq = 2;
+  bytes state = 3;
+}
+
+message WebEditCustomServicesResponse {
+  struct.WebCustomItems customItems = 1;
+}
+
+message WebEditFolderResponse {
+  repeated struct.WebExPeer unreadPeers = 1;
+}
+
+message WebEditGroupAvatarResponse {
+  struct.WebAvatar avatar = 1;
+  int32 seq = 2;
+  bytes state = 3;
+  int64 date = 4;
+}
+
+message WebEnrollNewCardResponse {
+  bytes transactionId = 1;
+  bytes url = 2;
+}
+
+message WebFetchGroupAdminsResponse {
+  repeated struct.WebUserPeer users = 1;
+  repeated struct.WebMember admins = 2;
+}
+
+message WebFetchProtectedMessageResponse {
+  struct.WebHistory history = 1;
+}
+
+message WebFileUploadCancelResponse {
+  bool canceled = 1;
+}
+
+message WebFilterTaggedTransactionsResponse {
+  repeated struct.WebId idsWithTag = 1;
+}
+
+message WebFinishAdResponse {}
+
+message WebFinishChannelAdResponse {}
+
+message WebForgetPasswordResponse {}
+
+message WebGenerateCallLinkResponse {
+  struct.WebGroupCall groupCall = 1;
+  int64 linkExpirationPeriod = 2;
+}
+
+message WebGetAccountDataResponse {
+  struct.WebData data = 1;
+}
+
+message WebGetAccountsByStateResponse {
+  repeated struct.WebData data = 1;
+}
+
+message WebGetAccountsResponse {
+  repeated struct.WebData data = 1;
+}
+
+message WebGetActiveAdsResponse {
+  repeated struct.WebDialogAdOrder ads = 1;
+}
+
+message WebGetActiveChannelAdsResponse {
+  repeated struct.WebOrder ads = 1;
+}
+
+message WebGetActiveSharedMediaResponse {}
+
+message WebGetAdDataResponse {
+  struct.WebAds adData = 1;
+}
+
+message WebGetAdDetailResponse {
+  repeated struct.WebT_rg_58187 ads = 1;
+}
+
+message WebGetAdProviderResponse {
+  repeated struct.WebContent content = 1;
+}
+
+message WebGetAdReportResponse {
+  int64 views = 1;
+  int64 clicks = 2;
+  string title = 3;
+  string link = 4;
+}
+
+message WebGetAdReportV2Response {
+  struct.WebT_tu_58187 data = 1;
+}
+
+message WebGetAdsBySpotAndPlatformResponse {
+  struct.WebT_tf_58187 data = 1;
+}
+
+message WebGetAdsByStateAndSpotResponse {
+  repeated struct.WebAds ads = 1;
+}
+
+message WebGetAdvertisementBotResponse {
+  repeated struct.WebBots bots = 1;
+}
+
+message WebGetAllChannelIncomesFactorResponse {
+  repeated struct.WebFactor factors = 1;
+}
+
+message WebGetAuthSessionsResponse {
+  repeated struct.WebUserAuth userAuths = 1;
+}
+
+message WebGetAvailableCampaignStartDateResponse {
+  int64 date = 1;
+}
+
+message WebGetAvailableChargesResponse {
+  repeated int64 amounts = 1;
+  int64 canBeOptional = 2;
+}
+
+message WebGetAwaitingToShowAdsResponse {
+  repeated struct.WebDialogAdOrder ads = 1;
+}
+
+message WebGetAwaitingToShowChannelAdsResponse {
+  repeated struct.WebOrder ads = 1;
+}
+
+message WebGetBadgesResponse {
+  repeated struct.WebT__c categories = 1;
+}
+
+message WebGetBajeBamTicketResponse {
+  string ticket = 1;
+}
+
+message WebGetBaleCustomAdResponse {
+  struct.WebAd ad = 1;
+}
+
+message WebGetBamServiceTokenResponse {
+  bytes endpoint = 1;
+  bytes token = 2;
+}
+
+message WebGetBannedUsersResponse {
+  repeated struct.WebBannedUser bannedUsers = 3;
+}
+
+message WebGetBonusCodeDataResponse {
+  struct.WebT_tp_58187 data = 1;
+}
+
+message WebGetBonusCodesResponse {
+  repeated struct.WebT_tp_58187 data = 1;
+}
+
+message WebGetBotBannersResponse {
+  repeated struct.WebBanner banners = 1;
+}
+
+message WebGetBotGroupPermissionsResponse {
+  bool hasAccessToMessages = 1;
+}
+
+message WebGetBotInfoResponse {
+  struct.WebBotInfo botInfo = 1;
+}
+
+message WebGetBotPageResponse {
+  string name = 1;
+  string nickname = 2;
+  int32 activeUsers = 3;
+  struct.WebFloatValue averageRating = 4;
+  string description = 5;
+  string intro = 6;
+  struct.WebAvatar avatar = 7;
+  repeated string imageLinks = 8;
+}
+
+message WebGetBotsByCategoryResponse {
+  struct.WebCategorizedBot bots = 1;
+}
+
+message WebGetBotsResponse {
+  int32 pageCount = 1;
+  repeated struct.WebT_cC bots = 2;
+}
+
+message WebGetBotStoriesResponse {
+  repeated struct.WebBotStoryResult result = 1;
+  repeated struct.WebPopularityList popularityList = 2;
+}
+
+message WebGetBotWhiteListResponse {
+  struct.WebList list = 1;
+}
+
+message WebGetBusinessAdsResponse {
+  repeated struct.WebUpdatedAd ads = 1;
+}
+
+message WebGetCallLinkDetailsResponse {
+  struct.WebGroupCall groupCall = 1;
+}
+
+message WebGetCallLogsResponse {
+  repeated struct.WebCallLog callLogs = 1;
+  int32 total = 2;
+}
+
+message WebGetCallStateResponse {
+  struct.WebGroupCall groupCall = 1;
+}
+
+message WebGetCampaignContentByIdResponse {
+  struct.WebCampaign campaign = 1;
+}
+
+message WebGetCampaignContentsResponse {
+  repeated struct.WebCampaign campaigns = 1;
+}
+
+message WebGetCampaignDataResponse {
+  struct.WebT_tN_58187 data = 1;
+}
+
+message WebGetCanSeeMessagesResponse {
+  bool canSeeMessages = 1;
+}
+
+message WebGetCardInfoResponse {
+  bytes cardId = 1;
+  bytes maskedPan = 2;
+}
+
+message WebGetCardRemainResponse {
+  string currentBalanceAmount = 1;
+  string availableBalanceAmount = 2;
+}
+
+message WebGetCardsResponse {
+  repeated struct.WebUserCard userCards = 1;
+}
+
+message WebGetCardTransferTokenResponse {
+  string requestEndPoint = 1;
+  string token = 2;
+  struct.WebStringValue destCardNo = 3;
+}
+
+message WebGetCategoriesListResponse {
+  repeated struct.WebT_iE_88717 categories = 1;
+  struct.WebInt32Value_1 version = 2;
+}
+
+message WebGetCategorizedBotsResponse {
+  repeated struct.WebCategorizedBot categorizedBots = 1;
+}
+
+message WebGetCategoryMarketsResponse {
+  repeated struct.WebMarketType markets = 1;
+  int64 version = 2;
+}
+
+message WebGetCategoryProductsResponse {
+  repeated struct.WebProduct products = 1;
+  int64 version = 2;
+}
+
+message WebGetChannelAdsResponse {
+  repeated struct.WebT_ez_58187 ads = 1;
+}
+
+message WebGetChannelEarnMoneyInfoResponse {
+  double currentMonthIncome = 1;
+  double notPaidIncome = 2;
+  int64 adCount = 3;
+  int64 adCountUpdateDate = 4;
+}
+
+message WebGetChannelEarnMoneyStatusResponse {
+  int32 status = 1;
+}
+
+message WebGetChannelGraphReportResponse {
+  repeated struct.WebViewGraph viewGraph = 1;
+}
+
+message WebGetChannelIncomeReportResponse {
+  repeated struct.WebIncomeReport incomeReports = 1;
+}
+
+message WebGetChannelOwnerBankInformationResponse {
+  int32 userId = 1;
+  string nationalCode = 2;
+  string birthDate = 3;
+  string address = 4;
+  string postalCode = 5;
+  string melliAccountNumber = 6;
+  string firstName = 7;
+  string lastName = 8;
+  string phone = 9;
+  int32 state = 10;
+  int32 reason = 11;
+  string channelNick = 12;
+}
+
+message WebGetChannelRecommendationsResponse {
+  repeated struct.WebGroupPeer channels = 1;
+}
+
+message WebGetChannelShowAdCategoryFilterResponse {
+  repeated struct.WebCategory categories = 1;
+}
+
+message WebGetChannelShowAdPermissionsResponse {
+  bool showSponsoredAd = 1;
+  int32 verifiedUserId = 2;
+}
+
+message WebGetChannelShowAdTimeRestrictResponse {
+  struct.WebT_tS_58187 data = 1;
+}
+
+message WebGetChannelStoriesResponse {
+  repeated struct.WebResult result = 1;
+  repeated struct.WebPopularityList popularityList = 2;
+}
+
+message WebGetChannelsViewReportResponse {
+  repeated struct.WebChannelsView channelsView = 1;
+}
+
+message WebGetConfigResponse {
+  string config = 1;
+}
+
+message WebGetContactsPresencesResponse {
+  repeated struct.WebPresenceType presences = 1;
+}
+
+message WebGetContactsResponse {
+  repeated struct.WebUser users = 1;
+  bool isNotChanged = 2;
+  repeated struct.WebUserPeer userPeers = 3;
+}
+
+message WebGetCreditableAccountsResponse {
+  repeated struct.WebData data = 1;
+}
+
+message WebGetCreditHistoryResponse {
+  repeated struct.WebCreditHistory creditHistories = 1;
+}
+
+message WebGetCreditResponse {
+  struct.WebInt64Value_1 balance = 1;
+  int64 hasCredit = 2;
+}
+
+message WebGetCRMIssuesResponse {
+  repeated struct.WebT_tw_58187 data = 1;
+}
+
+message WebGetCryptoWalletsResponse {
+  repeated struct.WebCryptoPocket myCryptoWallets = 1;
+}
+
+message WebGetCustomIncomesResponse {
+  repeated struct.WebT_tV_58187 records = 1;
+}
+
+message WebGetCustomServicesResponse {
+  struct.WebCustomItems customItems = 1;
+}
+
+message WebGetDefaultCardResponse {
+  struct.WebOffset cardId = 1;
+}
+
+message WebGetDefaultStoryBackgroundsResponse {
+  repeated struct.WebStoryContent defaultStoryBackgrounds = 1;
+}
+
+message WebGetDestinationCardInfoResponse {
+  bytes cardHolderName = 1;
+  bytes approvalCode = 2;
+}
+
+message WebGetDestinationCardsResponse {
+  repeated struct.WebCard cards = 1;
+}
+
+message WebGetDialogAdOrderDetailsResponse {
+  repeated struct.WebDialogAdOrder dialogAdOrder = 2;
+}
+
+message WebGetDialogAdOrderPaymentTokenResponse {
+  string token = 1;
+}
+
+message WebGetDifferenceResponse {
+  map<string, bytes> groupEvents = 1;
+  repeated struct.WebUserPeer usersRefs = 2;
+  repeated struct.WebGroupPeer groupsRefs = 3;
+}
+
+message WebGetDiffResponse {
+  repeated struct.WebT_tW_88717 updates = 1;
+  repeated struct.WebUserPeer usersRefs = 2;
+  repeated struct.WebGroupPeer groupsRefs = 3;
+}
+
+message WebGetDiscussionMessageResponse {
+  struct.WebHistory discussionMessage = 1;
+}
+
+message WebGetFactorEligibleAdsResponse {
+  repeated struct.WebT_th_58187 ads = 1;
+}
+
+message WebGetFullGroupResponse {
+  struct.WebFullGroup fullGroup = 1;
+}
+
+message WebGetFullPollResultResponse {
+  repeated struct.WebFullPollResult fullPollResult = 1;
+}
+
+message WebGetFullUserResponse {
+  struct.WebT_n4 fullUser = 1;
+}
+
+message WebGetGiftPacketPaymentTokenResponse {
+  bytes paymentToken = 1;
+}
+
+message WebGetGroupCallResponse {
+  struct.WebGroupCall groupCall = 1;
+}
+
+message WebGetGroupDefaultCardNumberResponse {
+  string defaultCardNumber = 1;
+}
+
+message WebGetGroupMembersCountResponse {
+  int32 membersCount = 1;
+}
+
+message WebGetGroupMembersPresencesResponse {
+  repeated struct.WebPresenceType presences = 1;
+}
+
+message WebGetGroupOnlineCountResponse {
+  int32 count = 1;
+}
+
+message WebGetGroupPreviewResponse {
+  struct.WebFullGroup group = 1;
+  int32 action = 2;
+}
+
+message WebGetGroupRecommendationsResponse {
+  repeated struct.WebGroupPeer groups = 1;
+}
+
+message WebGetGroupsRecommendationResponse {
+  repeated struct.WebGroupPeer groups = 1;
+}
+
+message WebGetHomePageResponse {
+  repeated struct.WebT_u_72802 sections = 1;
+}
+
+message WebGetInAppUpdateResponse {
+  int64 fileId = 1;
+  int64 accessHash = 2;
+  int32 fileSize = 3;
+}
+
+message WebGetIndexedProductsResponse {
+  repeated struct.WebProduct products = 1;
+}
+
+message WebGetInlineBotResultsResponse {
+  repeated struct.WebT_L results = 1;
+  struct.WebOffset nextOffset = 2;
+  struct.WebInt64Value_1 queryId = 3;
+  bool isGallery = 4;
+}
+
+message WebGetInternetBundleListResponse {
+  repeated struct.WebBundleList bundleLists = 1;
+}
+
+message WebGetInternetBundlePaymentTokenResponse {
+  bytes token = 1;
+}
+
+message WebGetJWTTokenResponse {
+  struct.WebStringValue jwt = 1;
+}
+
+message WebGetKifpoolOwnerResponse {
+  struct.WebStringValue firstName = 1;
+  struct.WebStringValue lastName = 2;
+  int64 walletStatus = 3;
+  int64 approvalCode = 4;
+}
+
+message WebGetKifpoolPointBalanceResponse {
+  repeated struct.WebPointBalanceInfo pointBalanceInfo = 1;
+}
+
+message WebGetKifpoolPointDetailsResponse {
+  repeated struct.WebPointDetailsInfo pointDetailsInfo = 1;
+}
+
+message WebGetKifpoolPointSummeryResponse {
+  repeated struct.WebPointSummeryInfo pointSummeryInfo = 1;
+}
+
+message WebGetKifpoolTransactionPointResponse {
+  int64 calculatedPoint = 1;
+  int64 point = 2;
+  int64 unitAmount = 3;
+}
+
+message WebGetLinkPreviewResponse {
+  bytes title = 1;
+  bytes description = 2;
+  repeated struct.WebImage images = 3;
+}
+
+message WebGetLinkSummaryResponse {
+  bytes summary = 1;
+}
+
+message WebGetMarketJoinRequestsResponse {
+  repeated struct.WebRequest marketJoinRequests = 1;
+}
+
+message WebGetMarketResponse {
+  struct.WebT_iS_88717 market = 1;
+  struct.WebRequest lastRequest = 2;
+}
+
+message WebGetMarketsPendingJoinRequestResponse {
+  repeated struct.WebRequest requests = 1;
+}
+
+message WebGetMemberPermissionsResponse {
+  struct.WebPermissions permissions = 1;
+}
+
+message WebGetMenuButtonResponse {
+  struct.WebT_LF menuButton = 1;
+}
+
+message WebGetMessageReactionsListResponse {
+  repeated struct.WebUserReaction userReactions = 1;
+}
+
+message WebGetMessagesReactionsResponse {
+  repeated struct.WebContainer containers = 1;
+}
+
+message WebGetMessagesRepliesInfoResponse {
+  repeated struct.WebT_yze containers = 1;
+}
+
+message WebGetMessagesViewsResponse {
+  repeated struct.WebT_THn containers = 1;
+}
+
+message WebGetMessageUpvotersResponse {
+  struct.WebBytesValue loadMoreState = 1;
+  repeated struct.WebUserPeer users = 2;
+}
+
+message WebGetMiniAppUrlResponse {
+  bytes url = 1;
+  int64 screenMode = 2;
+  struct.WebStringValue queryId = 3;
+}
+
+message WebGetMoneyRequestDetailsResponse {
+  int64 totalAmount = 1;
+  int64 payCount = 2;
+  int64 lastPayDate = 3;
+  int64 responseType = 4;
+}
+
+message WebGetMoneyRequestPaymentListResponse {
+  repeated struct.WebPayment payment = 1;
+  struct.WebBytesValue loadMoreState = 2;
+  int64 responseType = 3;
+  repeated struct.WebUserPeer userPeers = 4;
+  repeated struct.WebGroupPeer groupPeers = 5;
+}
+
+message WebGetMoneyRequestPaymentTokenByCardResponse {
+  string token = 1;
+  string endpoint = 2;
+  string terminalId = 3;
+  string merchantId = 4;
+}
+
+message WebGetMostPopularStoriesResponse {
+  repeated struct.WebResult result = 1;
+  repeated struct.WebPopularityList popularityList = 2;
+}
+
+message WebGetMutualGroupsResponse {
+  repeated struct.WebGroupPeer groups = 1;
+}
+
+message WebGetMyContactPopularChannelsResponse {
+  repeated struct.WebT_tk_58187 channels = 1;
+}
+
+message WebGetMyGroupsResponse {
+  repeated struct.WebGroupPeer groups = 1;
+}
+
+message WebGetMyKifpoolsResponse {
+  repeated struct.WebMyWallet myWallets = 1;
+  struct.WebStringValue firstName = 2;
+  struct.WebStringValue lastName = 3;
+}
+
+message WebGetMyUpvotesResponse {
+  struct.WebUpvotes upvotes = 1;
+}
+
+message WebGetMyWalletsResponse {
+  repeated struct.WebWalletType wallets = 1;
+}
+
+message WebGetNasimFilePublicUrlResponse {
+  struct.WebFileUrl fileUrl = 1;
+}
+
+message WebGetNasimFileUploadResumeResponse {
+  struct.WebFileUrl fileUrl = 1;
+  bool canResume = 2;
+}
+
+message WebGetNasimFileUploadUrlResponse {
+  int64 fileId = 1;
+  string url = 2;
+  bool duplicate = 3;
+  int32 chunkSize = 4;
+  int64 blockSize = 5;
+}
+
+message WebGetNasimFileUrlResponse {
+  struct.WebFileUrl fileUrl = 1;
+}
+
+message WebGetNasimFileUrlsResponse {
+  repeated struct.WebFileUrl fileUrls = 1;
+}
+
+message WebGetNumberOfSalesResponse {
+  int64 numberOfSales = 1;
+  int64 isMarket = 2;
+}
+
+message WebGetOnBoardingChannelsResponse {
+  repeated struct.WebChannel channels = 1;
+  bool showOnBoarding = 2;
+}
+
+message WebGetOnboardingPeersResponse {
+  repeated struct.WebT_tm_58187 peers = 1;
+}
+
+message WebGetOnboardingPostsResponse {
+  repeated struct.WebPost posts = 1;
+}
+
+message WebGetOnboardingSpotDataResponse {
+  struct.WebContactChannels contactChannels = 1;
+  struct.WebSuggestedChannels suggestedChannels = 2;
+}
+
+message WebGetOnboardingStatusResponse {
+  int64 status = 1;
+  repeated int64 categoryIds = 2;
+  int64 gender = 3;
+}
+
+message WebGetOngoingCallsResponse {
+  repeated struct.WebCallLog callLogs = 1;
+}
+
+message WebGetOrganizationPaymentTokenResponse {
+  string token = 1;
+  string billHolderName = 2;
+  double amount = 3;
+}
+
+message WebGetOTPTokenResponse {
+  string requestEndPoint = 1;
+  string token = 2;
+}
+
+message WebGetOTPTokenV2Response {
+  string requestEndPoint = 1;
+  string token = 2;
+}
+
+message WebGetOwnerIdByPhoneResponse {
+  int32 userId = 1;
+}
+
+message WebGetPackagesResponse {
+  repeated struct.WebPackage packages = 1;
+  map<string, bytes> bundles = 2;
+}
+
+message WebGetPaidAdsByTimeResponse {
+  repeated struct.WebT_th_58187 ads = 1;
+}
+
+message WebGetParametersResponse {
+  repeated struct.WebParameter parameters = 1;
+}
+
+message WebGetParticipantsResponse {
+  repeated struct.WebUserPayment userPayments = 1;
+}
+
+message WebGetPaymentDataResponse {
+  struct.WebT_tI_58187 data = 1;
+}
+
+message WebGetPaymentDetailsResponse {
+  string title = 1;
+  int64 totalAmount = 2;
+  repeated struct.WebPaymentsHistory paymentsHistory = 3;
+  struct.WebSession session = 4;
+  struct.WebDisapproved disapproved = 5;
+  string description = 6;
+  repeated struct.WebLabeledPrice labeledPrices = 7;
+}
+
+message WebGetPaymentTokenByCardResponse {
+  string token = 1;
+  string endpoint = 2;
+  string terminalId = 3;
+  string merchantId = 4;
+}
+
+message WebGetPaymentTokenResponse {
+  string token = 1;
+  string endpoint = 2;
+  struct.WebStringValue terminalId = 3;
+  struct.WebStringValue cardAcqId = 4;
+  struct.WebInt64Value_1 orderId = 5;
+}
+
+message WebGetPayMoneyRequestTokenResponse {
+  string requestEndPoint = 1;
+  string token = 2;
+}
+
+message WebGetPayvandCardListResponse {
+  repeated struct.WebPayvandCard payvandCards = 1;
+}
+
+message WebGetPayvandCardResponse {
+  string card = 1;
+}
+
+message WebGetPendingCampaignMarketsResponse {
+  repeated struct.WebT_iS_88717 markets = 1;
+}
+
+message WebGetPeriodCapacityDataResponse {
+  repeated struct.WebT_te_58187 data = 1;
+}
+
+message WebGetPinsResponse {
+  repeated struct.WebHistory pins = 1;
+  int32 count = 2;
+}
+
+message WebGetPollResultsResponse {
+  repeated struct.WebPollResult pollResults = 1;
+}
+
+message WebGetPSProxyPaymentTokenResponse {
+  string endpoint = 1;
+  string token = 2;
+}
+
+message WebGetPSProxyTokenResponse {
+  string endpoint = 1;
+  string token = 2;
+}
+
+message WebGetRecentChargeOrdersResponse {
+  repeated struct.WebT_eo_76777 orders = 1;
+}
+
+message WebGetRecentChargesResponse {
+  repeated struct.WebRecentCharge recentCharges = 1;
+}
+
+message WebGetRecentInternetBundleOrdersResponse {
+  repeated struct.WebT_en_76777 orders = 1;
+}
+
+message WebGetRecommendedBotsResponse {
+  repeated struct.WebBots bots = 1;
+  struct.WebStringValue moreBotsUrl = 2;
+}
+
+message WebGetRelatedChannelsResponse {
+  repeated struct.WebRelatedChannel relatedChannels = 1;
+}
+
+message WebGetRelatedGroupsResponse {
+  repeated struct.WebRelatedGroup relatedGroups = 1;
+}
+
+message WebGetRemainTokenResponse {
+  string requestEndPoint = 1;
+  string token = 2;
+}
+
+message WebGetRoutesStatesResponse {
+  repeated struct.WebState seqs = 1;
+}
+
+message WebGetSadadPSPPaymentTokenResponse {
+  string endpoint = 1;
+  string token = 2;
+  string terminalId = 3;
+  string merchantCode = 4;
+}
+
+message WebGetSavedGifsResponse {
+  repeated struct.WebGifs gifs = 1;
+  struct.WebOffset offset = 2;
+}
+
+message WebGetSectionPageResponse {
+  int32 sectionId = 1;
+  string sectionName = 2;
+  repeated struct.WebT_c_72802 bots = 3;
+}
+
+message WebGetServicesResponse {
+  int64 version = 1;
+  int64 isChanged = 2;
+  bytes data = 3;
+  repeated struct.WebBanner banners = 4;
+  struct.WebServices services = 5;
+  repeated struct.WebSection sections = 6;
+}
+
+message WebGetShowReactionFlagResponse {
+  int32 userId = 1;
+  bool isEnable = 2;
+}
+
+message WebGetSimilarPostsResponse {
+  repeated struct.WebT_A_54329 messages = 1;
+  struct.WebBytesValue loadMoreState = 2;
+  repeated struct.WebSimilarPost similarPosts = 3;
+}
+
+message WebGetStoriesByListResponse {
+  repeated struct.WebUserStory userStories = 1;
+  repeated struct.WebResult channelStories = 2;
+  repeated struct.WebBotStoryResult botStories = 3;
+}
+
+message WebGetStoriesResponse {
+  repeated struct.WebUserStory result = 1;
+  repeated struct.WebPopularityList popularityList = 2;
+}
+
+message WebGetStoryByIdResponse {
+  struct.WebUserStory result = 1;
+  struct.WebResult channelStoryResult = 2;
+  struct.WebBotStoryResult botStoryResult = 3;
+}
+
+message WebGetStoryReactionEmojisResponse {
+  repeated struct.WebEmoji emojis = 1;
+}
+
+message WebGetStoryTagsResponse {
+  repeated struct.WebT_vw tags = 1;
+}
+
+message WebGetStoryWidgetsResponse {
+  repeated struct.WebWidget widgets = 1;
+}
+
+message WebGetSubTransactionsResponse {
+  repeated struct.WebId transactionIds = 1;
+}
+
+message WebGetTagsResponse {
+  repeated struct.WebT_iR_88717 tags = 1;
+}
+
+message WebGetTokenInvoiceResponse {
+  string endpoint = 1;
+  string token = 2;
+}
+
+message WebGetTopicByIDResponse {
+  struct.WebTopic topic = 1;
+}
+
+message WebGetTopicsResponse {
+  repeated struct.WebTopic topics = 1;
+}
+
+message WebGetTopMarketsResponse {
+  repeated struct.WebMarketType markets = 1;
+}
+
+message WebGetTopPeerResponse {
+  repeated struct.WebTopPeerType topPeers = 1;
+}
+
+message WebGetTopUpChargePaymentTokenResponse {
+  bytes token = 1;
+}
+
+message WebGetTotalPaidAmountResponse {
+  int64 totalPaidAmount = 1;
+  int64 creatorUserId = 2;
+}
+
+message WebGetTransactionTagsResponse {
+  repeated struct.WebTags tags = 1;
+}
+
+message WebGetTranscriptResponse {
+  bool mustWait = 1;
+  struct.WebDownloadSource downloadSource = 2;
+}
+
+message WebGetTrendBotsResponse {
+  repeated struct.WebBots bots = 1;
+}
+
+message WebGetUserAccountsResponse {
+  repeated struct.WebAccount accounts = 1;
+  struct.WebT_KW config = 2;
+}
+
+message WebGetUserAdsResponse {
+  repeated struct.WebAds ads = 1;
+}
+
+message WebGetUserAuthDataResponse {
+  int32 userId = 1;
+  string nationalCode = 2;
+  string birthDate = 3;
+  string address = 4;
+  string postalCode = 5;
+  string melliAccountNumber = 6;
+  string firstName = 7;
+  string lastName = 8;
+  string phone = 9;
+  int32 state = 10;
+  int32 reason = 11;
+  string channelNick = 12;
+}
+
+message WebGetUserContextResponse {
+  int32 botUserId = 1;
+  int32 userId = 2;
+  string nonce = 3;
+  string sign = 4;
+}
+
+message WebGetUserFullPrivacyResponse {
+  struct.WebPrivacy privacy = 1;
+}
+
+message WebGetUploadLimitsResponse {
+  int64 uploadLimitBytes = 1;
+  int64 temporaryMaxBytes = 2;
+  int64 permanentMaxBytes = 3;
+  int64 boughtCapacityRemainingBytes = 4;
+  bool boughtCapacityUnlimited = 5;
+}
+
+message WebGetUserIdTokenResponse {
+  string token = 1;
+  int32 userId = 2;
+  int32 source = 3;
+  string service = 4;
+}
+
+message WebGetUserOnboardingScenarioResponse {
+  int32 scenario = 1;
+}
+
+message WebGetUserOrganizationalContactsResponse {
+  repeated struct.WebUserPeer userPeers = 1;
+}
+
+message WebGetUserOrganizationInfoResponse {
+  struct.WebUserOrganization userOrganization = 1;
+}
+
+message WebGetUserPrivacyConfigResponse {
+  repeated struct.WebPrivacyConfig result = 1;
+}
+
+message WebGetUserPrivacyStatusResponse {
+  int32 status = 1;
+}
+
+message WebGetUserRepeatedBotsResponse {
+  repeated struct.WebBots bots = 1;
+}
+
+message WebGetUsersAuthDataByStateResponse {
+  repeated struct.WebUsersData usersData = 1;
+}
+
+message WebGetUsersDefaultCardNumberResponse {
+  repeated struct.WebDefaultCardNo defaultCardNo = 1;
+}
+
+message WebGetUsersPresenceResponse {
+  repeated struct.WebPresenceType presences = 1;
+}
+
+message WebGetUserStatusResponse {
+  int32 status = 1;
+}
+
+message WebGetUserStoryConfigResponse {
+  repeated struct.WebConfig config = 1;
+}
+
+message WebGetUserTagsResponse {
+  repeated struct.WebTags tags = 1;
+}
+
+message WebGetViewersCountResponse {
+  int64 viewCount = 1;
+  int64 likeCount = 2;
+  int64 linkClickCount = 3;
+  int64 emojiCount = 4;
+  int64 restoryCount = 5;
+}
+
+message WebGetViewersResponse {
+  repeated struct.WebViewer viewers = 1;
+  int64 viewCount = 2;
+  int64 likeCount = 3;
+  int64 linkClickCount = 4;
+  int64 emojiCount = 5;
+  int64 restoryCount = 6;
+}
+
+message WebGetVODContentsResponse {
+  repeated struct.WebT_tB_58187 contents = 1;
+}
+
+message WebGetVoucherChargePaymentTokenResponse {
+  bytes token = 1;
+}
+
+message WebGetWalletChargeTokenResponse {
+  string token = 1;
+  string endpoint = 2;
+  string terminalId = 3;
+  string merchantId = 4;
+}
+
+message WebGetWalletContractsResponse {
+  int64 startDate = 1;
+  int64 endDate = 2;
+  string merchantCustomerUniqueValue = 3;
+  repeated struct.WebLimitation limitations = 4;
+  string agreementId = 5;
+  int32 status = 6;
+}
+
+message WebGetWalletInvoiceResponse {
+  repeated struct.WebInvoice invoices = 1;
+}
+
+message WebGetWebappHashResponse {
+  string hash = 1;
+  string queryId = 2;
+  int64 authDate = 3;
+}
+
+message WebGetWinnerIDsResponse {
+  repeated struct.WebWinner winners = 1;
+}
+
+message WebGetWssURLResponse {
+  string url = 1;
+}
+
+message WebImportContactsResponse {
+  repeated struct.WebUser users = 1;
+  int32 seq = 2;
+  bytes state = 3;
+  repeated struct.WebUserPeer userPeers = 4;
+}
+
+message WebInviteToCallResponse {
+  repeated struct.WebPeerState peerStates = 1;
+}
+
+message WebInviteUsersResponse {
+  repeated struct.WebUserPeer notAddedUserPeers = 1;
+}
+
+message WebInvoiceResponse {
+  repeated struct.WebRecord records = 1;
+}
+
+message WebInvokeCustomActionResponse {}
+
+message WebInvokeCustomMethodResponse {
+  bytes data = 4;
+}
+
+message WebIsPremiumBatchResponse {
+  repeated struct.WebUserStatus usersStatus = 1;
+}
+
+message WebIsPremiumResponse {
+  struct.WebUserStatus userStatus = 1;
+}
+
+message WebIsTwoFactorAuthenticationEnabledResponse {
+  bool isEnabled = 1;
+}
+
+message WebJoinGroupCallResponse {
+  struct.WebGroupCall groupCall = 1;
+  repeated struct.WebPeerState states = 2;
+}
+
+message WebJoinGroupResponse {
+  struct.WebGroup group = 1;
+  int32 seq = 2;
+  bytes state = 3;
+  int64 date = 4;
+  repeated struct.WebUser users = 5;
+  int64 rid = 6;
+  repeated struct.WebUserPeer userPeers = 7;
+  int32 inviterUserId = 8;
+  int32 groupSeq = 9;
+}
+
+message WebJoinPublicGroupResponse {
+  struct.WebGroup group = 1;
+  int32 seq = 2;
+  bytes state = 3;
+  int64 date = 4;
+  repeated struct.WebUser users = 5;
+  int64 rid = 6;
+  repeated struct.WebUserPeer userPeers = 7;
+  int32 inviterUserId = 8;
+  int32 groupSeq = 9;
+}
+
+message WebLeaveGroupCallResponse {
+  struct.WebGroupCall groupCall = 1;
+  int32 seq = 2;
+}
+
+message WebListTasksResponse {
+  repeated struct.WebTask tasks = 1;
+}
+
+message WebLoadAvatarsResponse {
+  struct.WebAvatars avatars = 1;
+}
+
+message WebLoadBlockedUsersResponse {
+  repeated struct.WebUserPeer userPeers = 1;
+}
+
+message WebLoadCategoriesResponse {
+  repeated struct.WebT_L_54329 categories = 1;
+}
+
+message WebLoadCategoryFeedMessagesResponse {
+  struct.WebBytesValue loadMoreState = 2;
+  repeated struct.WebT_A_54329 messages = 3;
+}
+
+message WebLoadDialogsResponse {
+  repeated struct.WebGroup groups = 1;
+  repeated struct.WebUser users = 2;
+  repeated struct.WebDialog dialogs = 3;
+  repeated struct.WebUserPeer userPeers = 4;
+  repeated struct.WebGroupPeer groupPeers = 5;
+}
+
+message WebLoadFolderDialogsResponse {
+  repeated struct.WebDialog dialogs = 1;
+}
+
+message WebLoadFoldersResponse {
+  repeated struct.WebFolder folders = 1;
+  repeated struct.WebUnreadPeer unreadPeers = 2;
+}
+
+message WebLoadFullGroupsResponse {
+  repeated struct.WebT_hI groups = 1;
+}
+
+message WebLoadGroupAvatarsResponse {
+  struct.WebAvatars avatars = 1;
+}
+
+message WebLoadGroupedDialogsResponse {
+  repeated struct.WebT_wpU dialogs = 1;
+  repeated struct.WebUser users = 2;
+  repeated struct.WebGroup groups = 3;
+  struct.WebBoolValue_1 showArchived = 4;
+  struct.WebBoolValue_1 showInvite = 5;
+  repeated struct.WebUserPeer userPeers = 6;
+  repeated struct.WebGroupPeer groupPeers = 7;
+}
+
+message WebLoadGroupsResponse {
+  repeated struct.WebGroup groups = 1;
+}
+
+message WebLoadHistoryResponse {
+  repeated struct.WebHistory history = 1;
+  repeated struct.WebUser users = 2;
+  repeated struct.WebUserPeer userPeers = 3;
+  repeated struct.WebGroup groups = 4;
+  repeated struct.WebGroupPeer groupPeers = 5;
+}
+
+message WebLoadMediaResponse {
+  repeated struct.WebMediaResult mediaResults = 1;
+}
+
+message WebLoadMembersResponse {
+  repeated struct.WebMember members = 1;
+  struct.WebBytesValue next = 2;
+}
+
+message WebLoadOwnStickersResponse {
+  repeated struct.WebCollection ownStickers = 1;
+  struct.WebOffset offset = 2;
+}
+
+message WebLoadPeerDialogsResponse {
+  repeated struct.WebDialog dialogs = 1;
+  repeated struct.WebGroup groups = 2;
+  repeated struct.WebUser users = 3;
+  repeated struct.WebUserPeer userPeers = 4;
+  repeated struct.WebGroupPeer groupPeers = 5;
+}
+
+message WebLoadPeersResponse {
+  repeated struct.WebExPeer exPeers = 1;
+}
+
+message WebLoadPinnedDialogsResponse {
+  repeated struct.WebDialog dialogs = 1;
+}
+
+message WebLoadPinnedMessagesResponse {
+  repeated struct.WebHistory pinnedMessages = 1;
+}
+
+message WebLoadReactionsResponse {
+  repeated struct.WebContainer containers = 1;
+}
+
+message WebLoadRepliesResponse {
+  repeated struct.WebHistory history = 1;
+  repeated struct.WebUser users = 2;
+  repeated struct.WebUserPeer userPeers = 3;
+}
+
+message WebLoadStickerCollectionResponse {
+  struct.WebCollection collection = 1;
+}
+
+message WebLoadTransactionsByIDsResponse {
+  repeated struct.WebTransaction transactions = 1;
+}
+
+message WebLoadTransactionsResponse {
+  repeated struct.WebTransaction transactions = 1;
+  repeated struct.WebTotalAmount totalAmounts = 2;
+  struct.WebOffset loadMoreState = 3;
+  repeated struct.WebTotalAmountsPerDay totalAmountsPerDay = 4;
+}
+
+message WebLoadUsersResponse {
+  repeated struct.WebUser users = 1;
+}
+
+message WebLogOutResponse {
+  struct.WebStringValue futureAuthToken = 1;
+}
+
+message WebMakePaymentResponse {
+  struct.WebGatewayRedirect gatewayRedirect = 1;
+  struct.WebPaymentsHistory paymentReceipt = 2;
+}
+
+message WebModifyCapacityResponse {}
+
+message WebOpenGiftPacketResponse {
+  repeated struct.WebGiftReceiver giftReceivers = 1;
+  int64 status = 2;
+  int64 openedCount = 3;
+  struct.WebInt64Value_1 selfWinAmount = 4;
+  struct.WebInt32Value rank = 5;
+  repeated struct.WebUserPeer userOutPeers = 6;
+}
+
+message WebOpenGoldGiftPacketResponse {
+  int64 openedCount = 1;
+  int64 selfWinAmount = 2;
+  int64 rank = 3;
+  repeated struct.WebGiftReceiver giftReceivers = 4;
+  int32 status = 5;
+  struct.WebInt64Value verificationDeadline = 6;
+}
+
+message WebPayForMessageResponse {
+  int64 status = 1;
+  struct.WebOffset paymentToken = 2;
+}
+
+message WebPeersWithScheduleTaskResponse {
+  repeated struct.WebExPeer exPeer = 1;
+}
+
+message WebPinDialogsResponse {
+  repeated struct.WebDialog dialogs = 1;
+  repeated struct.WebExPeer peers = 2;
+}
+
+message WebPurchaseMessageResponse {}
+
+message WebPurchaseMessageWithChargeResponse {
+  bytes paymentToken = 1;
+}
+
+message WebPurchasePackageResponse {
+  string sadadPaymentToken = 1;
+}
+
+message WebPurchaseResponse {}
+
+message WebPurchaseWithChargeResponse {
+  bytes paymentToken = 1;
+}
+
+message WebReactivateAppResponse {
+  bytes transactionId = 1;
+  bytes reactivationAddress = 2;
+}
+
+message WebReceiveMessageStreamResponse {
+  struct.WebInt32Value chunkTimeoutMillis = 1;
+}
+
+message WebRecommendPeerResponse {
+  repeated struct.WebPeer peer = 1;
+}
+
+message WebRecoverPasswordResponse {
+  string emailPattern = 1;
+}
+
+message WebRegisterPushResponse {
+  bytes encryptionKey = 1;
+}
+
+message WebRemovePeerResponse {
+  int64 isRemoved = 1;
+}
+
+message WebReorderFoldersResponse {}
+
+message WebReorderPinnedDialogsResponse {
+  repeated struct.WebDialog dialogs = 1;
+  repeated struct.WebExPeer peers = 2;
+}
+
+message WebRevokeUpvotedPostResponse {
+  struct.WebUpvotes upvotes = 1;
+}
+
+message WebScheduleTaskResponse {
+  int64 taskId = 1;
+}
+
+message WebSearchContactsResponse {
+  repeated struct.WebUser users = 1;
+  repeated struct.WebUserPeer userPeers = 2;
+  repeated struct.WebGroup groups = 4;
+  repeated struct.WebGroupPeer groupPeers = 5;
+}
+
+message WebSearchContentResponse {
+  repeated struct.WebContentResult contentResults = 1;
+  struct.WebBytesValue loadMoreState = 2;
+  int64 resultCount = 3;
+}
+
+message WebSearchDialogResponse {
+  repeated struct.WebDialogResult dialogResults = 1;
+}
+
+message WebSearchMarketPopularResponse {
+  repeated struct.WebPopularResult popularResults = 1;
+}
+
+message WebSearchMarketResponse {
+  repeated struct.WebMarketResult marketResults = 1;
+  struct.WebT_iE_88717 category = 2;
+  struct.WebBytesValue loadMoreState = 3;
+  int64 resultCount = 4;
+}
+
+message WebSearchMediaResponse {
+  repeated struct.WebSearchResult searchResults = 1;
+  repeated struct.WebUser users = 2;
+  repeated struct.WebGroup groups = 3;
+  struct.WebBytesValue loadMoreState = 4;
+  repeated struct.WebUserPeer userOutPeers = 5;
+  repeated struct.WebGroupPeer groupOutPeers = 6;
+  int64 resultCount = 7;
+}
+
+message WebSearchMembersResponse {
+  repeated struct.WebUserPeer users = 1;
+  struct.WebBytesValue loadMoreState = 2;
+}
+
+message WebSearchPeerResponse {
+  repeated struct.WebT_I_ searchResults = 1;
+  repeated struct.WebUser users = 2;
+  repeated struct.WebGroup groups = 3;
+  repeated struct.WebUserPeer userPeers = 4;
+  repeated struct.WebGroupPeer groupPeers = 5;
+}
+
+message WebSearchProductResponse {
+  repeated struct.WebProductResult productResults = 1;
+  struct.WebBytesValue loadMoreState = 2;
+  int64 resultCount = 3;
+}
+
+message WebSendAuthenticatedInlineCallBackDataResponse {}
+
+message WebSendChangePhoneVerificationCodeResponse {
+  string transactionHash = 1;
+  int32 activationType = 3;
+}
+
+message WebSendDeleteAccountVerificationCodeResponse {
+  string transactionHash = 1;
+  int32 activationType = 3;
+}
+
+message WebSendGoldGiftPacketResponse {
+  int64 giftPacketId = 1;
+}
+
+message WebSendInlineCallbackResponse {
+  struct.WebAnswer answer = 1;
+}
+
+message WebSendMiniAppDataResponse {}
+
+message WebSendOTPResponse {}
+
+message WebSetDiscussionGroupResponse {
+  struct.WebGroupPeer discussionGroup = 1;
+  struct.WebGroup group = 2;
+}
+
+message WebSetMemberCustomTitleResponse {}
+
+message WebSetOnboardingDataResponse {}
+
+message WebSetPasswordResponse {}
+
+message WebSetUserPrivacyConfigResponse {}
+
+message WebSetUserStoryConfigResponse {}
+
+message WebSplitTransactionResponse {
+  repeated struct.WebId splitTransactionIds = 1;
+}
+
+message WebStartBaleCustomAdResponse {
+  struct.WebAd ad = 1;
+}
+
+message WebStartChannelAdFromOrderResponse {}
+
+message WebStartFromOrderResponse {}
+
+message WebStartGroupCallResponse {
+  struct.WebGroupCall groupCall = 1;
+  int32 seq = 2;
+}
+
+message WebStartPhoneAuthResponse {
+  string transactionHash = 1;
+  bool isRegistered = 2;
+  int32 activationType = 3;
+  bool isImeiOk = 4;
+  int32 sentCodeType = 5;
+  struct.WebInt64Value_1 codeExpirationDate = 6;
+  int32 nextSendCodeType = 7;
+  struct.WebInt64Value_1 nextSendCodeWaitTime = 8;
+  struct.WebInt32Value_1 codeTimeout = 9;
+  repeated struct.WebExInfoAddress exInfoAddress = 10;
+  repeated int32 availableSendCodeTypes = 11;
+}
+
+message WebStartStreamResponse {
+  string streamKey = 1;
+}
+
+message WebStopAllBaleCustomAdsResponse {}
+
+message WebSubmitPhotoForBaleCustomAdResponse {
+  struct.WebAd ad = 1;
+}
+
+message WebSubmitReviewResponse {
+  bool shouldAskBaleReview = 1;
+  string baleReviewText = 2;
+}
+
+message WebSubscribeToUpdatesResponse {
+  struct.WebUpdate update = 1;
+  int64 routeId = 2;
+  int64 sequence = 3;
+  int64 timestamp = 4;
+  struct.WebWeakEvent weakEvent = 5;
+  struct.WebMtupdate mtupdate = 6;
+  struct.WebUpdates updates = 7;
+}
+
+message WebT_B_ {
+  int32 seq = 1;
+  bytes state = 2;
+}
+
+message WebT_ed_47679 {
+  string url = 1;
+}
+
+message WebT_er_68945 {
+  string redirectUrl = 1;
+}
+
+message WebT_h_14892 {
+  struct.WebCall call = 1;
+  repeated struct.WebPeer participants = 2;
+  int32 seq = 3;
+  struct.WebT_HS sipCall = 4;
+  struct.WebBoolValue_2 isStream = 5;
+}
+
+message WebT_H_54329 {
+  struct.WebBytesValue loadMoreState = 2;
+  repeated struct.WebT_A_54329 messages = 3;
+}
+
+message WebT_iF_88717 {
+  repeated struct.WebSearchResult searchResults = 1;
+  repeated struct.WebUser users = 2;
+  repeated struct.WebGroup groups = 3;
+  struct.WebBytesValue loadMoreState = 4;
+  repeated struct.WebUserPeer userOutPeers = 5;
+  repeated struct.WebGroupPeer groupOutPeers = 6;
+  int64 resultCount = 7;
+}
+
+message WebT_k_16349 {
+  repeated struct.WebCollection collections = 1;
+  int32 seq = 2;
+  bytes state = 3;
+}
+
+message WebT_oc_58187 {
+  repeated struct.WebT_tN_58187 data = 1;
+}
+
+message WebT_Ou {}
+
+message WebT_p_29732 {
+  int32 seq = 1;
+  repeated struct.WebReaction reactions = 2;
+  bytes state = 3;
+}
+
+message WebT_pQ {
+  int32 seq = 1;
+  int64 date = 2;
+  bytes state = 3;
+  map<string, bytes> ext = 4;
+}
+
+message WebT_q_53871 {
+  repeated struct.WebFullUser fullUsers = 1;
+}
+
+message WebT_sG_88717 {
+  bytes stores = 1;
+  int64 version = 2;
+}
+
+message WebT_u_70056 {
+  bytes storyId = 1;
+}
+
+message WebT_v_98711 {
+  bytes paymentToken = 1;
+}
+
+message WebT_y_68945 {
+  struct.WebUser user = 2;
+  struct.WebT_TS config = 3;
+  struct.WebStringValue jwt = 4;
+}
+
+message WebTakeCallActionResponse {}
+
+message WebTransferMoneyByCardResponse {
+  bytes traceNumber = 1;
+  bytes transactionTime = 2;
+}
+
+message WebTransferResponse {}
+
+message WebUnBanUserResponse {}
+
+message WebUnScheduleTaskResponse {}
+
+message WebUpdateClickResponse {}
+
+message WebUpdateViewResponse {
+  bool isSuccessful = 1;
+}
+
+message WebUpgradeKifpoolResponse {
+  int64 level = 1;
+}
+
+message WebUpvotePostResponse {
+  struct.WebUpvotes upvotes = 1;
+}
+
+message WebValidateOTPResponse {
+  bool otpValid = 1;
+}
+
+message WebVerifyCashOutKifpoolResponse {
+  bytes accountNo = 1;
+  struct.WebStringValue firstName = 2;
+  struct.WebStringValue lastName = 3;
+}
+
+message WebVerifyCashOutResponse {
+  string token = 1;
+  string name = 2;
+}
+
+message WebVerifyPeerResponse {
+  string targetWalletName = 1;
+  struct.WebInt32Value targetUserId = 2;
+  string walletId = 3;
+}
+
+message WebVerifyPurchaseMessageResponse {
+  struct.WebInt64Value_1 amount = 1;
+  struct.WebStringValue paymentTypeTitle = 2;
+  struct.WebStringValue paymentTitle = 3;
+}
+
+message WebVerifyQRCodeResponse {
+  string targetWalletName = 1;
+  struct.WebInt32Value targetUserId = 2;
+}
+
+message WebVoteResponse {
+  struct.WebPollResult pollResult = 1;
+}
+
+message WebExtMyBankGetMyBankResponse {
+  string data = 1;
+  int32 version = 2;
+  int32 itemsVersion = 3;
+  bool isChanged = 4;
+}
+
+message WebExtGoldWalletGetBalanceResponse {
+  int64 balance = 1;
+}
+
+message WebExtNegahGetMessageSeenListResponse {
+  repeated struct.WebExtNegahUserSeen usersSeen = 1;
+  int32 count = 2;
+}
+
+message WebExtFalakeGetLinkStatusResponse {
+    struct.WebExtFalakeLinkStatus linkStatus = 1;
+}
+
+message WebExtAnonymousContactGetUserAnonymousContactPageResponse {
+  string countryNumber = 1;
+  struct.WebExtAnonymousContactInt64Value registerAccountTime = 2;
+  struct.WebExtAnonymousContactInt64Value lastTimeNameChanged = 3;
+  struct.WebExtAnonymousContactInt64Value lastTimeAvatarChanged = 4;
+  repeated struct.WebExtAnonymousContactGroupPeer commonGroups = 5;
+  repeated struct.WebExtAnonymousContactExtraInfo extraInfo = 6;
+}
+
+message WebExtLLMAuthServiceGetAuthTokenResponse {
+  string token = 1;
+  string url = 2;
+  int64 expiresIn = 3;
+}
+
+service WebPush {
+  rpc RegisterGooglePush(request.WebRegisterGooglePushRequest) returns (WebT_Ou);
+  rpc RegisterPush(request.WebRegisterPushRequest) returns (WebRegisterPushResponse);
+  rpc SetConfig(request.WebSetConfigRequest) returns (WebT_Ou);
+  rpc UnregisterAllPushCredentials(request.WebUnregisterAllPushCredentialsRequest) returns (WebT_Ou);
+  rpc UnregisterGooglePush(request.WebUnregisterGooglePushRequest) returns (WebT_Ou);
+  rpc UnregisterPush(request.WebUnregisterPushRequest) returns (WebT_Ou);
+}
+
+service WebFiles {
+  rpc FileUploadCancel(request.WebFileUploadCancelRequest) returns (WebFileUploadCancelResponse);
+  rpc GetNasimFilePublicUrl(request.WebGetNasimFilePublicUrlRequest) returns (WebGetNasimFilePublicUrlResponse);
+  rpc GetNasimFileUploadResume(request.WebGetNasimFileUploadResumeRequest) returns (WebGetNasimFileUploadResumeResponse);
+  rpc GetNasimFileUploadUrl(request.WebGetNasimFileUploadUrlRequest) returns (WebGetNasimFileUploadUrlResponse);
+  rpc GetNasimFileUrl(request.WebGetNasimFileUrlRequest) returns (WebGetNasimFileUrlResponse);
+  rpc GetNasimFileUrls(request.WebGetNasimFileUrlsRequest) returns (WebGetNasimFileUrlsResponse);
+  rpc GetUploadLimits(request.WebGetUploadLimitsRequest) returns (WebGetUploadLimitsResponse);
+}
+
+service WebAbacus {
+  rpc EnableShowReactionFlag(request.WebEnableShowReactionFlagRequest) returns (WebT_Ou);
+  rpc GetMessageReactionsList(request.WebGetMessageReactionsListRequest) returns (WebGetMessageReactionsListResponse);
+  rpc GetMessagesReactions(request.WebGetMessagesReactionsRequest) returns (WebGetMessagesReactionsResponse);
+  rpc GetMessagesViews(request.WebGetMessagesViewsRequest) returns (WebGetMessagesViewsResponse);
+  rpc GetShowReactionFlag(request.WebGetShowReactionFlagRequest) returns (WebGetShowReactionFlagResponse);
+  rpc LoadReactions(request.WebLoadReactionsRequest) returns (WebLoadReactionsResponse);
+  rpc MessageReactionsRead(request.WebMessageReactionsReadRequest) returns (WebT_Ou);
+  rpc MessageRemoveReaction(request.WebMessageRemoveReactionRequest) returns (WebT_p_29732);
+  rpc MessageSetReaction(request.WebMessageSetReactionRequest) returns (WebT_p_29732);
+}
+
+service WebAdvertisement {
+  rpc AddCustomIncome(request.WebAddCustomIncomeRequest) returns (WebAddCustomIncomeResponse);
+  rpc ChangeAccountState(request.WebChangeAccountStateRequest) returns (WebChangeAccountStateResponse);
+  rpc ChangeAdState(request.WebChangeAdStateRequest) returns (WebT_Ou);
+  rpc ChangeBonusCodeState(request.WebChangeBonusCodeStateRequest) returns (WebT_Ou);
+  rpc ChangeCampaignContentState(request.WebChangeCampaignContentStateRequest) returns (WebT_Ou);
+  rpc ChangeCampaignState(request.WebChangeCampaignStateRequest) returns (WebT_Ou);
+  rpc ChangeChannelIncomeOwner(request.WebChangeChannelIncomeOwnerRequest) returns (WebChangeChannelIncomeOwnerResponse);
+  rpc ChangeChannelShowAdPermissions(request.WebChangeChannelShowAdPermissionsRequest) returns (WebT_Ou);
+  rpc ChangeStatusDialogAdOrder(request.WebChangeStatusDialogAdOrderRequest) returns (WebT_Ou);
+  rpc ChangeUserDataState(request.WebChangeUserDataStateRequest) returns (WebT_Ou);
+  rpc ChannelIncomeGetCredit(request.WebChannelIncomeGetCreditRequest) returns (WebT_Ou);
+  rpc ChannelIncomeKifTransfer(request.WebT_iU_58187) returns (WebT_Ou);
+  rpc ChannelIncomePayment(request.WebT_iU_58187) returns (WebChannelIncomePaymentResponse);
+  rpc ConvertIncome(request.WebConvertIncomeRequest) returns (WebT_Ou);
+  rpc CreateAd(request.WebCreateAdRequest) returns (WebCreateAdResponse);
+  rpc CreateAndStartChannelAd(request.WebCreateAndStartChannelAdRequest) returns (WebCreateAndStartChannelAdResponse);
+  rpc CreateBaleDialogCustomAd(request.WebCreateBaleDialogCustomAdRequest) returns (WebCreateBaleDialogCustomAdResponse);
+  rpc CreateBonusCode(request.WebCreateBonusCodeRequest) returns (WebCreateBonusCodeResponse);
+  rpc CreateChannelIncomeFactor(request.WebCreateChannelIncomeFactorRequest) returns (WebCreateChannelIncomeFactorResponse);
+  rpc CreateCustomCampaignPackage(request.WebCreateCustomCampaignPackageRequest) returns (WebT_Ou);
+  rpc DeleteCustomIncome(request.WebDeleteCustomIncomeRequest) returns (WebT_Ou);
+  rpc EditAccount(request.WebEditAccountRequest) returns (WebT_Ou);
+  rpc EditAd(request.WebEditAdRequest) returns (WebT_Ou);
+  rpc EditCampaignAd(request.WebEditCampaignAdRequest) returns (WebT_Ou);
+  rpc EditCampaignContent(request.WebEditCampaignContentRequest) returns (WebT_Ou);
+  rpc FinishAd(request.WebFinishAdRequest) returns (WebFinishAdResponse);
+  rpc FinishAdV2(request.WebFinishAdV2Request) returns (WebT_Ou);
+  rpc FinishChannelAd(request.WebFinishChannelAdRequest) returns (WebFinishChannelAdResponse);
+  rpc GetAccountData(request.WebGetAccountDataRequest) returns (WebGetAccountDataResponse);
+  rpc GetAccounts(request.WebGetAccountsRequest) returns (WebGetAccountsResponse);
+  rpc GetAccountsByState(request.WebGetAccountsByStateRequest) returns (WebGetAccountsByStateResponse);
+  rpc GetActiveAds(request.WebGetActiveAdsRequest) returns (WebGetActiveAdsResponse);
+  rpc GetActiveChannelAds(request.WebGetActiveChannelAdsRequest) returns (WebGetActiveChannelAdsResponse);
+  rpc GetAdData(request.WebGetAdDataRequest) returns (WebGetAdDataResponse);
+  rpc GetAdDetail(request.WebGetAdDetailRequest) returns (WebGetAdDetailResponse);
+  rpc GetAdProvider(request.WebGetAdProviderRequest) returns (WebGetAdProviderResponse);
+  rpc GetAdReport(request.WebGetAdReportRequest) returns (WebGetAdReportResponse);
+  rpc GetAdReportV2(request.WebGetAdReportV2Request) returns (WebGetAdReportV2Response);
+  rpc GetAdsBySpotAndPlatform(request.WebGetAdsBySpotAndPlatformRequest) returns (WebGetAdsBySpotAndPlatformResponse);
+  rpc GetAdsByStateAndSpot(request.WebGetAdsByStateAndSpotRequest) returns (WebGetAdsByStateAndSpotResponse);
+  rpc GetAllChannelIncomesFactor(request.WebGetAllChannelIncomesFactorRequest) returns (WebGetAllChannelIncomesFactorResponse);
+  rpc GetAvailableCampaignStartDate(request.WebGetAvailableCampaignStartDateRequest) returns (WebGetAvailableCampaignStartDateResponse);
+  rpc GetAwaitingToShowAds(request.WebGetAwaitingToShowAdsRequest) returns (WebGetAwaitingToShowAdsResponse);
+  rpc GetAwaitingToShowChannelAds(request.WebGetAwaitingToShowChannelAdsRequest) returns (WebGetAwaitingToShowChannelAdsResponse);
+  rpc GetBaleCustomAd(request.WebGetBaleCustomAdRequest) returns (WebGetBaleCustomAdResponse);
+  rpc GetBonusCodeData(request.WebGetBonusCodeDataRequest) returns (WebGetBonusCodeDataResponse);
+  rpc GetBonusCodes(request.WebGetBonusCodesRequest) returns (WebGetBonusCodesResponse);
+  rpc GetBusinessAds(request.WebGetBusinessAdsRequest) returns (WebGetBusinessAdsResponse);
+  rpc GetCampaignAds(request.WebGetCampaignAdsRequest) returns (WebT_oc_58187);
+  rpc GetCampaignContentById(request.WebGetCampaignContentByIdRequest) returns (WebGetCampaignContentByIdResponse);
+  rpc GetCampaignContents(request.WebGetCampaignContentsRequest) returns (WebGetCampaignContentsResponse);
+  rpc GetCampaignData(request.WebGetCampaignDataRequest) returns (WebGetCampaignDataResponse);
+  rpc GetChannelAds(request.WebGetChannelAdsRequest) returns (WebGetChannelAdsResponse);
+  rpc GetChannelEarnMoneyInfo(request.WebGetChannelEarnMoneyInfoRequest) returns (WebGetChannelEarnMoneyInfoResponse);
+  rpc GetChannelEarnMoneyStatus(request.WebGetChannelEarnMoneyStatusRequest) returns (WebGetChannelEarnMoneyStatusResponse);
+  rpc GetChannelGraphReport(request.WebGetChannelGraphReportRequest) returns (WebGetChannelGraphReportResponse);
+  rpc GetChannelIncomeReport(request.WebGetChannelIncomeReportRequest) returns (WebGetChannelIncomeReportResponse);
+  rpc GetChannelOwnerBankInformation(request.WebGetChannelOwnerBankInformationRequest) returns (WebGetChannelOwnerBankInformationResponse);
+  rpc GetChannelShowAdCategoryFilter(request.WebGetChannelShowAdCategoryFilterRequest) returns (WebGetChannelShowAdCategoryFilterResponse);
+  rpc GetChannelShowAdPermissions(request.WebGetChannelShowAdPermissionsRequest) returns (WebGetChannelShowAdPermissionsResponse);
+  rpc GetChannelShowAdTimeRestrict(request.WebGetChannelShowAdTimeRestrictRequest) returns (WebGetChannelShowAdTimeRestrictResponse);
+  rpc GetChannelsViewReport(request.WebGetChannelsViewReportRequest) returns (WebGetChannelsViewReportResponse);
+  rpc GetConfig(request.WebGetConfigRequest) returns (WebGetConfigResponse);
+  rpc GetCreditableAccounts(request.WebGetCreditableAccountsRequest) returns (WebGetCreditableAccountsResponse);
+  rpc GetCreditHistory(request.WebGetCreditHistoryRequest) returns (WebGetCreditHistoryResponse);
+  rpc GetCRMIssues(request.WebGetCRMIssuesRequest) returns (WebGetCRMIssuesResponse);
+  rpc GetCustomIncomes(request.WebGetCustomIncomesRequest) returns (WebGetCustomIncomesResponse);
+  rpc GetDialogAdOrderDetails(request.WebGetDialogAdOrderDetailsRequest) returns (WebGetDialogAdOrderDetailsResponse);
+  rpc GetDialogAdOrderPaymentToken(request.WebGetDialogAdOrderPaymentTokenRequest) returns (WebGetDialogAdOrderPaymentTokenResponse);
+  rpc GetFactorEligibleAds(request.WebGetFactorEligibleAdsRequest) returns (WebGetFactorEligibleAdsResponse);
+  rpc GetMyContactPopularChannels(request.WebGetMyContactPopularChannelsRequest) returns (WebGetMyContactPopularChannelsResponse);
+  rpc GetOnBoardingChannels(request.WebGetOnBoardingChannelsRequest) returns (WebGetOnBoardingChannelsResponse);
+  rpc GetOnboardingPeers(request.WebGetOnboardingPeersRequest) returns (WebGetOnboardingPeersResponse);
+  rpc GetOnboardingPosts(request.WebGetOnboardingPostsRequest) returns (WebGetOnboardingPostsResponse);
+  rpc GetOnboardingSpotData(request.WebGetOnboardingSpotDataRequest) returns (WebGetOnboardingSpotDataResponse);
+  rpc GetOwnerIdByPhone(request.WebGetOwnerIdByPhoneRequest) returns (WebGetOwnerIdByPhoneResponse);
+  rpc GetPaidAdsByTime(request.WebGetPaidAdsByTimeRequest) returns (WebGetPaidAdsByTimeResponse);
+  rpc GetPaymentData(request.WebGetPaymentDataRequest) returns (WebGetPaymentDataResponse);
+  rpc GetPeriodCapacityData(request.WebGetPeriodCapacityDataRequest) returns (WebGetPeriodCapacityDataResponse);
+  rpc GetUserAds(request.WebGetUserAdsRequest) returns (WebGetUserAdsResponse);
+  rpc GetUserAuthData(request.WebGetUserAuthDataRequest) returns (WebGetUserAuthDataResponse);
+  rpc GetUserCampaigns(request.WebGetUserCampaignsRequest) returns (WebT_oc_58187);
+  rpc GetUserOnboardingScenario(request.WebGetUserOnboardingScenarioRequest) returns (WebGetUserOnboardingScenarioResponse);
+  rpc GetUsersAuthDataByState(request.WebGetUsersAuthDataByStateRequest) returns (WebGetUsersAuthDataByStateResponse);
+  rpc GetUserStatus(request.WebGetUserStatusRequest) returns (WebGetUserStatusResponse);
+  rpc GetVODContents(request.WebGetVODContentsRequest) returns (WebGetVODContentsResponse);
+  rpc ModifyCapacity(request.WebModifyCapacityRequest) returns (WebModifyCapacityResponse);
+  rpc RegisterForEarnMoney(request.WebRegisterForEarnMoneyRequest) returns (WebT_Ou);
+  rpc SendAdminMessage(request.WebSendAdminMessageRequest) returns (WebT_Ou);
+  rpc SendFactorMessage(request.WebSendFactorMessageRequest) returns (WebT_Ou);
+  rpc SetAdTarget(request.WebSetAdTargetRequest) returns (WebT_Ou);
+  rpc SetChannelInvoiceInfo(request.WebSetChannelInvoiceInfoRequest) returns (WebT_Ou);
+  rpc SetChannelOwnerBankInformation(request.WebSetChannelOwnerBankInformationRequest) returns (WebT_Ou);
+  rpc SetOnBoardingChannels(request.WebSetOnBoardingChannelsRequest) returns (WebT_Ou);
+  rpc SetUserAuthData(request.WebSetUserAuthDataRequest) returns (WebT_Ou);
+  rpc StartAd(request.WebStartAdRequest) returns (WebT_Ou);
+  rpc StartBaleCustomAd(request.WebStartBaleCustomAdRequest) returns (WebStartBaleCustomAdResponse);
+  rpc StartChannelAdFromOrder(request.WebStartChannelAdFromOrderRequest) returns (WebStartChannelAdFromOrderResponse);
+  rpc StartFromOrder(request.WebStartFromOrderRequest) returns (WebStartFromOrderResponse);
+  rpc StopAllBaleCustomAds(request.WebStopAllBaleCustomAdsRequest) returns (WebStopAllBaleCustomAdsResponse);
+  rpc SubmitChannelAdOrder(request.WebSubmitChannelAdOrderRequest) returns (WebT_Ou);
+  rpc SubmitDialogAdOrder(request.WebSubmitDialogAdOrderRequest) returns (WebT_Ou);
+  rpc SubmitPhotoForBaleCustomAd(request.WebSubmitPhotoForBaleCustomAdRequest) returns (WebSubmitPhotoForBaleCustomAdResponse);
+  rpc UpdateBusinessAd(request.WebUpdateBusinessAdRequest) returns (WebT_Ou);
+  rpc UpdateClick(request.WebUpdateClickRequest) returns (WebUpdateClickResponse);
+  rpc UpdateCRMIssue(request.WebUpdateCRMIssueRequest) returns (WebT_Ou);
+  rpc UpdateGroupStatus(request.WebUpdateGroupStatusRequest) returns (WebT_Ou);
+  rpc UpdateView(request.WebUpdateViewRequest) returns (WebUpdateViewResponse);
+}
+
+service WebAppzar {
+  rpc GetMenuButton(request.WebGetMenuButtonRequest) returns (WebGetMenuButtonResponse);
+  rpc GetMiniAppUrl(request.WebGetMiniAppUrlRequest) returns (WebGetMiniAppUrlResponse);
+  rpc InvokeCustomMethod(request.WebInvokeCustomMethodRequest) returns (WebInvokeCustomMethodResponse);
+}
+
+service WebAuth {
+  rpc ChangeLanguage(request.WebChangeLanguageRequest) returns (WebT_Ou);
+  rpc ChangePhone(request.WebChangePhoneRequest) returns (WebT_Ou);
+  rpc DeleteAccount(request.WebDeleteAccountRequest) returns (WebT_Ou);
+  rpc DisableTwoFactorAuthentication(request.WebDisableTwoFactorAuthenticationRequest) returns (WebT_Ou);
+  rpc EnableTwoFactorAuthentication(request.WebEnableTwoFactorAuthenticationRequest) returns (WebT_Ou);
+  rpc GetAuthSessions(request.WebGetAuthSessionsRequest) returns (WebGetAuthSessionsResponse);
+  rpc GetBajeBamTicket(request.WebGetBajeBamTicketRequest) returns (WebGetBajeBamTicketResponse);
+  rpc GetBaleTicket(request.WebGetBaleTicketRequest) returns (WebT_er_68945);
+  rpc GetJWTToken(request.WebGetJWTTokenRequest) returns (WebGetJWTTokenResponse);
+  rpc GetTicket(request.WebGetTicketRequest) returns (WebT_er_68945);
+  rpc GetUserIdToken(request.WebGetUserIdTokenRequest) returns (WebGetUserIdTokenResponse);
+  rpc IsTwoFactorAuthenticationEnabled(request.WebIsTwoFactorAuthenticationEnabledRequest) returns (WebIsTwoFactorAuthenticationEnabledResponse);
+  rpc LogOut(request.WebLogOutRequest) returns (WebLogOutResponse);
+  rpc RecoverPassword(request.WebRecoverPasswordRequest) returns (WebRecoverPasswordResponse);
+  rpc SendChangePhoneVerificationCode(request.WebSendChangePhoneVerificationCodeRequest) returns (WebSendChangePhoneVerificationCodeResponse);
+  rpc SendDeleteAccountVerificationCode(request.WebSendDeleteAccountVerificationCodeRequest) returns (WebSendDeleteAccountVerificationCodeResponse);
+  rpc SetNewPassword(request.WebSetNewPasswordRequest) returns (WebT_Ou);
+  rpc SignOut(request.WebSignOutRequest) returns (WebT_Ou);
+  rpc SignUp(request.WebSignUpRequest) returns (WebT_y_68945);
+  rpc StartPhoneAuth(request.WebStartPhoneAuthRequest) returns (WebStartPhoneAuthResponse);
+  rpc TerminateAllSessions(request.WebTerminateAllSessionsRequest) returns (WebT_Ou);
+  rpc TerminateSession(request.WebTerminateSessionRequest) returns (WebT_Ou);
+  rpc ValidateCode(request.WebValidateCodeRequest) returns (WebT_y_68945);
+  rpc ValidatePassword(request.WebValidatePasswordRequest) returns (WebT_y_68945);
+  rpc VerifyEmail(request.WebVerifyEmailRequest) returns (WebT_Ou);
+  rpc VerifyPassword(request.WebVerifyPasswordRequest) returns (WebT_Ou);
+  rpc VerifyPasswordRecovery(request.WebVerifyPasswordRecoveryRequest) returns (WebT_Ou);
+}
+
+service WebGoldGiftPacket {
+  rpc GetWinnerIDs(request.WebGetWinnerIDsRequest) returns (WebGetWinnerIDsResponse);
+  rpc OpenGoldGiftPacket(request.WebOpenGoldGiftPacketRequest) returns (WebOpenGoldGiftPacketResponse);
+  rpc SendGoldGiftPacket(request.WebSendGoldGiftPacketRequest) returns (WebSendGoldGiftPacketResponse);
+}
+
+service WebBank {
+  rpc BuyFastCharge(request.WebBuyFastChargeRequest) returns (WebBuyFastChargeResponse);
+  rpc GetCardRemain(request.WebGetCardRemainRequest) returns (WebGetCardRemainResponse);
+  rpc GetCardTransferToken(request.WebGetCardTransferTokenRequest) returns (WebGetCardTransferTokenResponse);
+  rpc GetOrganizationPaymentToken(request.WebGetOrganizationPaymentTokenRequest) returns (WebGetOrganizationPaymentTokenResponse);
+  rpc GetOTPToken(request.WebGetOTPTokenRequest) returns (WebGetOTPTokenResponse);
+  rpc GetOTPTokenV2(request.WebGetOTPTokenV2Request) returns (WebGetOTPTokenV2Response);
+  rpc GetPaymentToken(request.WebGetPaymentTokenRequest) returns (WebGetPaymentTokenResponse);
+  rpc GetPayMoneyRequestToken(request.WebGetPayMoneyRequestTokenRequest) returns (WebGetPayMoneyRequestTokenResponse);
+  rpc GetPayvandCard(request.WebGetPayvandCardRequest) returns (WebGetPayvandCardResponse);
+  rpc GetPayvandCardList(request.WebGetPayvandCardListRequest) returns (WebGetPayvandCardListResponse);
+  rpc GetPSProxyPaymentToken(request.WebGetPSProxyPaymentTokenRequest) returns (WebGetPSProxyPaymentTokenResponse);
+  rpc GetPSProxyToken(request.WebGetPSProxyTokenRequest) returns (WebGetPSProxyTokenResponse);
+  rpc GetRecentCharges(request.WebGetRecentChargesRequest) returns (WebGetRecentChargesResponse);
+  rpc GetRemainToken(request.WebGetRemainTokenRequest) returns (WebGetRemainTokenResponse);
+  rpc GetSadadPSPPaymentToken(request.WebGetSadadPSPPaymentTokenRequest) returns (WebGetSadadPSPPaymentTokenResponse);
+  rpc GetTokenInvoice(request.WebGetTokenInvoiceRequest) returns (WebGetTokenInvoiceResponse);
+  rpc GrantBankiAccess(request.WebGrantBankiAccessRequest) returns (WebT_Ou);
+}
+
+service WebCharnetService {
+  rpc BuyCharge(request.WebBuyChargeRequest) returns (WebBuyChargeResponse);
+  rpc BuyInternetBundle(request.WebBuyInternetBundleRequest) returns (WebBuyInternetBundleResponse);
+  rpc DeleteRecentChargeOrder(request.WebDeleteRecentChargeOrderRequest) returns (WebT_Ou);
+  rpc DeleteRecentInternetBundleOrder(request.WebDeleteRecentInternetBundleOrderRequest) returns (WebT_Ou);
+  rpc GetAvailableCharges(request.WebGetAvailableChargesRequest) returns (WebGetAvailableChargesResponse);
+  rpc GetInternetBundleList(request.WebGetInternetBundleListRequest) returns (WebGetInternetBundleListResponse);
+  rpc GetInternetBundlePaymentToken(request.WebGetInternetBundlePaymentTokenRequest) returns (WebGetInternetBundlePaymentTokenResponse);
+  rpc GetRecentChargeOrders(request.WebGetRecentChargeOrdersRequest) returns (WebGetRecentChargeOrdersResponse);
+  rpc GetRecentInternetBundleOrders(request.WebGetRecentInternetBundleOrdersRequest) returns (WebGetRecentInternetBundleOrdersResponse);
+  rpc GetTopUpChargePaymentToken(request.WebGetTopUpChargePaymentTokenRequest) returns (WebGetTopUpChargePaymentTokenResponse);
+  rpc GetVoucherChargePaymentToken(request.WebGetVoucherChargePaymentTokenRequest) returns (WebGetVoucherChargePaymentTokenResponse);
+}
+
+service WebCrowdFunding {
+  rpc GetParticipants(request.WebGetParticipantsRequest) returns (WebGetParticipantsResponse);
+  rpc GetTotalPaidAmount(request.WebGetTotalPaidAmountRequest) returns (WebGetTotalPaidAmountResponse);
+}
+
+service WebGarson {
+  rpc EditCustomServices(request.WebEditCustomServicesRequest) returns (WebEditCustomServicesResponse);
+  rpc GetAdvertisementBot(request.WebGetAdvertisementBotRequest) returns (WebGetAdvertisementBotResponse);
+  rpc GetBotBanners(request.WebGetBotBannersRequest) returns (WebGetBotBannersResponse);
+  rpc GetBotsByCategory(request.WebGetBotsByCategoryRequest) returns (WebGetBotsByCategoryResponse);
+  rpc GetCategorizedBots(request.WebGetCategorizedBotsRequest) returns (WebGetCategorizedBotsResponse);
+  rpc GetCustomServices(request.WebGetCustomServicesRequest) returns (WebGetCustomServicesResponse);
+  rpc GetRecommendedBots(request.WebGetRecommendedBotsRequest) returns (WebGetRecommendedBotsResponse);
+  rpc GetServices(request.WebGetServicesRequest) returns (WebGetServicesResponse);
+  rpc GetTrendBots(request.WebGetTrendBotsRequest) returns (WebGetTrendBotsResponse);
+  rpc GetUserRepeatedBots(request.WebGetUserRepeatedBotsRequest) returns (WebGetUserRepeatedBotsResponse);
+}
+
+service WebGhasedakService {
+  rpc GetDiff(request.WebGetDiffRequest) returns (WebGetDiffResponse);
+  rpc GetRoutesStates(request.WebGetRoutesStatesRequest) returns (WebGetRoutesStatesResponse);
+}
+
+service WebGiftPacket {
+  rpc GetGiftPacketPaymentToken(request.WebGetGiftPacketPaymentTokenRequest) returns (WebGetGiftPacketPaymentTokenResponse);
+  rpc OpenGiftPacket(request.WebOpenGiftPacketRequest) returns (WebOpenGiftPacketResponse);
+  rpc SendGiftPacketWithWallet(request.WebSendGiftPacketWithWalletRequest) returns (WebT_pQ);
+}
+
+service WebGroups {
+  rpc AddDiscussionGroupAdmin(request.WebAddDiscussionGroupAdminRequest) returns (WebT_pQ);
+  rpc CreateGroup(request.WebCreateGroupRequest) returns (WebCreateGroupResponse);
+  rpc EditChannelNick(request.WebEditChannelNickRequest) returns (WebT_pQ);
+  rpc EditGroupAbout(request.WebEditGroupAboutRequest) returns (WebT_pQ);
+  rpc EditGroupAvatar(request.WebEditGroupAvatarRequest) returns (WebEditGroupAvatarResponse);
+  rpc EditGroupDefaultCardNumber(request.WebEditGroupDefaultCardNumberRequest) returns (WebT_Ou);
+  rpc EditGroupTitle(request.WebEditGroupTitleRequest) returns (WebT_pQ);
+  rpc FetchGroupAdmins(request.WebFetchGroupAdminsRequest) returns (WebFetchGroupAdminsResponse);
+  rpc GetBannedUsers(request.WebGetBannedUsersRequest) returns (WebGetBannedUsersResponse);
+  rpc GetCanSeeMessages(request.WebGetCanSeeMessagesRequest) returns (WebGetCanSeeMessagesResponse);
+  rpc GetFullGroup(request.WebGetFullGroupRequest) returns (WebGetFullGroupResponse);
+  rpc GetGroupDefaultCardNumber(request.WebGetGroupDefaultCardNumberRequest) returns (WebGetGroupDefaultCardNumberResponse);
+  rpc GetGroupInviteURL(request.WebGetGroupInviteURLRequest) returns (WebT_ed_47679);
+  rpc GetGroupMembersCount(request.WebGetGroupMembersCountRequest) returns (WebGetGroupMembersCountResponse);
+  rpc GetGroupPreview(request.WebGetGroupPreviewRequest) returns (WebGetGroupPreviewResponse);
+  rpc GetGroupRecommendations(request.WebGetGroupRecommendationsRequest) returns (WebGetGroupRecommendationsResponse);
+  rpc GetMemberPermissions(request.WebGetMemberPermissionsRequest) returns (WebGetMemberPermissionsResponse);
+  rpc GetMutualGroups(request.WebGetMutualGroupsRequest) returns (WebGetMutualGroupsResponse);
+  rpc GetMyGroups(request.WebGetMyGroupsRequest) returns (WebGetMyGroupsResponse);
+  rpc GetPins(request.WebGetPinsRequest) returns (WebGetPinsResponse);
+  rpc InviteUser(request.WebInviteUserRequest) returns (WebT_pQ);
+  rpc InviteUsers(request.WebInviteUsersRequest) returns (WebInviteUsersResponse);
+  rpc JoinGroup(request.WebJoinGroupRequest) returns (WebJoinGroupResponse);
+  rpc JoinPublicGroup(request.WebJoinPublicGroupRequest) returns (WebJoinPublicGroupResponse);
+  rpc KickUser(request.WebKickUserRequest) returns (WebT_pQ);
+  rpc LeaveGroup(request.WebLeaveGroupRequest) returns (WebT_pQ);
+  rpc LoadFullGroups(request.WebLoadFullGroupsRequest) returns (WebLoadFullGroupsResponse);
+  rpc LoadGroupAvatars(request.WebLoadGroupAvatarsRequest) returns (WebLoadGroupAvatarsResponse);
+  rpc LoadGroups(request.WebLoadGroupsRequest) returns (WebLoadGroupsResponse);
+  rpc LoadMembers(request.WebLoadMembersRequest) returns (WebLoadMembersResponse);
+  rpc MakeUserAdmin(request.WebMakeUserAdminRequest) returns (WebT_pQ);
+  rpc PinMessage(request.WebPinMessageRequest_47679) returns (WebT_pQ);
+  rpc RemoveDiscussionGroup(request.WebRemoveDiscussionGroupRequest) returns (WebT_Ou);
+  rpc RemoveGroupAvatar(request.WebRemoveGroupAvatarRequest) returns (WebT_pQ);
+  rpc RemovePin(request.WebRemovePinRequest) returns (WebT_pQ);
+  rpc RemoveSinglePin(request.WebRemoveSinglePinRequest) returns (WebT_pQ);
+  rpc RemoveUserAdmin(request.WebRemoveUserAdminRequest) returns (WebT_pQ);
+  rpc RevokeInviteURL(request.WebRevokeInviteURLRequest) returns (WebT_ed_47679);
+  rpc SetAvailableReactions(request.WebSetAvailableReactionsRequest) returns (WebT_Ou);
+  rpc SetCanSeeHistory(request.WebSetCanSeeHistoryRequest) returns (WebT_Ou);
+  rpc SetCanSeeMessages(request.WebSetCanSeeMessagesRequest) returns (WebT_Ou);
+  rpc SetDiscussionGroup(request.WebSetDiscussionGroupRequest) returns (WebSetDiscussionGroupResponse);
+  rpc SetGroupDefaultPermissions(request.WebSetGroupDefaultPermissionsRequest) returns (WebT_Ou);
+  rpc SetMemberCustomTitle(request.WebSetMemberCustomTitleRequest) returns (WebSetMemberCustomTitleResponse);
+  rpc SetMemberPermissions(request.WebSetMemberPermissionsRequest) returns (WebT_Ou);
+  rpc SetRestriction(request.WebSetRestrictionRequest) returns (WebT_pQ);
+  rpc TransferOwnership(request.WebTransferOwnershipRequest) returns (WebT_pQ);
+  rpc UnBanUser(request.WebUnBanUserRequest) returns (WebUnBanUserResponse);
+}
+
+service WebKetf {
+  rpc GetBotGroupPermissions(request.WebGetBotGroupPermissionsRequest) returns (WebGetBotGroupPermissionsResponse);
+  rpc GetBotInfo(request.WebGetBotInfoRequest) returns (WebGetBotInfoResponse);
+  rpc GetBots(request.WebGetBotsRequest) returns (WebGetBotsResponse);
+  rpc GetBotWhiteList(request.WebGetBotWhiteListRequest) returns (WebGetBotWhiteListResponse);
+  rpc GetInlineBotResults(request.WebGetInlineBotResultsRequest) returns (WebGetInlineBotResultsResponse);
+  rpc GetPaymentDetails(request.WebGetPaymentDetailsRequest) returns (WebGetPaymentDetailsResponse);
+  rpc GetUserContext(request.WebGetUserContextRequest) returns (WebGetUserContextResponse);
+  rpc GetWebappHash(request.WebGetWebappHashRequest) returns (WebGetWebappHashResponse);
+  rpc InvokeCustomAction(request.WebInvokeCustomActionRequest) returns (WebInvokeCustomActionResponse);
+  rpc MakePayment(request.WebMakePaymentRequest) returns (WebMakePaymentResponse);
+  rpc SendAuthenticatedInlineCallBackData(request.WebSendAuthenticatedInlineCallBackDataRequest) returns (WebSendAuthenticatedInlineCallBackDataResponse);
+  rpc SendInlineCallback(request.WebSendInlineCallbackRequest) returns (WebSendInlineCallbackResponse);
+  rpc SendInlineCallBackData(request.WebSendInlineCallBackDataRequest) returns (WebT_Ou);
+  rpc SendMiniAppData(request.WebSendMiniAppDataRequest) returns (WebSendMiniAppDataResponse);
+}
+
+service WebKifpool {
+  rpc CashOut(request.WebCashOutRequest) returns (WebCashOutResponse);
+  rpc Charge(request.WebChargeRequest) returns (WebChargeResponse);
+  rpc CheckChargePermission(request.WebCheckChargePermissionRequest) returns (WebCheckChargePermissionResponse);
+  rpc CreateKifpool(request.WebCreateKifpoolRequest) returns (WebCreateKifpoolResponse);
+  rpc CryptoCashOut(request.WebCryptoCashOutRequest) returns (WebCryptoCashOutResponse);
+  rpc CryptoInvoice(request.WebCryptoInvoiceRequest) returns (WebCryptoInvoiceResponse);
+  rpc CryptoPurchase(request.WebCryptoPurchaseRequest) returns (WebCryptoPurchaseResponse);
+  rpc CryptoRefund(request.WebCryptoRefundRequest) returns (WebT_Ou);
+  rpc CryptoTransfer(request.WebCryptoTransferRequest) returns (WebCryptoTransferResponse);
+  rpc GetChargePaymentToken(request.WebGetChargePaymentTokenRequest) returns (WebT_v_98711);
+  rpc GetCredit(request.WebGetCreditRequest) returns (WebGetCreditResponse);
+  rpc GetCryptoChargePaymentToken(request.WebGetCryptoChargePaymentTokenRequest) returns (WebT_v_98711);
+  rpc GetCryptoWallets(request.WebGetCryptoWalletsRequest) returns (WebGetCryptoWalletsResponse);
+  rpc GetKifpoolOwner(request.WebGetKifpoolOwnerRequest) returns (WebGetKifpoolOwnerResponse);
+  rpc GetKifpoolPointBalance(request.WebGetKifpoolPointBalanceRequest) returns (WebGetKifpoolPointBalanceResponse);
+  rpc GetKifpoolPointDetails(request.WebGetKifpoolPointDetailsRequest) returns (WebGetKifpoolPointDetailsResponse);
+  rpc GetKifpoolPointSummery(request.WebGetKifpoolPointSummeryRequest) returns (WebGetKifpoolPointSummeryResponse);
+  rpc GetKifpoolTransactionPoint(request.WebGetKifpoolTransactionPointRequest) returns (WebGetKifpoolTransactionPointResponse);
+  rpc GetMyKifpools(request.WebGetMyKifpoolsRequest) returns (WebGetMyKifpoolsResponse);
+  rpc Invoice(request.WebInvoiceRequest) returns (WebInvoiceResponse);
+  rpc PayForMessage(request.WebPayForMessageRequest) returns (WebPayForMessageResponse);
+  rpc Purchase(request.WebPurchaseRequest) returns (WebPurchaseResponse);
+  rpc PurchaseMessage(request.WebPurchaseMessageRequest) returns (WebPurchaseMessageResponse);
+  rpc PurchaseMessageWithCharge(request.WebPurchaseMessageWithChargeRequest) returns (WebPurchaseMessageWithChargeResponse);
+  rpc PurchaseWithCharge(request.WebPurchaseWithChargeRequest) returns (WebPurchaseWithChargeResponse);
+  rpc Transfer(request.WebTransferRequest) returns (WebTransferResponse);
+  rpc UpgradeKifpool(request.WebUpgradeKifpoolRequest) returns (WebUpgradeKifpoolResponse);
+  rpc VerifyCashOutKifpool(request.WebVerifyCashOutKifpoolRequest) returns (WebVerifyCashOutKifpoolResponse);
+  rpc VerifyPurchaseMessage(request.WebVerifyPurchaseMessageRequest) returns (WebVerifyPurchaseMessageResponse);
+}
+
+service WebMagazine {
+  rpc GetMessageUpvoters(request.WebGetMessageUpvotersRequest) returns (WebGetMessageUpvotersResponse);
+  rpc GetMyUpvotes(request.WebGetMyUpvotesRequest) returns (WebGetMyUpvotesResponse);
+  rpc GetSimilarPosts(request.WebGetSimilarPostsRequest) returns (WebGetSimilarPostsResponse);
+  rpc LoadCategories(request.WebLoadCategoriesRequest) returns (WebLoadCategoriesResponse);
+  rpc LoadCategoryFeedMessages(request.WebLoadCategoryFeedMessagesRequest) returns (WebLoadCategoryFeedMessagesResponse);
+  rpc LoadFeedMessages(request.WebT_O_54329) returns (WebT_H_54329);
+  rpc LoadInternalFeedMessages(request.WebT_O_54329) returns (WebT_H_54329);
+  rpc RevokeUpvotedPost(request.WebRevokeUpvotedPostRequest) returns (WebRevokeUpvotedPostResponse);
+  rpc UpvotePost(request.WebUpvotePostRequest) returns (WebUpvotePostResponse);
+}
+
+service WebMarket {
+  rpc AcceptCampaignMarket(request.WebAcceptCampaignMarketRequest) returns (WebT_Ou);
+  rpc AcceptMarketJoinRequest(request.WebAcceptMarketJoinRequestRequest) returns (WebT_Ou);
+  rpc CreateMarketJoinRequest(request.WebCreateMarketJoinRequestRequest) returns (WebCreateMarketJoinRequestResponse);
+  rpc CreateTag(request.WebCreateTagRequest) returns (WebCreateTagResponse);
+  rpc GetCategoriesList(request.WebGetCategoriesListRequest) returns (WebGetCategoriesListResponse);
+  rpc GetCategoryMarkets(request.WebGetCategoryMarketsRequest) returns (WebGetCategoryMarketsResponse);
+  rpc GetCategoryProducts(request.WebGetCategoryProductsRequest) returns (WebGetCategoryProductsResponse);
+  rpc GetIndexedProducts(request.WebGetIndexedProductsRequest) returns (WebGetIndexedProductsResponse);
+  rpc GetMarket(request.WebGetMarketRequest) returns (WebGetMarketResponse);
+  rpc GetMarketJoinRequests(request.WebGetMarketJoinRequestsRequest) returns (WebGetMarketJoinRequestsResponse);
+  rpc GetMarketsPendingJoinRequest(request.WebGetMarketsPendingJoinRequestRequest) returns (WebGetMarketsPendingJoinRequestResponse);
+  rpc GetNumberOfSales(request.WebGetNumberOfSalesRequest) returns (WebGetNumberOfSalesResponse);
+  rpc GetOnboardingStatus(request.WebGetOnboardingStatusRequest) returns (WebGetOnboardingStatusResponse);
+  rpc GetPendingCampaignMarkets(request.WebGetPendingCampaignMarketsRequest) returns (WebGetPendingCampaignMarketsResponse);
+  rpc GetStores(request.WebT_sx_88717) returns (WebT_sG_88717);
+  rpc GetTags(request.WebGetTagsRequest) returns (WebGetTagsResponse);
+  rpc GetTopMarkets(request.WebGetTopMarketsRequest) returns (WebGetTopMarketsResponse);
+  rpc GetYaldaStores(request.WebT_sx_88717) returns (WebT_sG_88717);
+  rpc RejectCampaignMarket(request.WebRejectCampaignMarketRequest) returns (WebT_Ou);
+  rpc RejectMarketJoinRequest(request.WebRejectMarketJoinRequestRequest) returns (WebT_Ou);
+  rpc SetGenericDeepLinks(request.WebSetGenericDeepLinksRequest) returns (WebT_Ou);
+  rpc SetMarketBanners(request.WebSetMarketBannersRequest) returns (WebT_Ou);
+  rpc SetOnboardingData(request.WebSetOnboardingDataRequest) returns (WebSetOnboardingDataResponse);
+  rpc SetPopularSearches(request.WebSetPopularSearchesRequest) returns (WebT_Ou);
+  rpc SubmitMarketFeedback(request.WebSubmitMarketFeedbackRequest) returns (WebT_Ou);
+  rpc UpdateMarketInfo(request.WebUpdateMarketInfoRequest) returns (WebT_Ou);
+}
+
+service WebMavizStream {
+  rpc GetDifference(request.WebGetDifferenceRequest) returns (WebGetDifferenceResponse);
+  rpc SubscribeToThreadUpdates(request.WebSubscribeToThreadUpdatesRequest) returns (WebT_Ou);
+  rpc SubscribeToUpdates(request.WebSubscribeToUpdatesRequest) returns (stream WebSubscribeToUpdatesResponse);
+  rpc UnsubscribeFromThreadUpdates(request.WebUnsubscribeFromThreadUpdatesRequest) returns (WebT_Ou);
+}
+
+service WebMeet {
+  rpc AcceptCall(request.WebAcceptCallRequest) returns (WebT_h_14892);
+  rpc AnswerCallJoinRequest(request.WebAnswerCallJoinRequestRequest) returns (WebT_Ou);
+  rpc AskToJoinCall(request.WebAskToJoinCallRequest) returns (WebT_Ou);
+  rpc DeleteCallLogs(request.WebDeleteCallLogsRequest) returns (WebT_Ou);
+  rpc DeleteStream(request.WebDeleteStreamRequest) returns (WebT_Ou);
+  rpc DiscardCall(request.WebDiscardCallRequest) returns (WebT_h_14892);
+  rpc GenerateCallLink(request.WebGenerateCallLinkRequest) returns (WebGenerateCallLinkResponse);
+  rpc GetCallLinkDetails(request.WebGetCallLinkDetailsRequest) returns (WebGetCallLinkDetailsResponse);
+  rpc GetCallLogs(request.WebGetCallLogsRequest) returns (WebGetCallLogsResponse);
+  rpc GetCallState(request.WebGetCallStateRequest) returns (WebGetCallStateResponse);
+  rpc GetGroupCall(request.WebGetGroupCallRequest) returns (WebGetGroupCallResponse);
+  rpc GetOngoingCalls(request.WebGetOngoingCallsRequest) returns (WebGetOngoingCallsResponse);
+  rpc GetWssURL(request.WebGetWssURLRequest) returns (WebGetWssURLResponse);
+  rpc InviteToCall(request.WebInviteToCallRequest) returns (WebInviteToCallResponse);
+  rpc JoinGroupCall(request.WebJoinGroupCallRequest) returns (WebJoinGroupCallResponse);
+  rpc LeaveGroupCall(request.WebLeaveGroupCallRequest) returns (WebLeaveGroupCallResponse);
+  rpc MuteParticipant(request.WebMuteParticipantRequest) returns (WebT_Ou);
+  rpc ReceiveCall(request.WebReceiveCallRequest) returns (WebT_Ou);
+  rpc RemoveParticipant(request.WebRemoveParticipantRequest) returns (WebT_Ou);
+  rpc SendCallReaction(request.WebSendCallReactionRequest) returns (WebT_Ou);
+  rpc SendFanoosEvent(request.WebSendFanoosEventRequest) returns (WebT_Ou);
+  rpc SetLinkTitle(request.WebSetLinkTitleRequest) returns (WebT_Ou);
+  rpc StartCall(request.WebStartCallRequest) returns (WebT_h_14892);
+  rpc StartGroupCall(request.WebStartGroupCallRequest) returns (WebStartGroupCallResponse);
+  rpc StartRecording(request.WebStartRecordingRequest) returns (WebT_Ou);
+  rpc StartStream(request.WebStartStreamRequest) returns (WebStartStreamResponse);
+  rpc StopRecording(request.WebStopRecordingRequest) returns (WebT_Ou);
+  rpc SubmitCallFeedback(request.WebSubmitCallFeedbackRequest) returns (WebT_Ou);
+  rpc TakeCallAction(request.WebTakeCallActionRequest) returns (WebTakeCallActionResponse);
+  rpc UpdateLayout(request.WebUpdateLayoutRequest) returns (WebT_Ou);
+}
+
+service WebMessageStream {
+  rpc CancelMessageStream(request.WebCancelMessageStreamRequest) returns (WebCancelMessageStreamResponse);
+  rpc ReceiveMessageStream(request.WebReceiveMessageStreamRequest) returns (WebReceiveMessageStreamResponse);
+}
+
+service WebMessaging {
+  rpc ArchiveDialogs(request.WebArchiveDialogsRequest) returns (WebT_Ou);
+  rpc ClearChat(request.WebClearChatRequest) returns (WebT_B_);
+  rpc CreateFolder(request.WebCreateFolderRequest) returns (WebCreateFolderResponse);
+  rpc CreateReservedFolder(request.WebCreateReservedFolderRequest) returns (WebCreateReservedFolderResponse);
+  rpc CreateThread(request.WebCreateThreadRequest) returns (WebCreateThreadResponse);
+  rpc CreateTopic(request.WebCreateTopicRequest) returns (WebCreateTopicResponse);
+  rpc DeleteChat(request.WebDeleteChatRequest) returns (WebT_B_);
+  rpc DeleteFolder(request.WebDeleteFolderRequest) returns (WebT_Ou);
+  rpc DeleteMessage(struct.WebDeleteMessageRequest) returns (WebT_B_);
+  rpc DeleteTopic(request.WebDeleteTopicRequest) returns (WebT_Ou);
+  rpc EditFolder(request.WebEditFolderRequest) returns (WebEditFolderResponse);
+  rpc EditTopic(request.WebEditTopicRequest) returns (WebT_Ou);
+  rpc FetchProtectedMessage(request.WebFetchProtectedMessageRequest) returns (WebFetchProtectedMessageResponse);
+  rpc ForwardMessages(request.WebForwardMessagesRequest) returns (WebT_pQ);
+  rpc GetDiscussionMessage(request.WebGetDiscussionMessageRequest) returns (WebGetDiscussionMessageResponse);
+  rpc GetMessagesRepliesInfo(request.WebGetMessagesRepliesInfoRequest) returns (WebGetMessagesRepliesInfoResponse);
+  rpc GetTopicByID(request.WebGetTopicByIDRequest) returns (WebGetTopicByIDResponse);
+  rpc GetTopics(request.WebGetTopicsRequest) returns (WebGetTopicsResponse);
+  rpc LoadDialogs(request.WebLoadDialogsRequest) returns (WebLoadDialogsResponse);
+  rpc LoadFolderDialogs(request.WebLoadFolderDialogsRequest) returns (WebLoadFolderDialogsResponse);
+  rpc LoadFolders(request.WebLoadFoldersRequest) returns (WebLoadFoldersResponse);
+  rpc LoadGroupedDialogs(request.WebLoadGroupedDialogsRequest) returns (WebLoadGroupedDialogsResponse);
+  rpc LoadHistory(request.WebLoadHistoryRequest) returns (WebLoadHistoryResponse);
+  rpc LoadPeerDialogs(request.WebLoadPeerDialogsRequest) returns (WebLoadPeerDialogsResponse);
+  rpc LoadPeers(request.WebLoadPeersRequest) returns (WebLoadPeersResponse);
+  rpc LoadPinnedDialogs(request.WebLoadPinnedDialogsRequest) returns (WebLoadPinnedDialogsResponse);
+  rpc LoadPinnedMessages(request.WebLoadPinnedMessagesRequest) returns (WebLoadPinnedMessagesResponse);
+  rpc LoadReplies(request.WebLoadRepliesRequest) returns (WebLoadRepliesResponse);
+  rpc MarkDialogsAsRead(request.WebMarkDialogsAsReadRequest) returns (WebT_B_);
+  rpc MarkDialogsAsUnread(request.WebMarkDialogsAsUnreadRequest) returns (WebT_B_);
+  rpc MentionRead(request.WebMentionReadRequest) returns (WebT_Ou);
+  rpc MessageRead(request.WebMessageReadRequest) returns (WebT_Ou);
+  rpc MessageReceived(request.WebMessageReceivedRequest) returns (WebT_Ou);
+  rpc PinDialogs(request.WebPinDialogsRequest) returns (WebPinDialogsResponse);
+  rpc PinMessage(request.WebPinMessageRequest) returns (WebT_Ou);
+  rpc ReorderFolders(request.WebReorderFoldersRequest) returns (WebReorderFoldersResponse);
+  rpc ReorderPinnedDialogs(request.WebReorderPinnedDialogsRequest) returns (WebReorderPinnedDialogsResponse);
+  rpc SendMessage(struct.WebSendMessageRequest) returns (WebT_pQ);
+  rpc SendMultiMediaMessage(struct.WebSendMultiMediaMessageRequest) returns (WebT_pQ);
+  rpc UnArchiveDialogs(request.WebUnArchiveDialogsRequest) returns (WebT_Ou);
+  rpc UnpinDialogs(request.WebUnpinDialogsRequest) returns (WebT_Ou);
+  rpc UnPinMessages(request.WebUnPinMessagesRequest) returns (WebT_Ou);
+  rpc UpdateMessage(request.WebUpdateMessageRequest) returns (WebT_pQ);
+}
+
+service WebMicroBanki {
+  rpc GetBamServiceToken(request.WebGetBamServiceTokenRequest) returns (WebGetBamServiceTokenResponse);
+  rpc GetMoneyRequestDetails(request.WebGetMoneyRequestDetailsRequest) returns (WebGetMoneyRequestDetailsResponse);
+  rpc GetMoneyRequestPaymentList(request.WebGetMoneyRequestPaymentListRequest) returns (WebGetMoneyRequestPaymentListResponse);
+}
+
+service WebOrganizations {
+  rpc GetUserOrganizationalContacts(request.WebGetUserOrganizationalContactsRequest) returns (WebGetUserOrganizationalContactsResponse);
+  rpc GetUserOrganizationInfo(request.WebGetUserOrganizationInfoRequest) returns (WebGetUserOrganizationInfoResponse);
+}
+
+service WebPfm {
+  rpc AddDetailToTransaction(request.WebAddDetailToTransactionRequest) returns (WebT_Ou);
+  rpc AddTransactionTags(request.WebAddTransactionTagsRequest) returns (WebT_Ou);
+  rpc AddUserTags(request.WebAddUserTagsRequest) returns (WebT_Ou);
+  rpc FilterTaggedTransactions(request.WebFilterTaggedTransactionsRequest) returns (WebFilterTaggedTransactionsResponse);
+  rpc GetSubTransactions(request.WebGetSubTransactionsRequest) returns (WebGetSubTransactionsResponse);
+  rpc GetTransactionTags(request.WebGetTransactionTagsRequest) returns (WebGetTransactionTagsResponse);
+  rpc GetUserAccounts(request.WebGetUserAccountsRequest) returns (WebGetUserAccountsResponse);
+  rpc GetUserTags(request.WebGetUserTagsRequest) returns (WebGetUserTagsResponse);
+  rpc LoadTransactions(request.WebLoadTransactionsRequest) returns (WebLoadTransactionsResponse);
+  rpc LoadTransactionsByIDs(request.WebLoadTransactionsByIDsRequest) returns (WebLoadTransactionsByIDsResponse);
+  rpc RemoveTransaction(request.WebRemoveTransactionRequest) returns (WebT_Ou);
+  rpc RemoveTransactionTags(request.WebRemoveTransactionTagsRequest) returns (WebT_Ou);
+  rpc RemoveUserTags(request.WebRemoveUserTagsRequest) returns (WebT_Ou);
+  rpc ReviveTransaction(request.WebReviveTransactionRequest) returns (WebT_Ou);
+  rpc SplitTransaction(request.WebSplitTransactionRequest) returns (WebSplitTransactionResponse);
+}
+
+service WebPoll {
+  rpc ClosePoll(request.WebClosePollRequest) returns (WebT_Ou);
+  rpc CreatePoll(request.WebCreatePollRequest) returns (WebCreatePollResponse);
+  rpc GetFullPollResult(request.WebGetFullPollResultRequest) returns (WebGetFullPollResultResponse);
+  rpc GetPollResults(request.WebGetPollResultsRequest) returns (WebGetPollResultsResponse);
+  rpc Vote(request.WebVoteRequest) returns (WebVoteResponse);
+}
+
+service WebPremium {
+  rpc CalculateDiscountedPrice(request.WebCalculateDiscountedPriceRequest) returns (WebCalculateDiscountedPriceResponse);
+  rpc GetBadges(request.WebGetBadgesRequest) returns (WebGetBadgesResponse);
+  rpc GetPackages(request.WebGetPackagesRequest) returns (WebGetPackagesResponse);
+  rpc IsPremium(request.WebIsPremiumRequest) returns (WebIsPremiumResponse);
+  rpc IsPremiumBatch(request.WebIsPremiumBatchRequest) returns (WebIsPremiumBatchResponse);
+  rpc PurchasePackage(request.WebPurchasePackageRequest) returns (WebPurchasePackageResponse);
+  rpc SetUserBadge(request.WebSetUserBadgeRequest) returns (WebT_Ou);
+}
+
+service WebPresence {
+  rpc GetContactsPresences(request.WebGetContactsPresencesRequest) returns (WebGetContactsPresencesResponse);
+  rpc GetGroupMembersPresences(request.WebGetGroupMembersPresencesRequest) returns (WebGetGroupMembersPresencesResponse);
+  rpc GetGroupOnlineCount(request.WebGetGroupOnlineCountRequest) returns (WebGetGroupOnlineCountResponse);
+  rpc GetUsersPresence(request.WebGetUsersPresenceRequest) returns (WebGetUsersPresenceResponse);
+  rpc SetOnline(request.WebSetOnlineRequest) returns (WebT_Ou);
+  rpc StopTyping(request.WebStopTypingRequest) returns (WebT_Ou);
+  rpc SubscribeFromGroupOnline(request.WebSubscribeFromGroupOnlineRequest) returns (WebT_Ou);
+  rpc SubscribeFromOnline(request.WebSubscribeFromOnlineRequest) returns (WebT_Ou);
+  rpc SubscribeToGroupOnline(request.WebSubscribeToGroupOnlineRequest) returns (WebT_Ou);
+  rpc SubscribeToOnline(request.WebSubscribeToOnlineRequest) returns (WebT_Ou);
+  rpc Typing(request.WebTypingRequest) returns (WebT_Ou);
+}
+
+service WebRamz {
+  rpc CheckPassword(request.WebCheckPasswordRequest) returns (WebCheckPasswordResponse);
+  rpc CheckPasswordSet(request.WebCheckPasswordSetRequest) returns (WebCheckPasswordSetResponse);
+  rpc DeletePassword(request.WebDeletePasswordRequest) returns (WebDeletePasswordResponse);
+  rpc ForgetPassword(request.WebForgetPasswordRequest) returns (WebForgetPasswordResponse);
+  rpc SendOTP(request.WebSendOTPRequest) returns (WebSendOTPResponse);
+  rpc SetPassword(request.WebSetPasswordRequest) returns (WebSetPasswordResponse);
+  rpc ValidateOTP(request.WebValidateOTPRequest) returns (WebValidateOTPResponse);
+}
+
+service WebRecommender {
+  rpc GetChannelRecommendations(request.WebGetChannelRecommendationsRequest) returns (WebGetChannelRecommendationsResponse);
+  rpc GetGroupsRecommendation(request.WebGetGroupsRecommendationRequest) returns (WebGetGroupsRecommendationResponse);
+  rpc GetRelatedChannels(request.WebGetRelatedChannelsRequest) returns (WebGetRelatedChannelsResponse);
+  rpc GetRelatedGroups(request.WebGetRelatedGroupsRequest) returns (WebGetRelatedGroupsResponse);
+}
+
+service WebReport {
+  rpc ReportDismiss(request.WebReportDismissRequest) returns (WebT_Ou);
+  rpc ReportInappropriateContent(request.WebReportInappropriateContentRequest) returns (WebT_Ou);
+}
+
+service WebSap {
+  rpc AddDestinationCards(request.WebAddDestinationCardsRequest) returns (WebAddDestinationCardsResponse);
+  rpc AddNewCards(request.WebAddNewCardsRequest) returns (WebAddNewCardsResponse);
+  rpc DeliverOtp(request.WebDeliverOtpRequest) returns (WebDeliverOtpResponse);
+  rpc EditCardExpirationDate(request.WebEditCardExpirationDateRequest) returns (WebT_Ou);
+  rpc EnrollNewCard(request.WebEnrollNewCardRequest) returns (WebEnrollNewCardResponse);
+  rpc GetCardInfo(request.WebGetCardInfoRequest) returns (WebGetCardInfoResponse);
+  rpc GetCards(request.WebGetCardsRequest) returns (WebGetCardsResponse);
+  rpc GetDefaultCard(request.WebGetDefaultCardRequest) returns (WebGetDefaultCardResponse);
+  rpc GetDestinationCardInfo(request.WebGetDestinationCardInfoRequest) returns (WebGetDestinationCardInfoResponse);
+  rpc GetDestinationCards(request.WebGetDestinationCardsRequest) returns (WebGetDestinationCardsResponse);
+  rpc ReactivateApp(request.WebReactivateAppRequest) returns (WebReactivateAppResponse);
+  rpc RemoveCard(request.WebRemoveCardRequest) returns (WebT_Ou);
+  rpc RemoveDefaultCard(request.WebRemoveDefaultCardRequest) returns (WebT_Ou);
+  rpc RemoveDestinationCards(request.WebRemoveDestinationCardsRequest) returns (WebT_Ou);
+  rpc SetDefaultCard(request.WebSetDefaultCardRequest) returns (WebT_Ou);
+  rpc TransferMoneyByCard(request.WebTransferMoneyByCardRequest) returns (WebTransferMoneyByCardResponse);
+}
+
+service WebScheduler {
+  rpc ExecuteTaskNow(request.WebExecuteTaskNowRequest) returns (WebT_Ou);
+  rpc ListTasks(request.WebListTasksRequest) returns (WebListTasksResponse);
+  rpc PeersWithScheduleTask(request.WebPeersWithScheduleTaskRequest) returns (WebPeersWithScheduleTaskResponse);
+  rpc ReScheduleTask(request.WebReScheduleTaskRequest) returns (WebT_Ou);
+  rpc ScheduleTask(request.WebScheduleTaskRequest) returns (WebScheduleTaskResponse);
+  rpc UnScheduleTask(request.WebUnScheduleTaskRequest) returns (WebUnScheduleTaskResponse);
+}
+
+service WebSearch {
+  rpc RecommendPeer(request.WebRecommendPeerRequest) returns (WebRecommendPeerResponse);
+  rpc SearchContent(request.WebSearchContentRequest) returns (WebSearchContentResponse);
+  rpc SearchDialog(request.WebSearchDialogRequest) returns (WebSearchDialogResponse);
+  rpc SearchMarket(request.WebSearchMarketRequest) returns (WebSearchMarketResponse);
+  rpc SearchMarketPopular(request.WebSearchMarketPopularRequest) returns (WebSearchMarketPopularResponse);
+  rpc SearchMedia(request.WebSearchMediaRequest) returns (WebSearchMediaResponse);
+  rpc SearchMembers(request.WebSearchMembersRequest) returns (WebSearchMembersResponse);
+  rpc SearchMessageMore(request.WebSearchMessageMoreRequest) returns (WebT_iF_88717);
+  rpc SearchMessages(request.WebSearchMessagesRequest) returns (WebT_iF_88717);
+  rpc SearchPeer(request.WebSearchPeerRequest) returns (WebSearchPeerResponse);
+  rpc SearchProduct(request.WebSearchProductRequest) returns (WebSearchProductResponse);
+  rpc UpdateSearchContentClick(request.WebUpdateSearchContentClickRequest) returns (WebT_Ou);
+}
+
+service WebSharedMediaService {
+  rpc GetActiveSharedMedia(request.WebGetActiveSharedMediaRequest) returns (WebGetActiveSharedMediaResponse);
+  rpc LoadMedia(request.WebLoadMediaRequest) returns (WebLoadMediaResponse);
+}
+
+service WebStory {
+  rpc AddBotStory(request.WebAddBotStoryRequest) returns (WebT_u_70056);
+  rpc AddChannelStory(request.WebAddChannelStoryRequest) returns (WebT_u_70056);
+  rpc AddStory(request.WebAddStoryRequest) returns (WebT_u_70056);
+  rpc CanAddBotStory(request.WebCanAddBotStoryRequest) returns (WebCanAddBotStoryResponse);
+  rpc CheckLinkValidity(request.WebCheckLinkValidityRequest) returns (WebT_Ou);
+  rpc GetBotStories(request.WebGetBotStoriesRequest) returns (WebGetBotStoriesResponse);
+  rpc GetChannelStories(request.WebGetChannelStoriesRequest) returns (WebGetChannelStoriesResponse);
+  rpc GetDefaultStoryBackgrounds(request.WebGetDefaultStoryBackgroundsRequest) returns (WebGetDefaultStoryBackgroundsResponse);
+  rpc GetMostPopularStories(request.WebGetMostPopularStoriesRequest) returns (WebGetMostPopularStoriesResponse);
+  rpc GetStories(request.WebGetStoriesRequest) returns (WebGetStoriesResponse);
+  rpc GetStoriesByList(request.WebGetStoriesByListRequest) returns (WebGetStoriesByListResponse);
+  rpc GetStoryById(request.WebGetStoryByIdRequest) returns (WebGetStoryByIdResponse);
+  rpc GetStoryReactionEmojis(request.WebGetStoryReactionEmojisRequest) returns (WebGetStoryReactionEmojisResponse);
+  rpc GetStoryTags(request.WebGetStoryTagsRequest) returns (WebGetStoryTagsResponse);
+  rpc GetStoryWidgets(request.WebGetStoryWidgetsRequest) returns (WebGetStoryWidgetsResponse);
+  rpc GetUserPrivacyConfig(request.WebGetUserPrivacyConfigRequest) returns (WebGetUserPrivacyConfigResponse);
+  rpc GetUserStoryConfig(request.WebGetUserStoryConfigRequest) returns (WebGetUserStoryConfigResponse);
+  rpc GetViewers(request.WebGetViewersRequest) returns (WebGetViewersResponse);
+  rpc GetViewersCount(request.WebGetViewersCountRequest) returns (WebGetViewersCountResponse);
+  rpc ReactToStory(request.WebReactToStoryRequest) returns (WebT_Ou);
+  rpc RemoveStory(request.WebRemoveStoryRequest) returns (WebT_Ou);
+  rpc SetUserPrivacyConfig(request.WebSetUserPrivacyConfigRequest) returns (WebSetUserPrivacyConfigResponse);
+  rpc SetUserStoryConfig(request.WebSetUserStoryConfigRequest) returns (WebSetUserStoryConfigResponse);
+}
+
+service WebTimche {
+  rpc AskBotReviewCallback(request.WebAskBotReviewCallbackRequest) returns (WebAskBotReviewCallbackResponse);
+  rpc GetBotPage(request.WebGetBotPageRequest) returns (WebGetBotPageResponse);
+  rpc GetHomePage(request.WebGetHomePageRequest) returns (WebGetHomePageResponse);
+  rpc GetSectionPage(request.WebGetSectionPageRequest) returns (WebGetSectionPageResponse);
+  rpc SubmitReview(request.WebSubmitReviewRequest) returns (WebSubmitReviewResponse);
+}
+
+service WebTLDR {
+  rpc GetLinkPreview(request.WebGetLinkPreviewRequest) returns (WebGetLinkPreviewResponse);
+  rpc GetLinkSummary(request.WebGetLinkSummaryRequest) returns (WebGetLinkSummaryResponse);
+}
+
+service WebTopPeer {
+  rpc GetTopPeer(request.WebGetTopPeerRequest) returns (WebGetTopPeerResponse);
+  rpc RemovePeer(request.WebRemovePeerRequest) returns (WebRemovePeerResponse);
+}
+
+service WebAI {
+  rpc GetTranscript(request.WebGetTranscriptRequest) returns (WebGetTranscriptResponse);
+  rpc SendEvent(request.WebSendEventRequest) returns (WebT_Ou);
+}
+
+service WebUsers {
+  rpc AddCard(request.WebAddCardRequest) returns (WebT_Ou);
+  rpc AddContact(request.WebAddContactRequest) returns (WebT_B_);
+  rpc BlockUser(request.WebBlockUserRequest) returns (WebT_B_);
+  rpc ChangeDefaultCardNumber(request.WebChangeDefaultCardNumberRequest) returns (WebT_B_);
+  rpc ChangePhoneNumber(request.WebChangePhoneNumberRequest) returns (WebT_Ou);
+  rpc CheckNickName(request.WebCheckNickNameRequest) returns (WebBoolValue);
+  rpc ConfirmPhoneNumber(request.WebConfirmPhoneNumberRequest) returns (WebT_Ou);
+  rpc EditAbout(request.WebEditAboutRequest) returns (WebT_B_);
+  rpc EditAvatar(request.WebEditAvatarRequest) returns (WebEditAvatarResponse);
+  rpc EditBirthDate(request.WebEditBirthDateRequest) returns (WebT_Ou);
+  rpc EditMyPreferredLanguages(request.WebEditMyPreferredLanguagesRequest) returns (WebT_B_);
+  rpc EditMyTimeZone(request.WebEditMyTimeZoneRequest) returns (WebT_B_);
+  rpc EditName(request.WebEditNameRequest) returns (WebT_B_);
+  rpc EditNickName(request.WebEditNickNameRequest) returns (WebT_B_);
+  rpc EditSex(request.WebEditSexRequest) returns (WebT_Ou);
+  rpc EditUserLocalName(request.WebEditUserLocalNameRequest) returns (WebT_B_);
+  rpc GetContacts(request.WebGetContactsRequest) returns (WebGetContactsResponse);
+  rpc GetFullUser(request.WebGetFullUserRequest) returns (WebGetFullUserResponse);
+  rpc GetUserFullPrivacy(request.WebGetUserFullPrivacyRequest) returns (WebGetUserFullPrivacyResponse);
+  rpc GetUserPrivacyStatus(request.WebGetUserPrivacyStatusRequest) returns (WebGetUserPrivacyStatusResponse);
+  rpc GetUsersDefaultCardNumber(request.WebGetUsersDefaultCardNumberRequest) returns (WebGetUsersDefaultCardNumberResponse);
+  rpc ImportContacts(request.WebImportContactsRequest) returns (WebImportContactsResponse);
+  rpc IsNameAllowed(request.WebIsNameAllowedRequest) returns (WebBoolValue);
+  rpc LoadAvatars(request.WebLoadAvatarsRequest) returns (WebLoadAvatarsResponse);
+  rpc LoadBlockedUsers(request.WebLoadBlockedUsersRequest) returns (WebLoadBlockedUsersResponse);
+  rpc LoadFullUsers(request.WebT_z_53871) returns (WebT_q_53871);
+  rpc LoadFullUsersSequentially(request.WebT_z_53871) returns (WebT_q_53871);
+  rpc LoadUsers(request.WebLoadUsersRequest) returns (WebLoadUsersResponse);
+  rpc NotifyAboutDeviceInfo(request.WebNotifyAboutDeviceInfoRequest) returns (WebT_Ou);
+  rpc RemoveAvatar(request.WebRemoveAvatarRequest) returns (WebT_B_);
+  rpc RemoveContact(request.WebRemoveContactRequest) returns (WebT_B_);
+  rpc RemoveDefaultCardNumber(request.WebRemoveDefaultCardNumberRequest) returns (WebT_B_);
+  rpc ResetContacts(request.WebResetContactsRequest) returns (WebT_Ou);
+  rpc SearchContacts(request.WebSearchContactsRequest) returns (WebSearchContactsResponse);
+  rpc SetUserPrivacyStatus(request.WebSetUserPrivacyStatusRequest) returns (WebT_Ou);
+  rpc UnblockUser(request.WebUnblockUserRequest) returns (WebT_B_);
+}
+
+service WebConfigs {
+  rpc EditParameter(request.WebEditParameterRequest) returns (WebT_B_);
+  rpc GetInAppUpdate(request.WebGetInAppUpdateRequest) returns (WebGetInAppUpdateResponse);
+  rpc GetParameters(request.WebGetParametersRequest) returns (WebGetParametersResponse);
+}
+
+service WebImages {
+  rpc AddGif(request.WebAddGifRequest) returns (WebT_B_);
+  rpc AddStickerCollection(request.WebAddStickerCollectionRequest) returns (WebT_k_16349);
+  rpc AddStickerPack(request.WebAddStickerPackRequest) returns (WebT_B_);
+  rpc GetSavedGifs(request.WebGetSavedGifsRequest) returns (WebGetSavedGifsResponse);
+  rpc LoadOwnStickers(request.WebLoadOwnStickersRequest) returns (WebLoadOwnStickersResponse);
+  rpc LoadStickerCollection(request.WebLoadStickerCollectionRequest) returns (WebLoadStickerCollectionResponse);
+  rpc RemoveGif(request.WebRemoveGifRequest) returns (WebT_B_);
+  rpc RemoveStickerCollection(request.WebRemoveStickerCollectionRequest) returns (WebT_k_16349);
+  rpc RemoveStickerPack(request.WebRemoveStickerPackRequest) returns (WebT_B_);
+  rpc UseGif(request.WebUseGifRequest) returns (WebT_Ou);
+}
+
+service WebWallet {
+  rpc ActivateWallet(request.WebActivateWalletRequest) returns (WebT_Ou);
+  rpc CashOutFromWallet(request.WebCashOutFromWalletRequest) returns (WebT_Ou);
+  rpc GetMoneyRequestPaymentTokenByCard(request.WebGetMoneyRequestPaymentTokenByCardRequest) returns (WebGetMoneyRequestPaymentTokenByCardResponse);
+  rpc GetMyWallets(request.WebGetMyWalletsRequest) returns (WebGetMyWalletsResponse);
+  rpc GetPaymentTokenByCard(request.WebGetPaymentTokenByCardRequest) returns (WebGetPaymentTokenByCardResponse);
+  rpc GetWalletChargeToken(request.WebGetWalletChargeTokenRequest) returns (WebGetWalletChargeTokenResponse);
+  rpc GetWalletContracts(request.WebGetWalletContractsRequest) returns (WebGetWalletContractsResponse);
+  rpc GetWalletInvoice(request.WebGetWalletInvoiceRequest) returns (WebGetWalletInvoiceResponse);
+  rpc PayByWallet(request.WebPayByWalletRequest) returns (WebT_Ou);
+  rpc PayMoneyRequestByWallet(request.WebPayMoneyRequestByWalletRequest) returns (WebT_Ou);
+  rpc VerifyCashOut(request.WebVerifyCashOutRequest) returns (WebVerifyCashOutResponse);
+  rpc VerifyPeer(request.WebVerifyPeerRequest) returns (WebVerifyPeerResponse);
+  rpc VerifyQRCode(request.WebVerifyQRCodeRequest) returns (WebVerifyQRCodeResponse);
+}
+
+service WebMyBank {
+  rpc GetMyBank(request.WebExtMyBankGetMyBankRequest)
+      returns (WebExtMyBankGetMyBankResponse);
+}
+
+service WebGoldWallet {
+  rpc GetBalance(request.WebExtGoldWalletGetBalanceRequest)
+      returns (WebExtGoldWalletGetBalanceResponse);
+}
+
+service WebNegah {
+  rpc GetMessageSeenList(request.WebExtNegahGetMessageSeenListRequest)
+      returns (WebExtNegahGetMessageSeenListResponse);
+}
+
+service WebFalake {
+  rpc GetLinkStatus(request.WebExtFalakeGetLinkStatusRequest)
+      returns (WebExtFalakeGetLinkStatusResponse);
+}
+
+service WebAnonymousContact {
+  rpc GetUserAnonymousContactPage(
+      request.WebExtAnonymousContactGetUserAnonymousContactPageRequest
+  ) returns (WebExtAnonymousContactGetUserAnonymousContactPageResponse);
+}
+
+service WebLLMAuthService {
+  rpc GetAuthToken(request.WebExtLLMAuthServiceGetAuthTokenRequest)
+      returns (WebExtLLMAuthServiceGetAuthTokenResponse);
+}
+
+service WebFanoos {
+  rpc Send(request.WebExtFanoosSendRequest) returns (WebT_Ou);
+  rpc SendBatch(request.WebSendBatchRequest) returns (WebT_Ou);
+}
+
+service WebFeedBack {
+  rpc SendFeedBack(request.WebExtFeedBackSendFeedBackRequest) returns (WebT_Ou);
 }

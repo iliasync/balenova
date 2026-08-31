@@ -20,6 +20,7 @@ from urllib.parse import urlsplit
 
 from google.protobuf.message import Message as ProtobufMessage
 
+from bale.api import ProtocolAPI
 from bale.dispatcher import (
     Dispatcher,
     ErrorHandler,
@@ -32,7 +33,6 @@ from bale.dispatcher import (
 from bale.errors import AuthenticationError, BaleRpcError, ClientStateError
 from bale.events import MessageEdited, NewMessage, Update, build_updates
 from bale.filters import Filter, command
-from bale.full import FullAPI
 from bale.models import (
     CallMode,
     CallRecordQuality,
@@ -56,6 +56,7 @@ from bale.models import (
     wrap_user,
     wrap_wallet_response,
 )
+from bale.proto import schema as pb
 from bale.protocol import ProtocolRecorder
 from bale.session import Session, SessionStorage
 from bale.transports import GrpcTransport, WebSocketTransport
@@ -95,6 +96,28 @@ def _colorize(text: str, code: int) -> str:
 def _status(text: str, *, error: bool = False) -> None:
     """Print a short colored login/session status without exposing secrets."""
     print(_colorize(text, 31 if error else 36))
+
+
+def _fanoos_value(value: Any) -> dict[str, Any]:
+    """Convert a JSON-like Python value to Bale's analytics ``WebValue``."""
+    if isinstance(value, str):
+        return {"stringValue": value}
+    if isinstance(value, bool):
+        return {"booleanValue": value}
+    if isinstance(value, int):
+        if not -(1 << 63) <= value < (1 << 63):
+            raise ValueError("Fanoos integer values must fit in signed int64")
+        return {"int64Value": value}
+    if isinstance(value, float):
+        return {"doubleValue": value}
+    if isinstance(value, (list, tuple)):
+        return {
+            "arrayValue": {"array": [_fanoos_value(item) for item in value]}
+        }
+    raise TypeError(
+        "Fanoos values must be str, bool, int, float, list, or tuple; "
+        f"got {type(value).__name__}"
+    )
 
 
 class Client:
@@ -167,7 +190,7 @@ class Client:
         self._stop_event = asyncio.Event()
         self._running = False
         self._closed = False
-        self.api = FullAPI(self)
+        self.api = ProtocolAPI(self)
         for service_name in self.api.services:
             setattr(self, service_name, getattr(self.api, service_name))
 
@@ -591,6 +614,30 @@ class Client:
             response_type=response_type,
         )
 
+    async def stream_protobuf(
+        self,
+        service: str,
+        method: str,
+        request: ProtobufMessage,
+        *,
+        response_type: type[ProtobufMessage],
+        timeout: float | None = None,
+    ) -> AsyncIterator[ProtobufMessage]:
+        """Yield decoded messages from a generated server-streaming RPC."""
+        if not isinstance(request, ProtobufMessage):
+            raise TypeError("request must be a protobuf Message")
+        session = self._session or await self._storage.load()
+        async for raw in self._grpc.stream_raw(
+            service,
+            method,
+            request.SerializeToString(),
+            access_token=session.jwt if session else None,
+            timeout=timeout,
+        ):
+            response = response_type()
+            response.ParseFromString(raw)
+            yield response
+
     async def call(
         self,
         service: str,
@@ -605,7 +652,7 @@ class Client:
         if request is not None and request_bytes is not None:
             raise ValueError("pass either request or request_bytes, not both")
         if response_type is None:
-            from bale.full.bale_methods import METHODS
+            from bale.methods import METHODS
 
             pair = METHODS.get((service, method))
             if pair is not None:
@@ -3047,6 +3094,38 @@ class Client:
             {"call_id": _require_call_id(call_id), "reaction": reaction},
         )
         return wrap_default(response)
+
+    async def send_call_fanoos_event(
+        self,
+        event_name: str,
+        items: Mapping[str, Any] | None = None,
+        *,
+        date: int | None = None,
+    ) -> DefaultResponse:
+        """Send a Meet analytics event using the current typed protobuf schema.
+
+        ``items`` accepts strings, booleans, integers, floats, and nested arrays
+        of those scalar values.  ``date`` defaults to Unix time in milliseconds,
+        matching Bale Web.
+        """
+        if not event_name.strip():
+            raise ValueError("event_name must not be empty")
+        event_items = [
+            {"key": str(key), "value": _fanoos_value(value)}
+            for key, value in (items or {}).items()
+        ]
+        request = pb.WebSendFanoosEventRequest(
+            eventName=event_name,
+            items={"items": event_items},
+            date=int(time.time() * 1000) if date is None else date,
+        )
+        await self.invoke_protobuf(
+            "bale.meet.v1.Meet",
+            "SendFanoosEvent",
+            request,
+            response_type=pb.WebT_Ou,
+        )
+        return wrap_default({})
 
     async def mute_call_participant(
         self,

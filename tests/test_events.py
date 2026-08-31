@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from bale.full import bale_pb2
+from bale.proto import struct_pb2
 from balenova import Client, events, filters
 
 
@@ -139,7 +139,7 @@ async def test_unknown_wire_update_gets_stable_variant_name(tmp_path) -> None:
 @pytest.mark.asyncio
 async def test_compact_unknown_update_is_decoded_with_complete_proto(tmp_path) -> None:
     client = Client("42:jwt", session_dir=tmp_path, grpc=DummyGrpc())  # type: ignore[arg-type]
-    encoded = bale_pb2.Typing(uid=42, typingType=3).SerializeToString()
+    encoded = struct_pb2.WebTyping(uid=42, typingType=3).SerializeToString()
 
     await client._process_update(
         {
@@ -156,10 +156,20 @@ async def test_compact_unknown_update_is_decoded_with_complete_proto(tmp_path) -
 
     assert isinstance(event, events.RawUpdate)
     assert event.kind == "typing"
-    assert event.payload["protobuf_type"] == "bale.Typing"
+    assert event.payload["protobuf_type"] == "struct.WebTyping"
     assert event.payload["decoded"] == {"uid": 42, "typingType": 3}
 
 
 def test_balenova_is_the_public_import() -> None:
     assert Client.__module__ == "bale.client"
     assert events.NewMessage.__name__ == "NewMessage"
+
+
+def test_every_protocol_update_variant_has_a_stable_public_name() -> None:
+    descriptor_fields = struct_pb2.WebUpdate.DESCRIPTOR.fields_by_number
+
+    assert len(descriptor_fields) == 142
+    assert {
+        number: descriptor.name
+        for number, descriptor in descriptor_fields.items()
+    } == events._UPDATE_FIELD_NAMES

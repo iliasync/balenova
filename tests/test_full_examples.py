@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import io
+import shutil
+import wave
 from datetime import datetime
 from types import SimpleNamespace
 
@@ -322,6 +325,143 @@ async def test_voice_credentials_accept_wrapped_bale_url() -> None:
     player.call_id = 77
 
     assert await player._credentials(
-        {"url": {"value": "wss://voice.example"}, "token": "secret"}
+        {"url": {"text": "wss://voice.example"}, "token": "secret"}
     ) == ("wss://voice.example", "secret")
     assert unwrap({"value": "x"}) == "x"
+
+
+class FakeCallClient:
+    def __init__(self, *, active: bool = False) -> None:
+        self.active = active
+        self.left: list[tuple[int, bool]] = []
+
+    async def get_group_call(self, _chat_id: str):
+        if not self.active:
+            return None
+        return {"id": 76, "url": {"text": "wss://voice"}, "token": "token"}
+
+    async def start_group_call(self, _chat_id: str):
+        return {
+            "group_call": {
+                "id": 77,
+                "url": {"text": "wss://voice"},
+                "token": "token",
+            }
+        }
+
+    async def join_group_call(self, call_id: int, _name: str):
+        return {
+            "group_call": {
+                "id": call_id,
+                "url": {"text": "wss://voice"},
+                "token": "token",
+            }
+        }
+
+    async def leave_group_call(self, call_id: int, *, end: bool = False):
+        self.left.append((call_id, end))
+
+
+class FakeAudioSource:
+    def __init__(self, *_args, **_kwargs) -> None:
+        self.frames: list[object] = []
+        self.closed = False
+
+    async def capture_frame(self, frame: object) -> None:
+        self.frames.append(frame)
+
+    def clear_queue(self) -> None:
+        pass
+
+    async def aclose(self) -> None:
+        self.closed = True
+
+
+class FakeParticipant:
+    def __init__(self) -> None:
+        self.published: list[tuple[object, object]] = []
+
+    async def publish_track(self, track: object, options: object) -> None:
+        self.published.append((track, options))
+
+
+class FakeRoom:
+    fail_connect = False
+
+    def __init__(self) -> None:
+        self.local_participant = FakeParticipant()
+        self.disconnected = False
+
+    async def connect(self, _url: str, _token: str) -> None:
+        if self.fail_connect:
+            raise RuntimeError("connect failed")
+
+    async def disconnect(self) -> None:
+        self.disconnected = True
+
+
+class FakeRtc:
+    Room = FakeRoom
+    AudioSource = FakeAudioSource
+    TrackSource = SimpleNamespace(SOURCE_MICROPHONE="microphone")
+    LocalAudioTrack = SimpleNamespace(
+        create_audio_track=lambda name, source: (name, source)
+    )
+    TrackPublishOptions = SimpleNamespace
+    AudioFrame = SimpleNamespace
+
+
+@pytest.mark.asyncio
+async def test_voice_player_ends_calls_it_started(monkeypatch) -> None:
+    client = FakeCallClient()
+    player = VoicePlayer(client)  # type: ignore[arg-type]
+    monkeypatch.setattr("examples.voice_player.player.load_livekit", lambda: FakeRtc)
+
+    assert await player.join("1|2") == 77
+    source = player.source
+    await player.leave()
+
+    assert client.left == [(77, True)]
+    assert source.closed is True
+    assert player.call_id is None
+
+
+@pytest.mark.asyncio
+async def test_voice_player_rolls_back_failed_livekit_connection(monkeypatch) -> None:
+    client = FakeCallClient()
+    player = VoicePlayer(client)  # type: ignore[arg-type]
+    monkeypatch.setattr("examples.voice_player.player.load_livekit", lambda: FakeRtc)
+    monkeypatch.setattr(FakeRoom, "fail_connect", True)
+
+    with pytest.raises(RuntimeError, match="connect failed"):
+        await player.join("1|2")
+
+    assert client.left == [(77, True)]
+    assert player.call_id is None
+    assert player.room is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg is required")
+async def test_voice_player_decodes_audio_into_complete_livekit_frames(
+    monkeypatch,
+) -> None:
+    client = FakeCallClient(active=True)
+    player = VoicePlayer(client)  # type: ignore[arg-type]
+    player.source = FakeAudioSource()
+    monkeypatch.setattr("examples.voice_player.player.load_livekit", lambda: FakeRtc)
+    pcm = b"\x00\x00" * (VoicePlayer.SAMPLE_RATE // 20)
+    encoded = io.BytesIO()
+    with wave.open(encoded, "wb") as stream:
+        stream.setnchannels(1)
+        stream.setsampwidth(2)
+        stream.setframerate(VoicePlayer.SAMPLE_RATE)
+        stream.writeframes(pcm)
+
+    await player._play(encoded.getvalue())
+
+    assert len(player.source.frames) == 5
+    assert all(
+        len(frame.data) == VoicePlayer.FRAME_SAMPLES * 2
+        for frame in player.source.frames
+    )

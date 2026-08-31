@@ -11,7 +11,7 @@ import os
 import pytest
 
 from bale import Client, User
-from bale.full import bale_pb2
+from bale.proto import response_pb2
 
 
 @pytest.mark.asyncio
@@ -40,7 +40,7 @@ async def test_real_bale_web_account_session_smoke() -> None:
         assert all(group.peer_type in {2, 3, 5} for group in groups)
 
         typed_groups = await client.api.groups.GetMyGroups(mode=0, isOwner=False)
-        assert isinstance(typed_groups, bale_pb2.GetMyGroupsResponse)
+        assert isinstance(typed_groups, response_pb2.WebGetMyGroupsResponse)
         assert len(typed_groups.groups) == len(group_peers)
 
         parameters = await client.get_parameters()

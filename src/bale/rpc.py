@@ -1,4 +1,4 @@
-"""Runtime support for the generated per-service RPC wrappers (``services.py``).
+"""Runtime support for the generated per-service RPC wrappers (``bale.services``).
 
 Each Bale web RPC becomes an ``async`` Python method that accepts either a
 pre-built protobuf request message or keyword arguments naming request fields.
@@ -9,7 +9,8 @@ fields (and accepts nested ``dict`` / ``Message`` values for sub-messages).
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, Optional, Type, TypeVar
+from collections.abc import AsyncIterator
+from typing import Any, TypeVar, cast
 
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message as PbMessage
@@ -17,7 +18,7 @@ from google.protobuf.message import Message as PbMessage
 T = TypeVar("T", bound=PbMessage)
 
 
-def populate(msg: PbMessage, fields: Dict[str, Any]) -> PbMessage:
+def populate(msg: PbMessage, fields: dict[str, Any]) -> PbMessage:
     """Recursively assign ``fields`` onto a protobuf ``msg`` in place.
 
     Values may be:
@@ -48,7 +49,8 @@ def populate(msg: PbMessage, fields: Dict[str, Any]) -> PbMessage:
                 # A bare str/bytes is iterable; without this guard it would be
                 # silently expanded into one element per character/byte.
                 raise TypeError(
-                    f"field {key!r} is repeated; pass a list, not {type(value).__name__}"
+                    f"field {key!r} is repeated; pass a list, not "
+                    f"{type(value).__name__}"
                 )
             container = getattr(msg, key)
             for item in value:
@@ -71,24 +73,28 @@ def populate(msg: PbMessage, fields: Dict[str, Any]) -> PbMessage:
     return msg
 
 
-def _is_repeated(field: FieldDescriptor) -> bool:
+def _is_repeated(field: Any) -> bool:
     # protobuf >= 5 exposes the non-deprecated ``is_repeated`` property; fall
     # back to the (deprecated) label comparison on older runtimes.
     is_rep = getattr(field, "is_repeated", None)
     if is_rep is not None:
         return bool(is_rep)
-    return field.label == FieldDescriptor.LABEL_REPEATED
+    return bool(field.label == FieldDescriptor.LABEL_REPEATED)
 
 
-def _is_map(field: FieldDescriptor) -> bool:
+def _is_map(field: Any) -> bool:
     mt = getattr(field, "message_type", None)
-    return bool(mt is not None and getattr(mt, "GetOptions", None) and mt.GetOptions().map_entry)
+    return bool(
+        mt is not None
+        and getattr(mt, "GetOptions", None)
+        and mt.GetOptions().map_entry
+    )
 
 
 def build_request(
-    req_type: Type[T],
-    request: Optional[PbMessage],
-    fields: Dict[str, Any],
+    req_type: type[T],
+    request: PbMessage | None,
+    fields: dict[str, Any],
 ) -> T:
     """Resolve a request message from either a pre-built ``request`` or kwargs."""
     if request is not None:
@@ -101,7 +107,7 @@ def build_request(
                 f"expected {req_type.__name__}, got {type(request).__name__}"
             )
         return request
-    return populate(req_type(), fields)
+    return cast(T, populate(req_type(), fields))
 
 
 class ServiceBase:
@@ -110,18 +116,18 @@ class ServiceBase:
     #: Fully-qualified gRPC service name, e.g. ``"bale.messaging.v2.Messaging"``.
     SERVICE: str = ""
 
-    def __init__(self, client: "Any") -> None:
+    def __init__(self, client: Any) -> None:
         self._client = client
 
     async def _invoke(
         self,
         method: str,
-        req_type: Type[PbMessage],
-        resp_type: Optional[Type[T]],
-        request: Optional[PbMessage],
-        fields: Dict[str, Any],
+        req_type: type[PbMessage],
+        resp_type: type[T] | None,
+        request: PbMessage | None,
+        fields: dict[str, Any],
         timeout: float,
-    ) -> Optional[T]:
+    ) -> T | None:
         req = build_request(req_type, request, fields)
         return await asyncio.wait_for(
             self._client.invoke_protobuf(
@@ -136,7 +142,7 @@ class ServiceBase:
     async def _invoke_raw(
         self,
         method: str,
-        resp_type: Optional[Type[T]],
+        resp_type: type[T] | None,
         request_bytes: bytes,
         timeout: float,
     ) -> Any:
@@ -153,4 +159,26 @@ class ServiceBase:
                 response_type=resp_type,
             ),
             timeout=timeout,
+        )
+
+    def _stream(
+        self,
+        method: str,
+        req_type: type[PbMessage],
+        resp_type: type[T],
+        request: PbMessage | None,
+        fields: dict[str, Any],
+        timeout: float | None,
+    ) -> AsyncIterator[T]:
+        """Build a request and return a decoded server-streaming iterator."""
+        req = build_request(req_type, request, fields)
+        return cast(
+            AsyncIterator[T],
+            self._client.stream_protobuf(
+                self.SERVICE,
+                method,
+                req,
+                response_type=resp_type,
+                timeout=timeout,
+            ),
         )

@@ -1,18 +1,18 @@
 """Compatibility package for the BaleNova client."""
 
 from bale import events, filters
+from bale.api import ProtocolAPI
 from bale.client import Client
 from bale.errors import (
     AuthenticationError,
     BaleError,
     BaleRpcError,
     ClientStateError,
+    RpcStatus,
 )
 from bale.events import MessageEdited, MessageSent, NewMessage, RawUpdate, Update
 from bale.filters import Filter
-from bale.full import ALL_RPCS, SERVICE_CLASSES, FullAPI
-from bale.full import bale_pb2 as pb
-from bale.full.bale_methods import METHODS
+from bale.methods import METHODS
 from bale.models import (
     CallMode,
     CallRecordQuality,
@@ -36,9 +36,11 @@ from bale.models import (
     model_to_dict,
     model_to_json,
 )
+from bale.proto import schema as pb
+from bale.services import ALL_RPCS, SERVICE_CLASSES
 from bale.session import Session
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 BaleClient = Client
 
 __all__ = [
@@ -57,7 +59,6 @@ __all__ = [
     "ClientStateError",
     "DefaultResponse",
     "Filter",
-    "FullAPI",
     "GiftOpening",
     "GiftPacket",
     "GivingType",
@@ -70,8 +71,10 @@ __all__ = [
     "PeerSource",
     "PrivacyStatus",
     "PrivacyType",
+    "ProtocolAPI",
     "RawUpdate",
     "ReportKind",
+    "RpcStatus",
     "Session",
     "Update",
     "User",

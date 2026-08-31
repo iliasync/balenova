@@ -20,6 +20,7 @@ class VoicePlayer:
         self.chat_id: str | None = None
         self.title: str | None = None
         self.last_error: str | None = None
+        self._started_call = False
         self._task: asyncio.Task[None] | None = None
         self._resume = asyncio.Event()
         self._resume.set()
@@ -30,6 +31,7 @@ class VoicePlayer:
             await self.leave()
         rtc = load_livekit()
         group_call = await self.client.get_group_call(chat_id)
+        started_call = group_call is None
         if group_call is None:
             started = await self.client.start_group_call(chat_id)
             group_call = started.get("group_call")
@@ -37,24 +39,36 @@ class VoicePlayer:
             raise RuntimeError("تماس فعالی برای این گروه پیدا نشد")
 
         self.call_id = int(group_call["id"])
-        joined = await self.client.join_group_call(self.call_id, "BaleNova Player")
-        joined_call = joined.get("group_call")
-        if isinstance(joined_call, dict):
-            group_call = joined_call
-        url, token = await self._credentials(group_call)
+        self._started_call = started_call
+        try:
+            joined = await self.client.join_group_call(
+                self.call_id, "BaleNova Player"
+            )
+            joined_call = joined.get("group_call")
+            if isinstance(joined_call, dict):
+                group_call = joined_call
+            url, token = await self._credentials(group_call)
 
-        self.room = rtc.Room()
-        await self.room.connect(url, token)
-        self.source = rtc.AudioSource(
-            self.SAMPLE_RATE,
-            self.CHANNELS,
-            queue_size_ms=100,
-        )
-        track = rtc.LocalAudioTrack.create_audio_track("BaleNova", self.source)
-        options = rtc.TrackPublishOptions(source=rtc.TrackSource.SOURCE_MICROPHONE)
-        await self.room.local_participant.publish_track(track, options)
-        self.chat_id = chat_id
-        return self.call_id
+            self.room = rtc.Room()
+            await self.room.connect(url, token)
+            self.source = rtc.AudioSource(
+                self.SAMPLE_RATE,
+                self.CHANNELS,
+                queue_size_ms=100,
+            )
+            track = rtc.LocalAudioTrack.create_audio_track(
+                "BaleNova", self.source
+            )
+            options = rtc.TrackPublishOptions(
+                source=rtc.TrackSource.SOURCE_MICROPHONE
+            )
+            await self.room.local_participant.publish_track(track, options)
+            self.chat_id = chat_id
+            return self.call_id
+        except BaseException:
+            with contextlib.suppress(BaseException):
+                await self.leave()
+            raise
 
     async def play(self, data: bytes, title: str = "audio") -> None:
         if self.source is None:
@@ -87,16 +101,34 @@ class VoicePlayer:
             self.source.clear_queue()
 
     async def leave(self) -> None:
-        await self.stop()
-        if self.room is not None:
-            await self.room.disconnect()
-        if self.source is not None and hasattr(self.source, "aclose"):
-            await self.source.aclose()
-        if self.call_id is not None:
-            await self.client.leave_group_call(self.call_id)
+        room, source = self.room, self.source
+        call_id, end_call = self.call_id, self._started_call
+        error: Exception | None = None
+        try:
+            await self.stop()
+        except Exception as caught:
+            error = caught
+        if room is not None:
+            try:
+                await room.disconnect()
+            except Exception as caught:
+                error = error or caught
+        if source is not None and hasattr(source, "aclose"):
+            try:
+                await source.aclose()
+            except Exception as caught:
+                error = error or caught
+        if call_id is not None:
+            try:
+                await self.client.leave_group_call(call_id, end=end_call)
+            except Exception as caught:
+                error = error or caught
         self.room = self.source = None
         self.call_id = None
         self.chat_id = None
+        self._started_call = False
+        if error is not None:
+            raise error
 
     def status(self) -> str:
         if self.call_id is None:
@@ -153,18 +185,27 @@ class VoicePlayer:
         assert process.stdin is not None
         assert process.stdout is not None
         assert process.stderr is not None
+        stdin = process.stdin
+        stdout = process.stdout
+        stderr = process.stderr
 
         async def feed_input() -> None:
             for offset in range(0, len(data), 64 * 1024):
-                process.stdin.write(data[offset : offset + 64 * 1024])
-                await process.stdin.drain()
-            process.stdin.close()
+                stdin.write(data[offset : offset + 64 * 1024])
+                await stdin.drain()
+            stdin.close()
 
         feed_task = asyncio.create_task(feed_input())
         frame_size = self.FRAME_SAMPLES * self.CHANNELS * 2
         interrupted = False
         try:
-            while chunk := await process.stdout.read(frame_size):
+            while True:
+                try:
+                    chunk = await stdout.readexactly(frame_size)
+                except asyncio.IncompleteReadError as incomplete:
+                    chunk = incomplete.partial
+                    if not chunk:
+                        break
                 if self._stop.is_set():
                     interrupted = True
                     break
@@ -189,12 +230,16 @@ class VoicePlayer:
                 await feed_task
             await process.wait()
         if process.returncode and not interrupted:
-            error = await process.stderr.read()
-            raise RuntimeError(error.decode("utf-8", errors="replace"))
+            error_output = await stderr.read()
+            raise RuntimeError(error_output.decode("utf-8", errors="replace"))
 
 
 def unwrap(value: Any) -> Any:
-    return value.get("value") if isinstance(value, dict) else value
+    if not isinstance(value, dict):
+        return value
+    if "value" in value:
+        return value["value"]
+    return value.get("text")
 
 
 def load_livekit() -> Any:

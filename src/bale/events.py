@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 from google.protobuf.message_factory import GetMessageClass
 
-from bale.full import bale_pb2
 from bale.models import Chat, ChatType, Message, Serializable, User, model_to_dict
+from bale.proto import struct_pb2
 
 if TYPE_CHECKING:
     from bale.client import Client
@@ -121,71 +121,10 @@ class RawUpdate(Update):
 # Field numbers are part of Bale's wire contract. Keeping the complete known
 # name table means an update added to our typed protobuf subset is still
 # surfaced as e.g. ``RawUpdate(kind="typing")`` rather than disappearing.
+_WEB_UPDATE_DESCRIPTOR = cast(Any, struct_pb2).WebUpdate.DESCRIPTOR
 _UPDATE_FIELD_NAMES = {
-    1: "chatGroupsChanged", 4: "messageSent", 5: "contactRegistered",
-    6: "typing", 7: "userOnline", 8: "userOffline", 9: "userLastSeen",
-    16: "userAvatarChanged", 19: "messageRead",
-    21: "groupUserInvitedObsolete", 23: "groupUserLeaveObsolete",
-    24: "groupUserKickObsolete", 32: "userNameChanged", 33: "groupOnline",
-    34: "userLastSeenUnknown", 36: "groupInviteObsolete",
-    38: "groupTitleChangedObsolete", 39: "groupAvatarChangedObsolete",
-    40: "contactsAdded", 41: "contactsRemoved",
-    44: "groupMembersUpdateObsolete", 46: "messageDelete",
-    47: "chatClear", 48: "chatDelete", 50: "messageReadByMe",
-    51: "userLocalNameChanged", 54: "messageReceived", 55: "message",
-    57: "groupNicknameChanged", 80: "rawUpdate", 81: "typingStop",
-    85: "emptyUpdate", 86: "forceClearCache", 93: "chatShow",
-    94: "chatArchive", 95: "chatFavourite", 131: "parameterChanged",
-    134: "userContactsChanged", 161: "ownStickersChanged",
-    162: "messageContentChanged", 163: "messageDateChanged",
-    164: "stickerCollectionsChanged", 169: "messageQuotedChanged",
-    209: "userNickChanged", 210: "userAboutChanged",
-    212: "userPreferredLanguagesChanged", 213: "groupTopicChangedObsolete",
-    214: "groupAboutChangedObsolete", 216: "userTimeZoneChanged",
-    217: "userBotCommandsChanged", 218: "userExtChanged",
-    219: "userFullExtChanged", 222: "reactionsUpdate",
-    225: "userExInfoChanged", 226: "userDefaultBankAccountChanged",
-    227: "userDefaultCardNumberChanged", 228: "userDefaultCardNumberRemoved",
-    254: "cardinalityChanged", 721: "groupMessagePinned",
-    722: "groupPinRemoved", 723: "groupRestrictionChanged",
-    2609: "groupTitleChanged", 2610: "groupAvatarChanged",
-    2612: "groupMemberChanged", 2613: "groupExtChanged",
-    2614: "groupMembersUpdated", 2615: "groupMembersBecameAsync",
-    2616: "groupTopicChanged", 2617: "groupAboutChanged",
-    2618: "groupFullExtChanged", 2619: "groupOwnerChanged",
-    2620: "groupHistoryShared", 2622: "groupMembersCountChanged",
-    2623: "groupMemberDiff", 2624: "groupCanSendMessagesChanged",
-    2625: "groupCanViewMembersChanged", 2626: "groupCanInviteMembersChanged",
-    2627: "groupMemberAdminChanged", 2628: "groupBecameOrphaned",
-    2629: "userBlocked", 2630: "userUnblocked",
-    2865: "groupExInfoChanged", 2880: "channelNickChanged",
-    3897: "requestLogin", 43607: "accountDeleted",
-    52801: "channelAdvertisementTypeChanged", 52802: "channelAdTagIdChanged",
-    52803: "phoneNumberChanged", 52804: "groupMemberPermissionsChanged",
-    52805: "groupDefaultPermissionsChanged", 52806: "vitrineChanged",
-    52807: "callStarted", 52808: "callAccepted", 52809: "callDiscarded",
-    52810: "callReceived", 52811: "groupCallStarted",
-    52812: "groupCallEnded", 52813: "callReactionSent",
-    52814: "stickerPacksChanged", 52815: "messages", 52816: "callUpgraded",
-    52817: "peersInvited", 52818: "multiPeerCallStarted",
-    52819: "peersStateChanged", 52820: "savedGifsChanged",
-    52824: "hidePrivacyBar", 52825: "messageReactions",
-    52826: "callLinkGenerated", 52827: "callJoinRequestReceived",
-    52828: "callJoinRequestAnswered", 52829: "mentionReadByMe",
-    52830: "pinnedDialogsChanged", 52832: "messageReactionsReadByMe",
-    54323: "messageNewReaction", 54324: "callEvent", 54328: "startLive",
-    54329: "endLive", 54332: "folderCreated", 54333: "folderDeleted",
-    54334: "foldersReordered", 54335: "dialogsMarkedAsRead",
-    54336: "dialogsMarkedAsUnread", 54337: "folderEdited",
-    54338: "callAction", 54339: "dialogsUnpinned", 54340: "messagePinned",
-    54341: "messagesUnPinned", 54342: "transcriptReady",
-    54343: "generalNotificationMessage", 54344: "askBotReview",
-    54345: "dialogArchiveStatus", 54346: "premiumPurchaseStatus",
-    54347: "endpointChanged", 54348: "topicCreated", 54349: "topicEdited",
-    54350: "topicDeleted", 54351: "messageStreamChunks",
-    54352: "peerHaveScheduleTask", 54353: "allContactsRemoved",
-    62398: "requestBankiAccessFor", 62732: "walletUpdated",
-    62753: "walletBalanceUpdated",
+    number: descriptor.name
+    for number, descriptor in _WEB_UPDATE_DESCRIPTOR.fields_by_number.items()
 }
 
 
@@ -216,7 +155,7 @@ def _decode_complete_update_field(field: dict[str, Any]) -> dict[str, Any]:
     """Decode a field omitted by the compact event schema with the full proto."""
     number = int(field.get("number", 0))
     data = field.get("data")
-    update_type = cast(Any, bale_pb2).Update
+    update_type = cast(Any, struct_pb2).WebUpdate
     descriptor = update_type.DESCRIPTOR.fields_by_number.get(number)
     if descriptor is None or descriptor.message_type is None or not isinstance(
         data, bytes | bytearray | memoryview

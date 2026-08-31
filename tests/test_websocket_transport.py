@@ -4,6 +4,7 @@ import asyncio
 
 import pytest
 
+from bale.errors import BaleRpcError
 from bale.proto import decode_message, encode_message
 from bale.protocol import ProtocolRecorder
 from bale.transports.websocket import WebSocketTransport
@@ -85,6 +86,56 @@ async def test_websocket_supports_untyped_rpc_payloads() -> None:
     )
 
     assert await request_task == b"\x08\x07"
+    await transport.close()
+
+
+@pytest.mark.asyncio
+async def test_websocket_decodes_current_scalar_rpc_error_details() -> None:
+    transport = WebSocketTransport("jwt")
+    socket = FakeSocket()
+    transport._socket = socket  # type: ignore[assignment]
+
+    request_task = asyncio.create_task(
+        transport.request(
+            "bale.meet.v1.Meet",
+            "GetGroupCall",
+            "request.GetGroupCall",
+            {"peer": {"id": 1, "type": 2}},
+            "response.GroupCall",
+        )
+    )
+    await asyncio.wait_for(socket.sent_event.wait(), timeout=1)
+    envelope = decode_message("request.Request", socket.sent[0])["ws_request"]
+    incoming = encode_message(
+        "response.Response",
+        {
+            "ws_response": {
+                "index": envelope["index"],
+                "error": {
+                    "code": 5,
+                    "message": "CallNotFound",
+                    "details": {
+                        "items": [
+                            {
+                                "key": "locale",
+                                "value": {"string_value": "fa"},
+                            }
+                        ]
+                    },
+                },
+            }
+        },
+    )
+
+    await transport._handle_incoming(incoming)
+
+    with pytest.raises(BaleRpcError) as caught:
+        await request_task
+    assert caught.value.code == 5
+    assert caught.value.message == "CallNotFound"
+    assert caught.value.details == {
+        "items": [{"key": "locale", "value": {"string_value": "fa"}}]
+    }
     await transport.close()
 
 
