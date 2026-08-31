@@ -1,47 +1,14 @@
-"""Count every decoded Bale user-session update without printing payloads."""
+"""نمایش رویدادها."""
 
-from __future__ import annotations
+from balenova import Client
 
-import argparse
-import asyncio
-from collections import Counter
-
-from common import add_session_arguments, make_client
-
-from balenova import Client, Update
+app = Client("my_account")
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--watch",
-        type=float,
-        default=30.0,
-        help="Number of seconds to observe updates (default: 30)",
-    )
-    add_session_arguments(parser)
-    return parser.parse_args()
+@app.on_update
+async def update_received(update):
+    print(update.name)
+    print(update.to_json())
 
 
-async def main() -> None:
-    args = parse_args()
-    counts: Counter[str] = Counter()
-    client = make_client(args)
-
-    @client.on_update
-    async def count_update(update: Update, _client: Client) -> None:
-        counts[update.name] += 1
-
-    try:
-        await client.connect()
-        await asyncio.sleep(max(0.0, args.watch))
-    finally:
-        await client.close()
-
-    print(f"Updates received: {counts.total()}")
-    for kind, count in sorted(counts.items()):
-        print(f"- {kind}: {count}")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+app.run_forever()

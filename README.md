@@ -17,11 +17,11 @@ Python 3.10 یا جدیدتر لازم است.
 ```python
 from balenova import Client, events, filters
 
-app = Client(session_name="my_account")
+app = Client("my_account")
 
 
 @app.on(events.NewMessage, filters.command("start"))
-async def start(event, client):
+async def start(event):
     await event.reply("سلام! من آماده‌ام 🌱")
 
 
@@ -41,7 +41,7 @@ python main.py
 
 ```python
 @app.on(events.NewMessage, filters.private & filters.text)
-async def new_message(event, client):
+async def new_message(event):
     print(event.text)
     print(event.sender_id)
     print(event.chat.id)
@@ -67,7 +67,7 @@ only_commands = filters.incoming & filters.private & filters.command("help")
 
 ```python
 @app.on_update
-async def every_update(update, client):
+async def every_update(update):
     print(update.name)
     print(update.to_json())
 ```
@@ -76,7 +76,7 @@ async def every_update(update, client):
 
 ```python
 @app.on(events.MessageSent)
-async def sent(update, client):
+async def sent(update):
     print(update.to_dict())
 ```
 

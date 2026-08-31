@@ -106,7 +106,7 @@ class Client:
         self,
         credential: str | None = None,
         *,
-        session_dir: str | Path = ".",
+        session_dir: str | Path = "sessions",
         session_name: str | None = None,
         update_concurrency: int = 16,
         phone_prompt: Prompt | None = None,
@@ -120,6 +120,14 @@ class Client:
         normalized_credential = credential.strip() if credential else None
         if credential is not None and not normalized_credential:
             raise AuthenticationError("The supplied Bale credential is empty")
+        if (
+            normalized_credential
+            and session_name is None
+            and not _is_session(normalized_credential)
+            and not _looks_like_phone(normalized_credential)
+        ):
+            session_name = normalized_credential
+            normalized_credential = None
         self.credential = normalized_credential
         self._phone_number = (
             normalized_credential
@@ -164,12 +172,12 @@ class Client:
         return str(self._session) if self._session else None
 
     @overload
-    def on_message(self, callback: MessageHandler) -> MessageHandler: ...
-
-    @overload
     def on_message(
         self, callback: Filter | None = None
     ) -> Callable[[MessageHandler], MessageHandler]: ...
+
+    @overload
+    def on_message(self, callback: MessageHandler) -> MessageHandler: ...
 
     def on_message(
         self, callback: MessageHandler | Filter | None = None
@@ -330,9 +338,24 @@ class Client:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            asyncio.run(self.run())
+            asyncio.run(self._run_and_close())
             return
         raise ClientStateError("Use 'await client.run()' inside async code")
+
+    def run_task(self, task: ClientTask) -> None:
+        """Connect, run one async function, and close without asyncio setup."""
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            asyncio.run(self._run_and_close(task))
+            return
+        raise ClientStateError("Use 'await client.run(task)' inside async code")
+
+    async def _run_and_close(self, task: ClientTask | None = None) -> None:
+        try:
+            await self.run(task)
+        finally:
+            await self.close()
 
     async def next_update(self, timeout: float | None = None) -> Update:
         """Wait for and return the next class-based update."""
@@ -3319,6 +3342,13 @@ class Client:
 
 def _is_session(value: str) -> bool:
     return re.fullmatch(r"\d+:.+", value, re.DOTALL) is not None
+
+
+def _looks_like_phone(value: str) -> bool:
+    return (
+        re.fullmatch(r"[+()\-\d\s]+", value) is not None
+        and len(re.sub(r"\D", "", value)) >= 7
+    )
 
 
 def _parse_peer(value: str) -> tuple[int, int] | None:

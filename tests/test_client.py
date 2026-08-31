@@ -184,6 +184,13 @@ class FakeGrpc:
         self.closed = True
 
 
+def test_short_client_name_creates_a_named_session() -> None:
+    client = Client("my_account", grpc=FakeGrpc())  # type: ignore[arg-type]
+
+    assert client.credential is None
+    assert client._storage.path.as_posix() == "sessions/my_account.session"
+
+
 @pytest.mark.asyncio
 async def test_phone_auth_supports_noninteractive_async_prompt(tmp_path) -> None:
     grpc = FakeGrpc()

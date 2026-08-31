@@ -9,7 +9,7 @@ pip install balenova
 ```python
 from balenova import Client
 
-app = Client(session_dir="sessions", session_name="personal")
+app = Client("personal")
 app.run_forever()
 ```
 
@@ -21,11 +21,11 @@ GitHub قرار ندهید.
 ```python
 from balenova import Client, events, filters
 
-app = Client(session_dir="sessions", session_name="personal")
+app = Client("personal")
 
 
 @app.on(events.NewMessage, filters.incoming & filters.private)
-async def reply(event, client):
+async def reply(event):
     await event.reply("سلام 👋")
 
 
@@ -36,7 +36,7 @@ app.run_forever()
 
 ```python
 @app.on(events.NewMessage, filters.command("ping"))
-async def ping(event, client):
+async def ping(event):
     await event.reply("pong")
 ```
 
@@ -124,7 +124,7 @@ text = event.to_json()
 
 ```python
 @app.on_update
-async def inspect(update, client):
+async def inspect(update):
     print(update.name)
 ```
 
@@ -132,7 +132,7 @@ async def inspect(update, client):
 
 ```python
 @app.on(events.NewMessage)
-async def messages(event, client):
+async def messages(event):
     print(event.text)
 ```
 
@@ -145,7 +145,7 @@ pip install -e .
 python examples/login.py
 python examples/echo.py
 python examples/commands.py
-python examples/dialogs.py --help
+python examples/dialogs.py
 ```
 
 برای دیدن گزینه‌های هر مثال، `--help` بزنید.

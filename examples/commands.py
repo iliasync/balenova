@@ -1,33 +1,13 @@
-"""Reply to a simple command sent from this account."""
+"""ساخت دستور /start."""
 
-from __future__ import annotations
+from balenova import Client, events, filters
 
-import argparse
-import asyncio
-
-from common import add_session_arguments, make_client
-
-from balenova import Client, filters
+app = Client("my_account")
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    add_session_arguments(parser)
-    return parser.parse_args()
+@app.on(events.NewMessage, filters.command("start"))
+async def start(event):
+    await event.reply("سلام! آماده‌ام 🌱")
 
 
-async def main() -> None:
-    client = make_client(parse_args())
-
-    @client.on_message(filters.outgoing & filters.command("status"))
-    async def status(message, _client: Client) -> None:
-        await message.answer("BaleNova is online")
-
-    try:
-        await client.run()
-    finally:
-        await client.close()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+app.run_forever()

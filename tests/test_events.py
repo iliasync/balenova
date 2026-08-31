@@ -35,7 +35,7 @@ async def test_class_based_message_event_supports_filters_and_json(tmp_path) -> 
     received: list[events.NewMessage] = []
 
     @client.on(events.NewMessage, filters.command("start"))
-    async def handler(event: events.NewMessage, _client: Client) -> None:
+    async def handler(event: events.NewMessage) -> None:
         received.append(event)
 
     raw = message_update()

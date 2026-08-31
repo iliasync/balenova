@@ -14,10 +14,10 @@ if TYPE_CHECKING:
     from bale.events import Update
     from bale.models import Message
 
-MessageHandler = Callable[["Message", "Client"], object | Awaitable[object]]
-UpdateHandler = Callable[["Update", "Client"], object | Awaitable[object]]
-RawUpdateHandler = Callable[[dict[str, Any], "Client"], object | Awaitable[object]]
-ErrorHandler = Callable[[BaseException, "Client"], object | Awaitable[object]]
+MessageHandler = Callable[..., object | Awaitable[object]]
+UpdateHandler = Callable[..., object | Awaitable[object]]
+RawUpdateHandler = Callable[..., object | Awaitable[object]]
+ErrorHandler = Callable[..., object | Awaitable[object]]
 LifecycleHandler = Callable[["Client"], object | Awaitable[object]]
 LifecycleEvent = Literal["connect", "disconnect", "initialize", "shutdown"]
 
@@ -82,7 +82,7 @@ class Dispatcher:
             try:
                 if handler.filter and not await handler.filter.check(client, message):
                     continue
-                await _maybe_await(handler.callback(message, client))
+                await _call_handler(handler.callback, message, client)
             except Exception as error:
                 await self.dispatch_error(client, error)
 
@@ -97,14 +97,14 @@ class Dispatcher:
                         client, message
                     ):
                         continue
-                await _maybe_await(handler.callback(update, client))
+                await _call_handler(handler.callback, update, client)
             except Exception as error:
                 await self.dispatch_error(client, error)
 
     async def dispatch_raw_update(self, client: Client, update: dict[str, Any]) -> None:
         for handler in tuple(self._raw_update_handlers):
             try:
-                await _maybe_await(handler(update, client))
+                await _call_handler(handler, update, client)
             except Exception as error:
                 await self.dispatch_error(client, error)
 
@@ -112,7 +112,7 @@ class Dispatcher:
         if not self._error_handlers:
             raise error
         for handler in tuple(self._error_handlers):
-            await _maybe_await(handler(error, client))
+            await _call_handler(handler, error, client)
 
     async def dispatch_lifecycle(self, event: LifecycleEvent, client: Client) -> None:
         for handler in tuple(self._lifecycle_handlers[event]):
@@ -123,3 +123,21 @@ async def _maybe_await(value: object | Awaitable[object]) -> object:
     if inspect.isawaitable(value):
         return await value
     return value
+
+
+async def _call_handler(
+    callback: Callable[..., object | Awaitable[object]],
+    value: object,
+    client: Client,
+) -> object:
+    """Call friendly one-argument handlers and legacy two-argument handlers."""
+    try:
+        signature = inspect.signature(callback)
+        signature.bind(value, client)
+    except TypeError:
+        result = callback(value)
+    except (ValueError, AttributeError):
+        result = callback(value, client)
+    else:
+        result = callback(value, client)
+    return await _maybe_await(result)
