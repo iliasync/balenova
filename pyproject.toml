@@ -3,14 +3,14 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "bale-session"
-version = "0.2.0"
-description = "A typed, asynchronous account-session client for Bale"
+name = "balenova"
+version = "0.3.0"
+description = "A friendly Python client for Bale accounts"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Bale Session contributors" }]
-keywords = ["bale", "userbot", "asyncio", "websocket", "grpc"]
+authors = [{ name = "iliasync" }]
+keywords = ["bale", "messaging", "asyncio", "client"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Framework :: AsyncIO",
@@ -37,10 +37,15 @@ dev = [
   "ruff>=0.8",
   "types-protobuf>=6.30",
 ]
-research = ["playwright>=1.50,<2"]
+
+[project.urls]
+Homepage = "https://github.com/iliasync/balenova"
+Documentation = "https://github.com/iliasync/balenova#readme"
+Repository = "https://github.com/iliasync/balenova"
+Issues = "https://github.com/iliasync/balenova/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/bale"]
+packages = ["src/bale", "src/balenova"]
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers --strict-config"
@@ -58,5 +63,5 @@ select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.10"
 strict = true
-packages = ["bale"]
+packages = ["bale", "balenova"]
 exclude = ["src/bale/proto/.*_pb2\\.py"]

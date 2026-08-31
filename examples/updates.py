@@ -5,11 +5,10 @@ from __future__ import annotations
 import argparse
 import asyncio
 from collections import Counter
-from typing import Any
 
 from common import add_session_arguments, make_client
 
-from bale import Client
+from balenova import Client, Update
 
 
 def parse_args() -> argparse.Namespace:
@@ -30,12 +29,8 @@ async def main() -> None:
     client = make_client(args)
 
     @client.on_update
-    async def count_update(update: dict[str, Any], _client: Client) -> None:
-        body = update.get("update")
-        if not isinstance(body, dict) or not body:
-            counts["unclassified"] += 1
-            return
-        counts.update(str(key) for key in body)
+    async def count_update(update: Update, _client: Client) -> None:
+        counts[update.name] += 1
 
     try:
         await client.connect()

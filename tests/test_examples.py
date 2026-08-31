@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).parents[1]
 EXAMPLES = (
     "calls.py",
-    "command_selfbot.py",
+    "commands.py",
     "dialogs.py",
     "dialogs_by_type.py",
     "echo.py",
@@ -22,8 +22,6 @@ EXAMPLES = (
     "json_output.py",
     "login.py",
     "messages.py",
-    "official_web_protocol_lab.py",
-    "protocol_lab.py",
     "updates.py",
 )
 

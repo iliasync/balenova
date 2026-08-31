@@ -506,6 +506,9 @@ message GetNasimFileUploadUrl {
   int64 chunk_size = 8;
 }
 
+message GetUploadLimits {
+}
+
 message StartPhoneAuth {
   int64 phone_number = 1;
   int32 app_id = 2;

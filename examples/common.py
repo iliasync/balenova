@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from bale import Client
+from balenova import Client
 
 
 def add_session_arguments(parser: argparse.ArgumentParser) -> None:

@@ -1,74 +1,151 @@
-# راهنمای استفادهٔ Bale Session
+# راهنمای سادهٔ BaleNova
 
-## اجرای مثال‌ها
-
-همهٔ مثال‌ها فقط از session اکانت استفاده می‌کنند و عملیات مخرب انجام نمی‌دهند.
-اگر session در `sessions/my_account.session` باشد، از ریشهٔ پروژه اجرا کنید:
+## نصب و ورود
 
 ```bash
-python examples/login.py
-python examples/json_output.py
-python examples/dialogs_by_type.py
-python examples/filter_messages.py --seconds 60
-python examples/command_selfbot.py
+pip install balenova
 ```
-
-برای مسیر یا نام دیگر:
-
-```bash
-python examples/login.py --session-dir sessions --session-name my_account
-```
-
-## فیلتر پیام و دستور
 
 ```python
-from bale import Client, filters
+from balenova import Client
 
-client = Client(session_dir="sessions", session_name="my_account")
-
-
-@client.on_message(filters.incoming & filters.private & filters.text)
-async def private_text(message, client):
-    print(message.content)
-
-
-@client.on_message(filters.outgoing & filters.command("status"))
-async def status(message, client):
-    await message.answer("ok")
+app = Client(session_dir="sessions", session_name="personal")
+app.run_forever()
 ```
 
-فیلترها با `&`، `|` و `~` ترکیب می‌شوند. فیلترهای ثابت مانند `filters.text` و
-شکل callable آن‌ها مانند `filters.text()` معادل هستند.
+برنامه در اولین اجرا اطلاعات ورود را می‌پرسد. پوشهٔ `sessions` را هیچ‌وقت در
+GitHub قرار ندهید.
 
-## خروجی JSON
+## پاسخ به پیام
+
+```python
+from balenova import Client, events, filters
+
+app = Client(session_dir="sessions", session_name="personal")
+
+
+@app.on(events.NewMessage, filters.incoming & filters.private)
+async def reply(event, client):
+    await event.reply("سلام 👋")
+
+
+app.run_forever()
+```
+
+## ساخت دستور
+
+```python
+@app.on(events.NewMessage, filters.command("ping"))
+async def ping(event, client):
+    await event.reply("pong")
+```
+
+دستوری که کاربر می‌فرستد `/ping` است.
+
+## فیلترهای پرکاربرد
+
+```python
+filters.incoming  # پیام دریافتی
+filters.outgoing  # پیام ارسالی خودتان
+filters.private  # گفت‌وگوی خصوصی
+filters.group  # گروه
+filters.channel  # کانال
+filters.text  # متن
+filters.photo  # عکس
+filters.video  # ویدیو
+filters.document  # فایل
+filters.reply  # پیام پاسخ‌دار
+filters.sender(12345)  # فرستندهٔ مشخص
+filters.regex(r"سلام")
+```
+
+نمونهٔ ترکیب:
+
+```python
+photos_from_groups = filters.incoming & filters.group & filters.photo
+```
+
+## ارسال پیام
+
+```python
+await client.send("12345|1", "سلام")
+```
+
+شناسهٔ گفت‌وگو را می‌توانید از `event.chat.id` بگیرید.
+
+## اطلاعات پیام
+
+```python
+print(event.text)
+print(event.sender)
+print(event.sender_id)
+print(event.chat)
+print(event.message.id)
+```
+
+## کارهای آماده روی پیام
+
+```python
+await event.answer("پیام عادی")
+await event.reply("پاسخ به همین پیام")
+await event.delete()
+await event.message.edit_text("ویرایش شد")
+await event.message.seen()
+await event.message.forward("67890|1")
+```
+
+## کاربر و گفت‌وگو
 
 ```python
 me = await client.get_me()
-print(me.to_json())
-print(me.to_dict())
+chat = await client.get_entity("username")
+
+print(me.full_name)
+print(chat.to_json() if chat else "پیدا نشد")
 ```
 
-برای protobuf یا پاسخ‌های ترکیبی از `model_to_json(value)` استفاده کنید.
-
-## پروفایل، مخاطبان و privacy
-
-RPCهای account-session زیر با schema جاری Bale Web در دسترس‌اند:
+## تاریخچه بدون صفحه‌بندی دستی
 
 ```python
-profile = await client.get_full_user(123456)
-contacts = await client.get_contacts()
-avatars = await client.load_user_avatars(123456)
-blocked_peers = await client.load_blocked_users()
-
-await client.add_contact(123456)
-await client.block_user(123456)
-await client.edit_time_zone("Asia/Tehran")
-await client.edit_preferred_languages(["fa", "en"])
+async for message in client.iter_messages("12345|1", limit=100):
+    print(message.content)
 ```
 
-برای peerهایی که access hash واقعی آن‌ها در دسترس است، آن را با آرگومان کلیدی
-`access_hash` بفرستید. مقدار پیش‌فرض سازگار با wrapperهای قدیمی `1` است. متدهای
-تغییردهنده در تست زندهٔ پیش‌فرض اجرا نمی‌شوند.
+## JSON
 
-این بسته فقط برای session واقعی حساب کاربری است؛ قابلیت‌های Bot API عمداً ارائه
-نشده‌اند.
+```python
+data = event.to_dict()
+text = event.to_json()
+```
+
+همین دو متد روی `Message`، `User` و `Chat` هم وجود دارد.
+
+## همهٔ رویدادها
+
+```python
+@app.on_update
+async def inspect(update, client):
+    print(update.name)
+```
+
+یا فقط یک کلاس مشخص:
+
+```python
+@app.on(events.NewMessage)
+async def messages(event, client):
+    print(event.text)
+```
+
+## اجرای مثال‌های آماده
+
+پس از دریافت سورس پروژه:
+
+```bash
+pip install -e .
+python examples/login.py
+python examples/echo.py
+python examples/commands.py
+python examples/dialogs.py --help
+```
+
+برای دیدن گزینه‌های هر مثال، `--help` بزنید.

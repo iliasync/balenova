@@ -11,10 +11,12 @@ from bale.filters import Filter
 
 if TYPE_CHECKING:
     from bale.client import Client
+    from bale.events import Update
     from bale.models import Message
 
 MessageHandler = Callable[["Message", "Client"], object | Awaitable[object]]
-UpdateHandler = Callable[[dict[str, Any], "Client"], object | Awaitable[object]]
+UpdateHandler = Callable[["Update", "Client"], object | Awaitable[object]]
+RawUpdateHandler = Callable[[dict[str, Any], "Client"], object | Awaitable[object]]
 ErrorHandler = Callable[[BaseException, "Client"], object | Awaitable[object]]
 LifecycleHandler = Callable[["Client"], object | Awaitable[object]]
 LifecycleEvent = Literal["connect", "disconnect", "initialize", "shutdown"]
@@ -26,10 +28,18 @@ class _MessageRegistration:
     filter: Filter | None
 
 
+@dataclass(frozen=True, slots=True)
+class _UpdateRegistration:
+    callback: UpdateHandler
+    event_type: type[Update]
+    filter: Filter | None
+
+
 class Dispatcher:
     def __init__(self) -> None:
         self._message_handlers: list[_MessageRegistration] = []
-        self._update_handlers: list[UpdateHandler] = []
+        self._update_handlers: list[_UpdateRegistration] = []
+        self._raw_update_handlers: list[RawUpdateHandler] = []
         self._error_handlers: list[ErrorHandler] = []
         self._lifecycle_handlers: dict[LifecycleEvent, list[LifecycleHandler]] = {
             "connect": [],
@@ -48,8 +58,17 @@ class Dispatcher:
         self._error_handlers.append(callback)
         return callback
 
-    def add_update_handler(self, callback: UpdateHandler) -> UpdateHandler:
-        self._update_handlers.append(callback)
+    def add_update_handler(
+        self,
+        callback: UpdateHandler,
+        event_type: type[Update],
+        filter_: Filter | None = None,
+    ) -> UpdateHandler:
+        self._update_handlers.append(_UpdateRegistration(callback, event_type, filter_))
+        return callback
+
+    def add_raw_update_handler(self, callback: RawUpdateHandler) -> RawUpdateHandler:
+        self._raw_update_handlers.append(callback)
         return callback
 
     def add_lifecycle_handler(
@@ -67,8 +86,23 @@ class Dispatcher:
             except Exception as error:
                 await self.dispatch_error(client, error)
 
-    async def dispatch_update(self, client: Client, update: dict[str, Any]) -> None:
+    async def dispatch_update(self, client: Client, update: Update) -> None:
         for handler in tuple(self._update_handlers):
+            try:
+                if not isinstance(update, handler.event_type):
+                    continue
+                if handler.filter:
+                    message = getattr(update, "message", None)
+                    if message is None or not await handler.filter.check(
+                        client, message
+                    ):
+                        continue
+                await _maybe_await(handler.callback(update, client))
+            except Exception as error:
+                await self.dispatch_error(client, error)
+
+    async def dispatch_raw_update(self, client: Client, update: dict[str, Any]) -> None:
+        for handler in tuple(self._raw_update_handlers):
             try:
                 await _maybe_await(handler(update, client))
             except Exception as error:

@@ -7,7 +7,7 @@ import asyncio
 
 from common import add_session_arguments, make_client
 
-from bale import GivingType
+from balenova import GivingType
 
 
 def parse_args() -> argparse.Namespace:

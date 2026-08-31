@@ -12,3 +12,4 @@ protocol/traces/
 protocol/live-*/
 protocol/browser-profile/
 sessions/
+.private/

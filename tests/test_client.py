@@ -6,7 +6,7 @@ import pytest
 
 from bale import BaleRpcError, Client, GivingType, Message, Session, filters
 from bale.models import Chat, ChatType, User
-from bale.proto import encode_message
+from bale.proto import decode_message, encode_message
 
 
 class FakeGrpc:
@@ -85,6 +85,14 @@ class FakeGrpc:
             return {
                 "file_url": {"url": "https://upload.example.test/resume"},
                 "can_resume": True,
+            }
+        if method == "GetUploadLimits":
+            return {
+                "upload_limit_bytes": 2**53 + 1,
+                "temporary_max_bytes": 200,
+                "permanent_max_bytes": 300,
+                "bought_capacity_remaining_bytes": 400,
+                "bought_capacity_unlimited": True,
             }
         if method == "FileUploadCancel":
             return {"canceled": True}
@@ -248,6 +256,38 @@ async def test_new_bale_web_auth_and_nasim_file_rpcs(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
+async def test_upload_limits_uses_current_files_method_and_schema(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    limits = await client.get_upload_limits()
+
+    assert limits == {
+        "upload_limit_bytes": 2**53 + 1,
+        "temporary_max_bytes": 200,
+        "permanent_max_bytes": 300,
+        "bought_capacity_remaining_bytes": 400,
+        "bought_capacity_unlimited": True,
+    }
+    assert grpc.calls[-1] == {
+        "service": "ai.bale.server.Files",
+        "method": "GetUploadLimits",
+        "request_type": "request.GetUploadLimits",
+        "response_type": "response.GetUploadLimits",
+        "payload": {},
+        "access_token": "jwt-token",
+    }
+    encoded = encode_message("response.GetUploadLimits", limits)
+    assert decode_message("response.GetUploadLimits", encoded) == {
+        "upload_limit_bytes": 9007199254740993,
+        "temporary_max_bytes": 200,
+        "permanent_max_bytes": 300,
+        "bought_capacity_remaining_bytes": 400,
+        "bought_capacity_unlimited": True,
+    }
+
+
+@pytest.mark.asyncio
 async def test_group_preview_accepts_join_urls(tmp_path) -> None:
     grpc = FakeGrpc()
     client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
@@ -259,7 +299,7 @@ async def test_group_preview_accepts_join_urls(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_invite_link_rpc_names_match_balethon_proto_metadata(tmp_path) -> None:
+async def test_invite_link_rpc_names_match_current_metadata(tmp_path) -> None:
     grpc = FakeGrpc()
     client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
 
@@ -513,7 +553,7 @@ async def test_invoke_raw_uses_session_without_a_schema(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_balejs_file_group_pin_and_media_methods_use_expected_rpcs(
+async def test_file_group_pin_and_media_methods_use_expected_rpcs(
     tmp_path,
 ) -> None:
     grpc = FakeGrpc()
@@ -627,8 +667,8 @@ async def test_wallet_gift_and_message_object_helpers(tmp_path) -> None:
     assert calls["PinMessage"]["payload"]["group_peer"]["group_id"] == 99
 
 
-def test_client_exposes_every_user_session_method_from_balejs() -> None:
-    balejs_methods = {
+def test_client_exposes_expected_account_methods() -> None:
+    account_methods = {
         "check_nickname",
         "clear_chat",
         "connect",
@@ -722,8 +762,8 @@ def test_client_exposes_every_user_session_method_from_balejs() -> None:
         "validate_password",
     }
 
-    assert len(balejs_methods) == 91
-    assert not {name for name in balejs_methods if not hasattr(Client, name)}
+    assert len(account_methods) == 91
+    assert not {name for name in account_methods if not hasattr(Client, name)}
 
 
 @pytest.mark.asyncio
@@ -877,7 +917,7 @@ async def test_incoming_and_outgoing_filters_classify_same_account_messages(
 
 
 @pytest.mark.asyncio
-async def test_balethon_style_filter_aliases_and_media_filters(tmp_path) -> None:
+async def test_filter_aliases_and_media_filters(tmp_path) -> None:
     message = Message(
         1,
         2,
@@ -1032,7 +1072,7 @@ async def test_raw_update_handler_receives_every_decoded_update(tmp_path) -> Non
     client = Client("42:jwt", session_dir=tmp_path, grpc=FakeGrpc())  # type: ignore[arg-type]
     received: list[dict[str, Any]] = []
 
-    @client.on_update
+    @client.on_raw_update
     async def handler(update: dict[str, Any], _client: Client) -> None:
         received.append(update)
 

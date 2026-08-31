@@ -1,4 +1,4 @@
-"""Handle a command sent by this account, useful for a private selfbot."""
+"""Reply to a simple command sent from this account."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import asyncio
 
 from common import add_session_arguments, make_client
 
-from bale import Client, filters
+from balenova import Client, filters
 
 
 def parse_args() -> argparse.Namespace:
@@ -21,7 +21,7 @@ async def main() -> None:
 
     @client.on_message(filters.outgoing & filters.command("status"))
     async def status(message, _client: Client) -> None:
-        await message.answer("Bale Session is online")
+        await message.answer("BaleNova is online")
 
     try:
         await client.run()

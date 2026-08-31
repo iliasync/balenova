@@ -31,7 +31,7 @@ class Filter:
         return bool(result)
 
     def __call__(self) -> Filter:
-        """Allow both ``filters.text`` and Balethon-style ``filters.text()``."""
+        """Allow a filter to be used as either a value or a function."""
         return self
 
     def __and__(self, other: Filter) -> Filter:
@@ -97,7 +97,7 @@ channel = Filter(
 incoming = Filter(lambda _client, message: message.is_incoming, "incoming")
 outgoing = Filter(lambda _client, message: message.is_outgoing, "outgoing")
 # ``self_`` avoids shadowing Python's ``self`` convention while remaining
-# convenient for account-session userbots.
+# convenient for account-based automations.
 self_ = outgoing
 me = outgoing
 bot = Filter(lambda _client, message: message.author.is_bot, "bot")
@@ -259,7 +259,7 @@ def command(
     return Filter(predicate, f"command({name})")
 
 
-# Names familiar to balejs users.
+# Short aliases for convenient filter composition.
 all = all_of
 any = any_of
 

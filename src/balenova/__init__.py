@@ -1,13 +1,8 @@
-"""Compatibility package for the BaleNova client."""
+"""BaleNova: a friendly Python client for Bale accounts."""
 
 from bale import events, filters
 from bale.client import Client
-from bale.errors import (
-    AuthenticationError,
-    BaleError,
-    BaleRpcError,
-    ClientStateError,
-)
+from bale.errors import AuthenticationError, BaleError, BaleRpcError, ClientStateError
 from bale.events import MessageSent, NewMessage, RawUpdate, Update
 from bale.filters import Filter
 from bale.models import (

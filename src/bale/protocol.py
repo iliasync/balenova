@@ -1,4 +1,4 @@
-"""Opt-in protocol tracing for reverse engineering and API development."""
+"""Optional diagnostic recording used by transports."""
 
 from __future__ import annotations
 

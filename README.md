@@ -1,276 +1,126 @@
-# Bale Session
+# BaleNova
 
-یک کتابخانهٔ Python کاملاً asynchronous برای ساخت userbot روی حساب واقعی بله.
+کار با حساب بله در Python، با یک API ساده و قابل‌فهم.
 
-> این پروژه از **Bot API** استفاده نمی‌کند. ارتباط حساب کاربری از طریق gRPC-web
-> برای احراز هویت/fallback و WebSocket برای RPCهای زنده و updateها انجام می‌شود.
-
-## ویژگی‌ها
-
-- ورود session-first و ذخیرهٔ امن session با سطح دسترسی `0600`
-- درخواست تعاملی شماره، کد و رمز دومرحله‌ای هنگام نبودن/انقضای session
-- ورود مستقیم با session به شکل `<user_id>:<jwt>`
-- WebSocket multiplexing، keepalive، timeout و RPCهای هم‌زمان
-- gRPC-web async با retry و backoff
-- مدل‌های typed برای `User`، `Chat` و `Message`
-- handlerهای sync/async برای پیام و تمام updateهای خام، lifecycle hooks و فیلترها
-- فیلترهای ترکیبی برای پیام‌های ورودی/خروجی، فرستنده، نوع چت، reply و regex
-- فیلترهای مستقل `text`، `content`، `photo`، `video`، `audio`، `voice`، `document`،
-  `sticker`، `location`، `contact`، `animation` و `forwarded`؛ هرکدام هم به شکل
-  `filters.text` و هم `filters.text()` قابل استفاده‌اند و با `&`، `|` و `~` ترکیب می‌شوند.
-- متدهای پیام، تاریخچه، دیالوگ، پروفایل، تایپ، واکنش، گزارش و جست‌وجو
-- تفکیک دیالوگ‌ها به گروه، کانال، چت خصوصی و بات با `get_groups()`،
-  `get_channels()`، `get_private_chats()` و `get_bots()`
-
-برای دریافت همهٔ صفحات (نه فقط صفحهٔ اول) از `get_all_dialogs_by_type()` استفاده
-کنید. این متد به‌صورت پیش‌فرض entityها را با RPCهای خواندنی resolve می‌کند تا
-کانال و گروه اشتباه نشوند؛ در حساب‌های بسیار بزرگ می‌توانید `page_size` و
-`max_pages` را کاهش دهید تا محدودیت نرخ Web رعایت شود:
-
-```python
-result = await client.get_all_dialogs_by_type(page_size=100, max_pages=100)
-groups = result["groups"]
-channels = result["channels"]
-private_chats = result["private_chats"]
-bots = result["bots"]
-```
-- مدیریت گروه/کانال، اعضا، مجوزها، لینک دعوت و پیام‌های pinشده
-- فایل و upload URL، آواتار گروه، multi-media، wallet و gift
-- کلیک دکمهٔ inline، حذف واکنش و RPCهای signaling تماس گروهی
-- بسته‌بندی مدرن `pyproject.toml`، نشانگر `py.typed` و کنترل Ruff/mypy
-
-## نصب برای توسعه
+## نصب
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e '.[dev]'
+pip install balenova
 ```
 
-نام انتشار این پروژه در PyPI، `bale-session` است و import آن همچنان `bale` باقی
-می‌ماند.
+Python 3.10 یا جدیدتر لازم است.
 
-## شروع سریع
+## شروع در کمتر از یک دقیقه
+
+یک فایل به نام `main.py` بسازید:
 
 ```python
-from bale import Client, filters
+from balenova import Client, events, filters
 
-client = Client(session_dir="sessions", session_name="my_account")
-
-
-@client.on_message(filters.private & filters.text)
-async def echo(message, _client):
-    await message.reply(message.text)
+app = Client(session_name="my_account")
 
 
-@client.on_command("ping")
-async def ping(message, _client):
-    await message.reply("pong")
+@app.on(events.NewMessage, filters.command("start"))
+async def start(event, client):
+    await event.reply("سلام! من آماده‌ام 🌱")
 
 
-@client.on_message(filters.outgoing & filters.regex(r"^!status"))
-async def status(message, _client):
-    print(message.sender_id, message.is_outgoing)
-
-
-@client.on_error
-async def log_error(error, _client):
-    print(error)
-
-
-@client.on_update
-async def raw_update(update, _client):
-    print((update.get("update") or {}).keys())
+app.run_forever()
 ```
 
-برای اجرای برنامه:
+سپس اجرا کنید:
 
-```python
-import asyncio
-
-asyncio.run(client.run())
+```bash
+python main.py
 ```
 
-در اولین اجرا شماره و کد ورود درخواست می‌شود و session ذخیره خواهد شد. اگر session
-خراب یا منقضی باشد، ورود ترمینالی به‌طور خودکار دوباره اجرا می‌شود. در برنامه‌های
-بدون ترمینال می‌توان callbackهای `phone_prompt`، `code_prompt`، `password_prompt`
-و `signup_name_prompt` را به سازنده داد.
+بار اول شماره، کد ورود و در صورت نیاز رمز دومرحله‌ای پرسیده می‌شود. دفعات بعد
+ورود ذخیره‌شده استفاده خواهد شد.
 
-### خروجی سادهٔ مدل‌ها و ورود رنگی
-
-متدهای فعلی هیچ تغییری نکرده‌اند؛ نتیجه‌ها همچنان همان کلاس‌های typed هستند و برای
-نمایش سریع می‌توان آن‌ها را مستقیماً به دیکشنری یا JSON تبدیل کرد:
+## پیام‌ها
 
 ```python
+@app.on(events.NewMessage, filters.private & filters.text)
+async def new_message(event, client):
+    print(event.text)
+    print(event.sender_id)
+    print(event.chat.id)
+
+    await event.answer("پیامت رسید")
+    await event.reply("این پیام به‌صورت پاسخ ارسال شد")
+```
+
+فیلترها را می‌توان با `&`، `|` و `~` ترکیب کرد:
+
+```python
+only_commands = filters.incoming & filters.private & filters.command("help")
+```
+
+## همهٔ به‌روزرسانی‌ها به‌صورت کلاس
+
+هر به‌روزرسانی یک شیء مشخص است:
+
+- `events.NewMessage` برای پیام تازه
+- `events.MessageSent` برای تأیید ارسال
+- `events.RawUpdate` برای موارد دیگری که دادهٔ آن‌ها دریافت شده است
+- `events.Update` پایهٔ مشترک همهٔ موارد
+
+```python
+@app.on_update
+async def every_update(update, client):
+    print(update.name)
+    print(update.to_json())
+```
+
+برای گرفتن فقط یک نوع:
+
+```python
+@app.on(events.MessageSent)
+async def sent(update, client):
+    print(update.to_dict())
+```
+
+## تبدیل نتیجه‌ها به JSON
+
+مدل‌هایی مانند پیام، کاربر، گفت‌وگو و به‌روزرسانی مستقیماً قابل تبدیل‌اند:
+
+```python
+print(event.to_dict())
+print(event.to_json())
+
 me = await client.get_me()
-print(me)  # نمایش کلاس User
-print(me.to_dict())  # دیکشنری معمولی
-print(me.to_json())  # JSON خوانا
+print(me.to_json())
 ```
 
-برای مدل‌های تو در تو مانند `Message`، `User` و `Chat` نیز همین API برقرار است.
-فیلد داخلی `_client` و payload خام پیام (`raw`) به‌صورت پیش‌فرض در JSON نمی‌آیند؛
-در صورت نیاز به payload خام از `to_json(include_raw=True)` استفاده کنید. توابع
-عمومی `model_to_dict()` و `model_to_json()` برای پاسخ‌های ترکیبی نیز export شده‌اند.
-
-متن‌های احراز هویت در ترمینال به‌صورت خودکار رنگی می‌شوند. برای اجبار یا خاموش
-کردن آن از `BALE_COLOR=always` یا `BALE_COLOR=never` استفاده کنید؛ در محیط‌های
-غیرتعاملی رنگ به‌طور پیش‌فرض غیرفعال است.
-
-### نمونهٔ ورود و `get_me`
-
-ابتدا پروژه را در محیط مجازی نصب کنید و سپس نمونهٔ آماده را اجرا کنید:
-
-```bash
-pip install -e .
-python examples/login.py
-```
-
-در اجرای اول کد ارسال‌شده توسط بله و در صورت فعال بودن ورود دومرحله‌ای، رمز
-عبور درخواست می‌شود. session در `sessions/my_account.session` ذخیره می‌شود و
-اجراهای بعدی بدون درخواست دوبارهٔ کد از همان session استفاده می‌کنند.
-
-### APIهای تکمیل‌شده
-
-علاوه بر APIهای پایه، wrapperهای فایل و upload، ارسال photo/video/audio/document،
-location/contact/sticker، آواتار گروه، مدیریت اعضا، pin گروهی و multi-media با
-این wrapperها فقط مسیر سشن اکانت را
-پوشش می‌دهند و APIهای اختصاصی Bot API عمداً در این پروژه اضافه نشده‌اند.
-برای session نیز `refresh_token()` و `terminate_all_sessions()` و برای لینک‌های
-دعوت `get_group_preview()` در دسترس است.
-در بررسی bundle فعلی Web بله، مدیریت sessionهای فعال (`get_auth_sessions()` و
-`terminate_session()`) و مسیرهای جدید Nasim (`get_file_urls()`، resume، cancel و
-public URL) نیز به proto و `Client` اضافه شده‌اند.
-متدهای ضبط‌شدهٔ جدید نیز شامل `click_inline_button()`،
-`message_remove_reaction()`، `get_messages_reactions()`،
-`get_messages_views()` و مجموعهٔ تماس از `start_group_call()` تا مدیریت لینک،
-شرکت‌کننده، reaction و recording هستند.
-
-متدهای تماس، signaling بله را پوشش می‌دهند؛ انتقال صوت/تصویر WebRTC وظیفهٔ
-لایهٔ رسانه است و در این کتابخانه ضبط یا پیاده‌سازی نشده است.
-
-### خلاصهٔ ممیزی سازگاری
-
-این ممیزی در ۳۱ اوت ۲۰۲۶ با bundle عمومی `web.bale.ai` انجام شد. سطح «تأیید»
-فقط به schema و نام RPC اشاره دارد، نه موفقیت اجرای زنده.
-
-| منبع | RPC | متد محلی | وضعیت | سطح تأیید |
-| --- | --- | --- | --- | --- |
-| Web | `ai.bale.server.Files/GetNasimFileUrl` | `get_file()` | پشتیبانی | bundle + proto محلی |
-| Web | `ai.bale.server.Files/GetNasimFileUrls` | `get_file_urls()` | پشتیبانی | bundle؛ پاسخ تکرارشونده |
-| Web | `ai.bale.server.Files/GetNasimFileUploadResume` | `get_file_upload_resume()` | پشتیبانی | bundle + تست محلی |
-| Web | `ai.bale.server.Files/FileUploadCancel` | `cancel_file_upload()` | پشتیبانی | bundle + تست محلی |
-| Web | `bale.v1.Configs/GetParameters` | `get_parameters()` | پشتیبانی | bundle؛ `parameters` تکرارشونده |
-| Web | `bale.auth.v1.Auth/GetAuthSessions` | `get_auth_sessions()` | پشتیبانی | bundle + تست محلی |
-| Web | `bale.users.v1.Users/GetFullUser` و full-user RPCها | `get_full_user()`، `load_full_users_sequentially()` | پشتیبانی | codec bundle + تست محلی |
-| Web | avatar، contact، block و privacy RPCهای Users | متدهای متناظر `edit_*`، `get_*`، `add_*`، `remove_*` | پشتیبانی | codec bundle + تست محلی |
-
-webhook، `getUpdates`، پرداخت بات، inline bot و سایر متدهای Bot API عمداً از این
-پروژه خارج هستند. همچنین
-`DeleteAccount`، `LogOut`، تغییر امنیت/شمارهٔ حساب، import/reset کامل مخاطبان،
-مدیریت کارت و عملیات مخرب Web عمداً wrapper سطح بالا ندارند. هیچ RPC به‌صورت
-حدسی اضافه نشده است. متدهای Users تازه‌افزوده‌شده فقط با codec عمومی و تست محلی
-تأیید شده‌اند و بدون اجرای smoke test نباید موفقیت زندهٔ آن‌ها فرض شود.
-
-نمونهٔ کوتاه برای متدهای پروفایل و مخاطب:
+## میان‌برهای کاربردی
 
 ```python
-profile = await client.get_full_user(123456)
-contacts = await client.get_contacts()
-avatars = await client.load_user_avatars(123456)
-status = await client.get_user_privacy_status(123456, 0)
+await client.send("12345|1", "سلام")
+chat = await client.get_entity("username")
+
+async for message in client.iter_messages("12345|1", limit=100):
+    print(message.text)
+
+limits = await client.get_upload_limits()
 ```
 
-برای اجرای smoke test روی Web بله، session اکانت را فقط از طریق متغیر محیطی بدهید
-(این تست در اجرای عادی به‌صورت خودکار skip می‌شود):
-
-```bash
-BALE_SESSION='<user_id>:<jwt>' pytest -q tests/test_web_bale.py
-```
-
-### مثال‌های بیشتر
-
-همهٔ مثال‌ها session را از `sessions/my_account.session` می‌خوانند و در صورت
-نبودن یا انقضای آن، ورود ترمینالی را شروع می‌کنند. مسیر و نام session با
-`--session-dir` و `--session-name` قابل تغییر است.
-
-```bash
-# userbot پاسخ‌گو تا Ctrl+C
-python examples/echo.py
-
-# دیالوگ‌ها و تاریخچه، فقط‌خواندنی
-python examples/dialogs.py --chat '12345|1'
-
-# ارسال پیام یا واکنش/کلیک روی یک پیام موجود
-python examples/messages.py '12345|1' --text 'سلام'
-python examples/messages.py '12345|4' --message-id '10|1700000000' --button-data ok
-
-# اطلاعات گروه؛ عملیات مدیریتی فقط با گزینهٔ صریح انجام می‌شود
-python examples/groups.py '12345|2'
-
-# دریافت URL فایل یا slot آپلود
-python examples/files.py download-url 10001 20002
-
-# تماس‌ها؛ logs و ongoing فقط‌خواندنی‌اند
-python examples/calls.py logs
-python examples/calls.py generate-link --title 'جلسه'
-
-# کیف پول فقط‌خواندنی یا ارسال صریح gift
-python examples/gifts.py wallet
-
-# شمارش امن تمام updateهای دریافتی، بدون چاپ payload خصوصی
-python examples/updates.py --watch 30
-```
-
-مثال‌های مستقل و آماده در پوشهٔ `examples/` قرار دارند؛ راهنمای کامل اجرای آن‌ها
-و انتشار بسته در [`docs/USAGE.md`](docs/USAGE.md) و
-[`docs/PUBLISHING.md`](docs/PUBLISHING.md) آمده است.
-
-برای مشاهدهٔ تمام گزینه‌ها روی هر مثال `--help` بزنید.
-
-## API سطح پایین
-
-هر RPC جدیدی که هنوز wrapper سطح بالا ندارد از همین حالا قابل فراخوانی است:
+روی خود پیام نیز میان‌برهای آماده وجود دارد:
 
 ```python
-result = await client.invoke(
-    "bale.messaging.v2.Messaging",
-    "LoadDialogs",
-    "request.LoadDialogs",
-    "response.LoadDialogs",
-    {"min_date": -1, "limit": 40},
-)
+await event.message.respond("سلام")
+await event.message.edit_text("متن جدید")
+await event.message.delete()
+await event.message.react("❤")
 ```
 
-`invoke()` در حالت متصل از WebSocket و پیش از اتصال از gRPC-web استفاده می‌کند.
+نمونه‌های بیشتر در پوشهٔ [`examples`](examples) و راهنمای ساده در
+[`docs/USAGE.md`](docs/USAGE.md) قرار دارند.
 
-## توسعه و کنترل کیفیت
+## نکتهٔ مهم
 
-```bash
-ruff check .
-ruff format --check .
-mypy src/bale
-pytest
-```
+این پروژه رسمیِ بله نیست. از حساب آزمایشی شروع کنید، اطلاعات ورود و فایل‌های
+session را منتشر نکنید و مسئولیت استفاده از حساب بر عهدهٔ خود شماست.
 
-## آزمایش و توسعهٔ پروتکل
+## مجوز
 
-برای ضبط RPCها و updateهای حساب واقعی در حالت امن و opt-in:
-
-```bash
-python examples/protocol_lab.py
-```
-
-این فرمان تا فشردن `Ctrl+C` فعال می‌ماند. برای اجرای زمان‌دار می‌توانید مثلاً
-`--watch 60` بدهید.
-
-راهنمای inventory، مقایسهٔ schema و تولید مجدد protobuf در
-[`protocol/README.md`](protocol/README.md) قرار دارد. traceها ممکن است شامل محتوای
-خصوصی باشند و نباید commit یا منتشر شوند.
-
-برای ضبط outboundهایی که فقط کلاینت رسمی تولید می‌کند—مانند کلیک دکمه و signaling
-تماس—از `examples/official_web_protocol_lab.py` مطابق راهنمای protocol استفاده
-کنید.
-
-پروتکل‌های protobuf برگرفته از مخزن مرجع MIT هستند؛ جزئیات انتساب در `NOTICE`
-آمده است.
+MIT — جزئیات حقوقی لازم در فایل [`NOTICE`](NOTICE) نگه‌داری می‌شود.

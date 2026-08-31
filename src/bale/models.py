@@ -297,6 +297,8 @@ class Message(Serializable):
     async def answer(self, text: str) -> Message:
         return await self._require_client().send_message(self.chat.id, text)
 
+    respond = answer
+
     async def reply(self, text: str) -> Message:
         return await self._require_client().send_message(self.chat.id, text, self)
 

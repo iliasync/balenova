@@ -11,7 +11,7 @@ import os
 import re
 import sys
 import time
-from collections.abc import Awaitable, Callable, Iterable, Mapping
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from io import BufferedIOBase
 from pathlib import Path
 from typing import Any, BinaryIO, TypedDict, TypeVar, overload
@@ -23,9 +23,11 @@ from bale.dispatcher import (
     LifecycleEvent,
     LifecycleHandler,
     MessageHandler,
+    RawUpdateHandler,
     UpdateHandler,
 )
 from bale.errors import AuthenticationError, BaleRpcError, ClientStateError
+from bale.events import Update, build_updates
 from bale.filters import Filter, command
 from bale.models import (
     CallMode,
@@ -143,6 +145,7 @@ class Client:
         self._signup_name_prompt = signup_name_prompt or _terminal_prompt
         self._update_semaphore = asyncio.Semaphore(max(1, update_concurrency))
         self._update_tasks: set[asyncio.Task[None]] = set()
+        self._event_queue: asyncio.Queue[Update] = asyncio.Queue()
         self._peer_cache: dict[str, User | Chat] = {}
         self._chat_cache: dict[str, Chat] = {}
         self._author_cache: dict[int, User] = {}
@@ -159,10 +162,6 @@ class Client:
     @property
     def session(self) -> str | None:
         return str(self._session) if self._session else None
-
-    def is_userbot(self) -> bool:
-        """Return ``True`` for this account-session-only client."""
-        return True
 
     @overload
     def on_message(self, callback: MessageHandler) -> MessageHandler: ...
@@ -196,9 +195,25 @@ class Client:
     def on_error(self, callback: ErrorHandler) -> ErrorHandler:
         return self.dispatcher.add_error_handler(callback)
 
+    def on(
+        self,
+        event_type: type[Update] = Update,
+        filter_: Filter | None = None,
+    ) -> Callable[[UpdateHandler], UpdateHandler]:
+        """Register a handler for one class of update."""
+
+        def decorator(callback: UpdateHandler) -> UpdateHandler:
+            return self.dispatcher.add_update_handler(callback, event_type, filter_)
+
+        return decorator
+
     def on_update(self, callback: UpdateHandler) -> UpdateHandler:
-        """Register a handler for every decoded user-session update."""
-        return self.dispatcher.add_update_handler(callback)
+        """Register a handler for every class-based update."""
+        return self.dispatcher.add_update_handler(callback, Update)
+
+    def on_raw_update(self, callback: RawUpdateHandler) -> RawUpdateHandler:
+        """Register a compatibility handler for the original update dictionary."""
+        return self.dispatcher.add_raw_update_handler(callback)
 
     def _lifecycle_decorator(
         self, event: LifecycleEvent, callback: LifecycleHandler
@@ -283,6 +298,11 @@ class Client:
         if self._update_tasks:
             await asyncio.gather(*tuple(self._update_tasks), return_exceptions=True)
 
+    async def start(self) -> Client:
+        """Connect and return this client for convenient interactive use."""
+        await self.connect()
+        return self
+
     async def run(self, task: ClientTask | None = None) -> None:
         if self._running:
             raise ClientStateError("Client is already running")
@@ -304,6 +324,26 @@ class Client:
             await self.dispatcher.dispatch_error(self, error)
         finally:
             await self.stop()
+
+    def run_forever(self) -> None:
+        """Run the client until interrupted, without requiring asyncio setup."""
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            asyncio.run(self.run())
+            return
+        raise ClientStateError("Use 'await client.run()' inside async code")
+
+    async def next_update(self, timeout: float | None = None) -> Update:
+        """Wait for and return the next class-based update."""
+        if timeout is None:
+            return await self._event_queue.get()
+        return await asyncio.wait_for(self._event_queue.get(), timeout)
+
+    async def iter_updates(self) -> AsyncIterator[Update]:
+        """Yield class-based updates as they arrive."""
+        while True:
+            yield await self.next_update()
 
     async def stop(self) -> None:
         was_active = self._running or self.connected
@@ -668,6 +708,8 @@ class Client:
         users = response.get("users") or []
         groups = response.get("groups") or []
         return users[0] if users else groups[0] if groups else None
+
+    get_entity = get_chat
 
     async def resolve_peer_id(self, chat_id: int | str | User | Chat) -> int | str:
         """Resolve a Bale peer object, numeric id, or username to its id."""
@@ -1262,7 +1304,7 @@ class Client:
         return wrap_default(response)
 
     async def delete_chat_photo(self, chat_id: str) -> DefaultResponse:
-        """Remove the newest group avatar, matching Balethon's userbot behavior."""
+        """Remove the newest group avatar."""
         avatars = await self.load_group_avatars(chat_id)
         if not avatars:
             return wrap_default({})
@@ -1323,7 +1365,7 @@ class Client:
         contacts: bool = False,
         query: str | None = None,
     ) -> dict[str, Any]:
-        """Load members using Balethon's account-session naming."""
+        """Load a page of group members."""
         if isinstance(next_, bytes):
             try:
                 next_ = next_.decode("utf-8")
@@ -1400,6 +1442,39 @@ class Client:
             if int(message.rid) != 0:
                 result.append(message)
         return result
+
+    async def iter_messages(
+        self,
+        chat_id: str,
+        *,
+        limit: int | None = None,
+        batch_size: int = 50,
+    ) -> AsyncIterator[Message]:
+        """Yield message history without making the caller handle pages."""
+        if limit is not None and limit < 0:
+            raise ValueError("limit cannot be negative")
+        if batch_size < 1:
+            raise ValueError("batch_size must be positive")
+        remaining = limit
+        from_date = -1
+        seen: set[str] = set()
+        while remaining is None or remaining > 0:
+            page_size = batch_size if remaining is None else min(batch_size, remaining)
+            page = await self.load_history(chat_id, from_date, page_size)
+            fresh = [message for message in page if message.id not in seen]
+            if not fresh:
+                break
+            for message in fresh:
+                seen.add(message.id)
+                yield message
+                if remaining is not None:
+                    remaining -= 1
+                    if remaining == 0:
+                        return
+            next_date = min(message.date for message in fresh)
+            if next_date == from_date:
+                break
+            from_date = next_date
 
     async def load_dialogs(
         self, limit: int = 40, min_date: int = -1, exclude_pinned: bool = False
@@ -1674,6 +1749,27 @@ class Client:
 
     get_file_url = get_file
 
+    async def get_upload_limits(self) -> dict[str, int | bool]:
+        """Return the upload capacity currently available to the account."""
+        response = await self.invoke(
+            "ai.bale.server.Files",
+            "GetUploadLimits",
+            "request.GetUploadLimits",
+            "response.GetUploadLimits",
+            {},
+        )
+        return {
+            "upload_limit_bytes": int(response.get("upload_limit_bytes", 0)),
+            "temporary_max_bytes": int(response.get("temporary_max_bytes", 0)),
+            "permanent_max_bytes": int(response.get("permanent_max_bytes", 0)),
+            "bought_capacity_remaining_bytes": int(
+                response.get("bought_capacity_remaining_bytes", 0)
+            ),
+            "bought_capacity_unlimited": bool(
+                response.get("bought_capacity_unlimited", False)
+            ),
+        }
+
     async def get_file_urls(
         self,
         peer: str,
@@ -1873,6 +1969,8 @@ class Client:
                 "message": message_payload,
             }
         )
+
+    send = send_message
 
     async def _send_media_message(
         self,
@@ -3154,12 +3252,15 @@ class Client:
 
     async def _process_update(self, update: dict[str, Any]) -> None:
         async with self._update_semaphore:
-            await self.dispatcher.dispatch_update(self, update)
-            raw = (update.get("update") or {}).get("composed_update", {}).get("message")
-            if not isinstance(raw, dict) or int(raw.get("rid", 0)) == 0:
-                return
             try:
-                await self.dispatcher.dispatch_message(self, self._wrap_message(raw))
+                await self.dispatcher.dispatch_raw_update(self, update)
+                for event in build_updates(update, self._wrap_message):
+                    event.bind(self)
+                    self._event_queue.put_nowait(event)
+                    await self.dispatcher.dispatch_update(self, event)
+                    message = getattr(event, "message", None)
+                    if message is not None and int(message.rid) != 0:
+                        await self.dispatcher.dispatch_message(self, message)
             except Exception as error:
                 await self.dispatcher.dispatch_error(self, error)
 

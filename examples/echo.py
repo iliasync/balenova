@@ -1,4 +1,4 @@
-"""Run a private-chat echo userbot until Ctrl+C."""
+"""Reply to private messages until Ctrl+C."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import asyncio
 
 from common import add_session_arguments, make_client
 
-from bale import Client, Message, filters
+from balenova import Client, Message, filters
 
 
 def parse_args() -> argparse.Namespace:

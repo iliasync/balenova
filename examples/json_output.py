@@ -7,7 +7,7 @@ import asyncio
 
 from common import add_session_arguments, make_client
 
-from bale import model_to_json
+from balenova import model_to_json
 
 
 def parse_args() -> argparse.Namespace:
