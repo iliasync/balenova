@@ -457,6 +457,14 @@ message TerminateAllSessions {
 message GetJWTToken {
 }
 
+message GetAuthSessions {
+}
+
+message TerminateSession {
+  int32 uid = 1;
+  struct.ExInfo ex_info = 2;
+}
+
 message SignOut {
 }
 
@@ -520,6 +528,26 @@ message RemoveUserAdmin {
 
 message GetNasimFileUrl {
   struct.FileLocation file = 1;
+}
+
+message GetNasimFileUrls {
+  struct.OutPeer peer = 1;
+  struct.FileLocation file = 2;
+  struct.StringValue filename = 3;
+}
+
+message GetNasimFileUploadResume {
+  struct.FileLocation file = 1;
+}
+
+message FileUploadCancel {
+  struct.FileLocation file = 1;
+}
+
+message GetNasimFilePublicUrl {
+  struct.OutPeer peer = 1;
+  struct.FileLocation file = 2;
+  struct.StringValue filename = 3;
 }
 
 message SendMultiMediaMessage {

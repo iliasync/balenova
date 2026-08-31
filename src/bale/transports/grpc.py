@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
 from typing import Any
 
 import httpx
@@ -104,6 +104,32 @@ class GrpcTransport:
             payload,
             access_token=access_token,
         )
+
+    async def upload(
+        self, url: str, payload: bytes, *, chunk_size: int | None = None
+    ) -> None:
+        """Upload bytes to a Nasim URL returned by Bale."""
+        content: bytes | AsyncIterator[bytes] = payload
+        if chunk_size is not None:
+            if chunk_size <= 0:
+                raise ValueError("chunk_size must be positive")
+
+            async def chunks() -> AsyncIterator[bytes]:
+                for offset in range(0, len(payload), chunk_size):
+                    yield payload[offset : offset + chunk_size]
+
+            content = chunks()
+        response = await self._client.put(url, content=content, timeout=self.timeout)
+        response.raise_for_status()
+
+    async def download(self, url: str, *, timeout: int | float | None = None) -> bytes:
+        """Download bytes from a file URL returned by Bale."""
+        response = await self._client.get(
+            url,
+            timeout=float(timeout) if timeout is not None else self.timeout,
+        )
+        response.raise_for_status()
+        return response.content
 
     async def _request_encoded(
         self,

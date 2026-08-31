@@ -167,6 +167,41 @@ message GetNasimFileUrl {
   struct.FileUrlDescription file_url = 1;
 }
 
+message GetNasimFileUrls {
+  struct.FileUrlDescription file_url = 1;
+}
+
+message GetNasimFileUploadResume {
+  struct.FileUrlDescription file_url = 1;
+  bool can_resume = 2;
+}
+
+message FileUploadCancel {
+  bool canceled = 1;
+}
+
+message GetNasimFilePublicUrl {
+  struct.FileUrlDescription file_url = 1;
+}
+
+message AuthSession {
+  int32 id = 1;
+  int32 auth_holder = 2;
+  int32 app_id = 3;
+  string app_title = 4;
+  string device_title = 5;
+  int32 auth_time = 6;
+  string auth_location = 7;
+  struct.DoubleValue latitude = 8;
+  struct.DoubleValue longitude = 9;
+  struct.Int64Value last_activity_at = 10;
+  struct.StringValue last_ip_address = 11;
+}
+
+message GetAuthSessions {
+  repeated AuthSession sessions = 1;
+}
+
 message GetParameters {
   repeated struct.ExtKeyValue params = 1;
 }

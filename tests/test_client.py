@@ -12,6 +12,7 @@ from bale.proto import encode_message
 class FakeGrpc:
     def __init__(self) -> None:
         self.calls: list[dict[str, Any]] = []
+        self.uploads: list[dict[str, Any]] = []
         self.closed = False
 
     async def request(
@@ -41,8 +42,59 @@ class FakeGrpc:
             return {"user": {"id": 55}, "jwt": {"value": "new-jwt"}}
         if method == "GetJWTToken":
             return {"jwt": {"value": "refreshed-jwt"}}
+        if method == "GetAuthSessions":
+            return {"sessions": [{"id": 7, "device_title": "Web"}]}
+        if method == "GetNasimFileUploadResume":
+            return {
+                "file_url": {"url": "https://upload.example.test/resume"},
+                "can_resume": True,
+            }
+        if method == "FileUploadCancel":
+            return {"canceled": True}
+        if method in {"GetNasimFileUrls", "GetNasimFilePublicUrl"}:
+            return {"file_url": {"url": "https://download.example.test/public"}}
         if method == "GetGroupPreview":
             return {"group": {"id": 99, "title": "Preview"}, "action": 2}
+        if method == "GetNasimFileUploadUrl":
+            return {
+                "file_id": 123,
+                "url": "https://upload.example.test/file",
+                "chunk_size": 2,
+                "file_size": 3,
+            }
+        if method == "GetNasimFileUrl":
+            return {
+                "file_url": {
+                    "url": "https://download.example.test/file",
+                    "timeout": 5,
+                }
+            }
+        if method == "LoadMembers":
+            return {
+                "members": [
+                    {"uid": 1, "is_admin": {"value": True}},
+                    {"uid": 2, "is_admin": {"value": False}},
+                ],
+                "next": "",
+            }
+        if method == "LoadHistory":
+            return {
+                "history": [
+                    {
+                        "rid": 7,
+                        "date": 1700000000000,
+                        "message": {
+                            "document_message": {
+                                "file_id": 123,
+                                "access_hash": 99,
+                                "file_size": 3,
+                                "name": "photo.jpg",
+                                "mime_type": "image/jpeg",
+                            }
+                        },
+                    }
+                ]
+            }
         if method == "GetWssURL":
             return {"url": "wss://meet.example.test/ws"}
         if method == "GetMyKifpools":
@@ -73,6 +125,15 @@ class FakeGrpc:
             }
         )
         return b"raw-response"
+
+    async def upload(
+        self, url: str, payload: bytes, *, chunk_size: int | None = None
+    ) -> None:
+        self.uploads.append({"url": url, "payload": payload, "chunk_size": chunk_size})
+
+    async def download(self, url: str, *, timeout: int | float | None = None) -> bytes:
+        self.calls.append({"method": "download", "url": url, "timeout": timeout})
+        return b"downloaded"
 
     async def close(self) -> None:
         self.closed = True
@@ -122,6 +183,34 @@ async def test_auth_session_methods_are_available_and_refresh_is_persisted(
 
 
 @pytest.mark.asyncio
+async def test_new_bale_web_auth_and_nasim_file_rpcs(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    sessions = await client.get_auth_sessions()
+    await client.terminate_session(7)
+    await client.get_file_urls("99|2", 123, 42, 1, "photo.jpg")
+    await client.get_file_upload_resume(123, 42, 1)
+    assert await client.cancel_file_upload(123, 42, 1)
+    await client.get_file_public_url("99|2", 123, 42, 1, "photo.jpg")
+
+    assert sessions == [{"id": 7, "device_title": "Web"}]
+    assert [call["method"] for call in grpc.calls] == [
+        "GetAuthSessions",
+        "TerminateSession",
+        "GetNasimFileUrls",
+        "GetNasimFileUploadResume",
+        "FileUploadCancel",
+        "GetNasimFilePublicUrl",
+    ]
+    assert grpc.calls[2]["payload"]["file"] == {
+        "file_id": 123,
+        "access_hash": 42,
+        "file_storage_version": {"value": 1},
+    }
+
+
+@pytest.mark.asyncio
 async def test_group_preview_accepts_join_urls(tmp_path) -> None:
     grpc = FakeGrpc()
     client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
@@ -130,6 +219,83 @@ async def test_group_preview_accepts_join_urls(tmp_path) -> None:
 
     assert preview == {"group": {"id": 99, "title": "Preview"}, "action": 2}
     assert grpc.calls[-1]["payload"] == {"token": "invite-token"}
+
+
+@pytest.mark.asyncio
+async def test_invite_link_rpc_names_match_balethon_proto_metadata(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    await client.get_group_link("99|2")
+    await client.revoke_group_link("99|2")
+
+    assert [call["method"] for call in grpc.calls] == [
+        "GetGroupInviteUrl",
+        "RevokeInviteUrl",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_account_session_chat_aliases_and_administrators(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    admins = await client.get_chat_administrators("99|2")
+    await client.set_chat_title("99|2", "New title")
+    await client.send_chat_action("99|2", 5)
+
+    assert admins == [{"uid": 1, "is_admin": {"value": True}}]
+    assert [call["method"] for call in grpc.calls] == [
+        "LoadMembers",
+        "EditGroupTitle",
+        "Typing",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_account_session_media_upload_download_and_caption_edit(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    message = await client.send_photo("99|2", b"abc", caption="before")
+    downloaded = await client.download("1:123:2")
+    await client.edit_message_caption("99|2", "7|1700000000000", "after")
+
+    assert message.chat.id == "99|2"
+    assert grpc.uploads == [
+        {
+            "url": "https://upload.example.test/file",
+            "payload": b"abc",
+            "chunk_size": 2,
+        }
+    ]
+    assert downloaded == b"downloaded"
+    send_call = next(call for call in grpc.calls if call["method"] == "SendMessage")
+    assert send_call["payload"]["message"]["document_message"]["caption"] == {
+        "text": "before"
+    }
+    update_call = next(call for call in grpc.calls if call["method"] == "UpdateMessage")
+    assert update_call["payload"]["updated_message"]["document_message"]["caption"] == {
+        "text": "after"
+    }
+
+
+@pytest.mark.asyncio
+async def test_set_chat_photo_uploads_for_the_authenticated_user(tmp_path) -> None:
+    grpc = FakeGrpc()
+    client = Client("42:jwt-token", session_dir=tmp_path, grpc=grpc)  # type: ignore[arg-type]
+
+    await client.set_chat_photo("99|2", b"jpg")
+
+    upload_call = next(
+        call for call in grpc.calls if call["method"] == "GetNasimFileUploadUrl"
+    )
+    assert upload_call["payload"]["uid"] == 42
+    assert upload_call["payload"]["ex_peer"] == {
+        "type": 1,
+        "id": 42,
+        "access_hash": 1,
+    }
 
 
 @pytest.mark.asyncio

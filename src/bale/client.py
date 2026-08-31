@@ -5,11 +5,16 @@ from __future__ import annotations
 import asyncio
 import getpass
 import inspect
+import json
+import mimetypes
+import os
 import re
 import time
 from collections.abc import Awaitable, Callable, Iterable, Mapping
+from io import BufferedIOBase
 from pathlib import Path
-from typing import Any, TypeVar, overload
+from typing import Any, BinaryIO, TypeVar, overload
+from urllib.parse import urlsplit
 
 from bale.dispatcher import (
     Dispatcher,
@@ -48,6 +53,7 @@ from bale.transports import GrpcTransport, WebSocketTransport
 ResponseT = TypeVar("ResponseT", bound=dict[str, Any])
 Prompt = Callable[[str], str | Awaitable[str]]
 ClientTask = Callable[["Client"], object | Awaitable[object]]
+MediaInput = bytes | bytearray | memoryview | str | Path | BinaryIO
 
 _PEER_PATTERN = re.compile(r"^(?P<id>\d+)\|(?P<type>\d+)$")
 _MESSAGE_PATTERN = re.compile(r"^(?P<rid>\d+)\|(?P<date>\d+)$")
@@ -122,6 +128,10 @@ class Client:
     @property
     def session(self) -> str | None:
         return str(self._session) if self._session else None
+
+    def is_userbot(self) -> bool:
+        """Return ``True`` for this account-session-only client."""
+        return True
 
     @overload
     def on_message(self, callback: MessageHandler) -> MessageHandler: ...
@@ -357,6 +367,31 @@ class Client:
         )
         return wrap_default(response)
 
+    async def get_auth_sessions(self) -> list[dict[str, Any]]:
+        """List active account authorizations shown by Bale Web."""
+        response = await self.post(
+            "bale.auth.v1.Auth",
+            "GetAuthSessions",
+            "request.GetAuthSessions",
+            "response.GetAuthSessions",
+            {},
+        )
+        sessions = response.get("sessions") or []
+        return [dict(item) for item in sessions if isinstance(item, Mapping)]
+
+    async def terminate_session(
+        self, user_id: int, ex_info: Mapping[str, Any] | None = None
+    ) -> DefaultResponse:
+        """Terminate one authorization session from the current account."""
+        response = await self.post(
+            "bale.auth.v1.Auth",
+            "TerminateSession",
+            "request.TerminateSession",
+            "response.DefaultResponse",
+            {"uid": user_id, "ex_info": dict(ex_info) if ex_info else None},
+        )
+        return wrap_default(response)
+
     async def refresh_token(self) -> str:
         """Refresh the current JWT and persist it for future connections."""
         session = self._session or await self._storage.load()
@@ -507,6 +542,22 @@ class Client:
         users = response.get("users") or []
         groups = response.get("groups") or []
         return users[0] if users else groups[0] if groups else None
+
+    async def resolve_peer_id(self, chat_id: int | str | User | Chat) -> int | str:
+        """Resolve a Bale peer object, numeric id, or username to its id."""
+        if isinstance(chat_id, (User, Chat)):
+            return chat_id.id
+        if isinstance(chat_id, int):
+            return chat_id
+        if chat_id.isnumeric():
+            return int(chat_id)
+        parsed = _parse_peer(chat_id)
+        if parsed is not None:
+            return parsed[0]
+        peer = await self.get_chat(chat_id)
+        if peer is None:
+            raise ClientStateError(f"Could not resolve Bale peer {chat_id!r}")
+        return peer.id
 
     async def load_users(self, users: Iterable[int | str]) -> list[User]:
         response = await self.invoke(
@@ -671,7 +722,7 @@ class Client:
     async def get_group_link(self, chat_id: str) -> str | None:
         response = await self.invoke(
             "bale.groups.v1.Groups",
-            "GetGroupInviteURL",
+            "GetGroupInviteUrl",
             "request.GetGroupInviteUrl",
             "response.GetGroupInviteUrl",
             {"group_peer": _group_peer(chat_id)},
@@ -680,11 +731,12 @@ class Client:
         return value if isinstance(value, str) else None
 
     get_group_invite_url = get_group_link
+    export_chat_invite_link = get_group_link
 
     async def revoke_group_link(self, chat_id: str) -> str | None:
         response = await self.invoke(
             "bale.groups.v1.Groups",
-            "RevokeInviteURL",
+            "RevokeInviteUrl",
             "request.RevokeInviteUrl",
             "response.RevokeInviteUrl",
             {"group_peer": _group_peer(chat_id)},
@@ -693,6 +745,7 @@ class Client:
         return value if isinstance(value, str) else None
 
     revoke_invite_url = revoke_group_link
+    revoke_chat_invite_link = revoke_group_link
 
     async def invite_users(
         self, chat_id: str, user_ids: Iterable[int | str]
@@ -709,6 +762,10 @@ class Client:
             },
         )
 
+    async def invite_user(self, chat_id: str, user_id: int | str) -> dict[str, Any]:
+        """Invite one user through the account-session RPC."""
+        return await self.invite_users(chat_id, [user_id])
+
     async def kick_user(self, chat_id: str, user_id: int | str) -> DefaultResponse:
         response = await self.invoke(
             "bale.groups.v1.Groups",
@@ -723,6 +780,8 @@ class Client:
         )
         return wrap_default(response)
 
+    ban_chat_member = kick_user
+
     async def unban_user(self, chat_id: str, user_id: int | str) -> DefaultResponse:
         response = await self.invoke(
             "bale.groups.v1.Groups",
@@ -735,6 +794,8 @@ class Client:
             },
         )
         return wrap_default(response)
+
+    unban_chat_member = unban_user
 
     async def set_member_permissions(
         self,
@@ -755,6 +816,32 @@ class Client:
         )
         return wrap_default(response)
 
+    async def promote_chat_member(
+        self,
+        chat_id: str,
+        user_id: int | str,
+        permissions: Mapping[str, bool] | None = None,
+        **permission_flags: bool | None,
+    ) -> DefaultResponse:
+        """Set account-session member permissions using either mapping or flags."""
+        normalized = dict(permissions or {})
+        for name, value in permission_flags.items():
+            if value is None:
+                continue
+            key = name.removeprefix("can_")
+            normalized[key] = bool(value)
+        return await self.set_member_permissions(chat_id, user_id, normalized)
+
+    async def restrict_chat_member(
+        self,
+        chat_id: str,
+        user_id: int | str,
+        permissions: Mapping[str, bool] | None = None,
+    ) -> DefaultResponse:
+        """Remove administrator status for an account-session member."""
+        del permissions
+        return await self.remove_user_admin(chat_id, user_id)
+
     async def edit_group_title(self, chat_id: str, title: str) -> DefaultResponse:
         response = await self.invoke(
             "bale.groups.v1.Groups",
@@ -769,6 +856,8 @@ class Client:
         )
         return wrap_default(response)
 
+    set_chat_title = edit_group_title
+
     async def edit_group_about(self, chat_id: str, about: str) -> DefaultResponse:
         response = await self.invoke(
             "bale.groups.v1.Groups",
@@ -782,6 +871,8 @@ class Client:
             },
         )
         return wrap_default(response)
+
+    set_chat_description = edit_group_about
 
     async def remove_user_admin(
         self, chat_id: str, user_id: int | str
@@ -825,6 +916,16 @@ class Client:
             },
         )
 
+    async def set_chat_photo(self, chat_id: str, photo: MediaInput) -> dict[str, Any]:
+        """Upload and set a group's avatar using account-session RPCs."""
+        owner_id = self.user.id if self.user else None
+        if owner_id is None and self._session is not None:
+            owner_id = self._session.user_id
+        if owner_id is None:
+            raise AuthenticationError("Connect before setting a chat photo")
+        uploaded = await self.upload_file(f"{owner_id}|1", photo, send_type=1)
+        return await self.edit_group_avatar(chat_id, uploaded)
+
     async def load_group_avatars(self, chat_id: str) -> list[dict[str, Any]]:
         response = await self.invoke(
             "bale.groups.v1.Groups",
@@ -853,8 +954,28 @@ class Client:
         )
         return wrap_default(response)
 
+    async def delete_chat_photo(self, chat_id: str) -> DefaultResponse:
+        """Remove the newest group avatar, matching Balethon's userbot behavior."""
+        avatars = await self.load_group_avatars(chat_id)
+        if not avatars:
+            return wrap_default({})
+        avatar_id = avatars[0].get("id") if isinstance(avatars[0], Mapping) else None
+        if isinstance(avatar_id, Mapping):
+            avatar_id = avatar_id.get("value")
+        return await self.remove_group_avatar(
+            chat_id,
+            int(avatar_id) if avatar_id is not None else None,
+        )
+
     async def load_members(
-        self, chat_id: str, limit: int = 50, next_: str | int | None = None
+        self,
+        chat_id: str,
+        limit: int = 50,
+        next_: str | int | None = None,
+        *,
+        excepted_permissions: bool = False,
+        contacts: bool = False,
+        query: str | None = None,
     ) -> dict[str, Any]:
         return await self.invoke(
             "bale.groups.v1.Groups",
@@ -865,6 +986,11 @@ class Client:
                 "group": _group_peer(chat_id),
                 "limit": limit,
                 "next": {"value": str(next_)} if next_ is not None else None,
+                "condition": {
+                    "excepted_permissions": excepted_permissions,
+                    "contacts": contacts,
+                    "query": query or "",
+                },
             },
         )
 
@@ -877,6 +1003,47 @@ class Client:
             {"group": _group_peer(chat_id)},
         )
         return int(response.get("members_count", 0))
+
+    get_chat_members_count = get_group_members_count
+
+    async def get_chat_members(
+        self,
+        chat_id: str,
+        limit: int = 200,
+        next_: bytes | str | int | None = None,
+        *,
+        excepted_permissions: bool = False,
+        contacts: bool = False,
+        query: str | None = None,
+    ) -> dict[str, Any]:
+        """Load members using Balethon's account-session naming."""
+        if isinstance(next_, bytes):
+            try:
+                next_ = next_.decode("utf-8")
+            except UnicodeDecodeError as error:
+                raise ValueError("next_ must be valid UTF-8 bytes") from error
+        return await self.load_members(
+            chat_id,
+            limit=limit,
+            next_=next_,
+            excepted_permissions=excepted_permissions,
+            contacts=contacts,
+            query=query,
+        )
+
+    async def get_chat_administrators(
+        self,
+        chat_id: str,
+        limit: int = 200,
+        next_: bytes | str | int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return members marked as administrators by the account RPC."""
+        result = await self.get_chat_members(chat_id, limit=limit, next_=next_)
+        return [
+            dict(member)
+            for member in result.get("members", [])
+            if isinstance(member, Mapping) and _member_is_admin(member)
+        ]
 
     async def load_full_chat(self, chat_id: str) -> dict[str, Any] | None:
         peer_id, peer_type = _require_peer_tuple(chat_id)
@@ -937,7 +1104,21 @@ class Client:
             },
         )
 
-    async def get_file(self, file_id: int, access_hash: int) -> dict[str, Any]:
+    async def get_file(
+        self,
+        file_id: int | str,
+        access_hash: int | None = None,
+        file_storage_version: int | None = None,
+    ) -> dict[str, Any]:
+        if access_hash is None:
+            parts = str(file_id).split(":")
+            if len(parts) != 3:
+                raise ValueError(
+                    "file_id must be '<access_hash>:<file_id>:<storage_version>'"
+                )
+            access_hash, file_id, file_storage_version = map(int, parts)
+        if file_storage_version is not None and file_storage_version < 0:
+            raise ValueError("file_storage_version cannot be negative")
         return await self.invoke(
             "ai.bale.server.Files",
             "GetNasimFileUrl",
@@ -947,11 +1128,153 @@ class Client:
                 "file": {
                     "file_id": _unsigned_int64(file_id, field_name="file_id"),
                     "access_hash": access_hash,
+                    "file_storage_version": (
+                        {"value": file_storage_version}
+                        if file_storage_version is not None
+                        else None
+                    ),
                 }
             },
         )
 
     get_file_url = get_file
+
+    async def get_file_urls(
+        self,
+        peer: str,
+        file_id: int | str,
+        access_hash: int,
+        file_storage_version: int,
+        filename: str | None = None,
+    ) -> dict[str, Any]:
+        """Resolve a file URL with peer/filename context used by Bale Web."""
+        return await self.invoke(
+            "ai.bale.server.Files",
+            "GetNasimFileUrls",
+            "request.GetNasimFileUrls",
+            "response.GetNasimFileUrls",
+            {
+                "peer": _out_peer(peer),
+                "file": _file_location(file_id, access_hash, file_storage_version),
+                "filename": {"value": filename} if filename else None,
+            },
+        )
+
+    async def get_file_upload_resume(
+        self, file_id: int | str, access_hash: int, file_storage_version: int
+    ) -> dict[str, Any]:
+        """Check whether Bale can resume an interrupted Nasim upload."""
+        return await self.invoke(
+            "ai.bale.server.Files",
+            "GetNasimFileUploadResume",
+            "request.GetNasimFileUploadResume",
+            "response.GetNasimFileUploadResume",
+            {
+                "file": _file_location(file_id, access_hash, file_storage_version)
+            },
+        )
+
+    async def cancel_file_upload(
+        self, file_id: int | str, access_hash: int, file_storage_version: int
+    ) -> bool:
+        """Cancel an interrupted Nasim upload and return Bale's result."""
+        response = await self.invoke(
+            "ai.bale.server.Files",
+            "FileUploadCancel",
+            "request.FileUploadCancel",
+            "response.FileUploadCancel",
+            {
+                "file": _file_location(file_id, access_hash, file_storage_version)
+            },
+        )
+        return bool(response.get("canceled"))
+
+    async def get_file_public_url(
+        self,
+        peer: str,
+        file_id: int | str,
+        access_hash: int,
+        file_storage_version: int,
+        filename: str | None = None,
+    ) -> dict[str, Any]:
+        """Resolve the public URL variant used for shareable media."""
+        return await self.invoke(
+            "ai.bale.server.Files",
+            "GetNasimFilePublicUrl",
+            "request.GetNasimFilePublicUrl",
+            "response.GetNasimFilePublicUrl",
+            {
+                "peer": _out_peer(peer),
+                "file": _file_location(file_id, access_hash, file_storage_version),
+                "filename": {"value": filename} if filename else None,
+            },
+        )
+
+    async def download_file(
+        self, file_id: int | str, access_hash: int | None = None
+    ) -> bytes:
+        """Download a file identified by a Bale file reference."""
+        description = await self.get_file(file_id, access_hash)
+        file_url = description.get("file_url")
+        if not isinstance(file_url, Mapping):
+            raise ClientStateError("Bale did not return a file URL")
+        url = file_url.get("url")
+        if not isinstance(url, str) or not url:
+            raise ClientStateError("Bale did not return a usable file URL")
+        return await self._grpc.download(url, timeout=file_url.get("timeout"))
+
+    download = download_file
+
+    async def upload_file(
+        self,
+        chat_id: str,
+        file: MediaInput,
+        send_type: int = 6,
+        *,
+        expected_size: int | None = None,
+        name: str | None = None,
+        mime_type: str | None = None,
+        crc: int = 0,
+        chunk_size: int | None = None,
+    ) -> dict[str, Any]:
+        """Upload bytes or a local/remote file using Bale's Nasim protocol."""
+        payload, inferred_name = await self._read_media(file)
+        name = name or inferred_name
+        expected_size = len(payload) if expected_size is None else expected_size
+        if expected_size != len(payload):
+            raise ValueError("expected_size does not match the file payload")
+        mime_type = (
+            mime_type or mimetypes.guess_type(name)[0] or "application/octet-stream"
+        )
+        result = await self.get_file_upload_url(
+            expected_size,
+            name,
+            mime_type,
+            crc=crc,
+            chat_id=chat_id,
+            send_type=send_type,
+            chunk_size=chunk_size,
+        )
+        url = result.get("url")
+        if isinstance(url, str) and url:
+            await self._grpc.upload(
+                url,
+                payload,
+                chunk_size=(
+                    int(result["chunk_size"])
+                    if result.get("chunk_size") is not None
+                    else chunk_size
+                ),
+            )
+        elif not result.get("duplicate"):
+            raise ClientStateError("Bale did not return a file upload URL")
+        return {
+            **result,
+            "file_size": int(result.get("file_size") or expected_size),
+            "name": name,
+            "mime_type": mime_type,
+            "access_hash": _require_peer_tuple(chat_id)[0],
+        }
 
     async def get_file_upload_url(
         self,
@@ -1019,6 +1342,249 @@ class Client:
                 "message": message_payload,
             }
         )
+
+    async def _send_media_message(
+        self,
+        chat_id: str,
+        message_payload: Mapping[str, Any],
+        reply_to: Message | None = None,
+    ) -> Message:
+        peer = _require_peer(chat_id)
+        rid = WebSocketTransport.create_rid()
+        response = await self.invoke(
+            "bale.messaging.v2.Messaging",
+            "SendMessage",
+            "request.SendMessage",
+            "response.DefaultResponse",
+            {
+                "peer": peer,
+                "rid": rid,
+                "message": dict(message_payload),
+                "reply_to": _info_message(reply_to) if reply_to else None,
+                "ex_peer": peer,
+            },
+        )
+        return self._wrap_message(
+            {
+                "peer": peer,
+                "sender_uid": self.user.id if self.user else 0,
+                "date": response.get("date", 0),
+                "rid": rid,
+                "message": dict(message_payload),
+            }
+        )
+
+    async def send_photo(
+        self,
+        chat_id: str,
+        photo: MediaInput,
+        caption: str | None = None,
+        *,
+        width: int = 100,
+        height: int = 100,
+        reply_to: Message | None = None,
+    ) -> Message:
+        uploaded = await self.upload_file(chat_id, photo, send_type=1)
+        return await self._send_media_message(
+            chat_id,
+            {
+                "document_message": _document_message(
+                    uploaded, "photo", caption, width, height
+                )
+            },
+            reply_to,
+        )
+
+    async def send_video(
+        self,
+        chat_id: str,
+        video: MediaInput,
+        caption: str | None = None,
+        *,
+        duration: int = 0,
+        width: int = 100,
+        height: int = 100,
+        reply_to: Message | None = None,
+    ) -> Message:
+        uploaded = await self.upload_file(chat_id, video, send_type=2)
+        return await self._send_media_message(
+            chat_id,
+            {
+                "document_message": _document_message(
+                    uploaded, "video", caption, width, height, duration
+                )
+            },
+            reply_to,
+        )
+
+    async def send_animation(
+        self,
+        chat_id: str,
+        animation: MediaInput,
+        caption: str | None = None,
+        *,
+        duration: int = 0,
+        width: int = 100,
+        height: int = 100,
+        reply_to: Message | None = None,
+    ) -> Message:
+        uploaded = await self.upload_file(chat_id, animation, send_type=4)
+        return await self._send_media_message(
+            chat_id,
+            {
+                "document_message": _document_message(
+                    uploaded, "gif", caption, width, height, duration
+                )
+            },
+            reply_to,
+        )
+
+    async def send_audio(
+        self,
+        chat_id: str,
+        audio: MediaInput,
+        caption: str | None = None,
+        *,
+        duration: int = 0,
+        title: str | None = None,
+        reply_to: Message | None = None,
+    ) -> Message:
+        uploaded = await self.upload_file(chat_id, audio, send_type=5)
+        return await self._send_media_message(
+            chat_id,
+            {
+                "document_message": _document_message(
+                    uploaded, "audio", caption, duration=duration, title=title
+                )
+            },
+            reply_to,
+        )
+
+    async def send_voice(
+        self,
+        chat_id: str,
+        voice: MediaInput,
+        caption: str | None = None,
+        *,
+        duration: int = 0,
+        reply_to: Message | None = None,
+    ) -> Message:
+        uploaded = await self.upload_file(chat_id, voice, send_type=3)
+        return await self._send_media_message(
+            chat_id,
+            {
+                "document_message": _document_message(
+                    uploaded, "voice", caption, duration=duration
+                )
+            },
+            reply_to,
+        )
+
+    async def send_document(
+        self,
+        chat_id: str,
+        document: MediaInput,
+        caption: str | None = None,
+        *,
+        reply_to: Message | None = None,
+    ) -> Message:
+        uploaded = await self.upload_file(chat_id, document, send_type=6)
+        return await self._send_media_message(
+            chat_id,
+            {"document_message": _document_message(uploaded, None, caption)},
+            reply_to,
+        )
+
+    async def send_sticker(
+        self,
+        chat_id: str,
+        sticker: str | Mapping[str, Any],
+        *,
+        reply_to: Message | None = None,
+    ) -> Message:
+        payload = _sticker_message(sticker)
+        return await self._send_media_message(
+            chat_id, {"sticker_message": payload}, reply_to
+        )
+
+    async def send_location(
+        self,
+        chat_id: str,
+        latitude: float,
+        longitude: float,
+        *,
+        reply_to: Message | None = None,
+    ) -> Message:
+        raw_json = json.dumps(
+            {
+                "dataType": "location",
+                "data": {"location": {"latitude": latitude, "longitude": longitude}},
+            },
+            separators=(",", ":"),
+        )
+        return await self._send_media_message(
+            chat_id, {"json_message": {"raw_json": raw_json}}, reply_to
+        )
+
+    async def send_contact(
+        self,
+        chat_id: str,
+        phone_number: str,
+        first_name: str,
+        last_name: str | None = None,
+        *,
+        reply_to: Message | None = None,
+    ) -> Message:
+        # Bale's account RPC stores one contact display-name field; retain the
+        # upstream behavior and use ``first_name`` as that field.
+        del last_name
+        name = first_name
+        raw_json = json.dumps(
+            {
+                "dataType": "contact",
+                "data": {
+                    "contact": {"name": name, "emails": [""], "phones": [phone_number]}
+                },
+            },
+            separators=(",", ":"),
+        )
+        return await self._send_media_message(
+            chat_id, {"json_message": {"raw_json": raw_json}}, reply_to
+        )
+
+    async def send_media_group(
+        self,
+        chat_id: str,
+        media: Iterable[MediaInput | Mapping[str, Any]],
+    ) -> list[Message]:
+        """Upload and send a 2-10 item media album."""
+        normalized: list[dict[str, Any]] = []
+        for item in media:
+            if isinstance(item, Mapping) and isinstance(item.get("media"), Mapping):
+                normalized.append(dict(item))
+                continue
+            source: MediaInput
+            send_type = 6
+            caption: str | None = None
+            if isinstance(item, Mapping):
+                source = item.get("media")  # type: ignore[assignment]
+                send_type = int(item.get("send_type", send_type))
+                caption = (
+                    item.get("caption")
+                    if isinstance(item.get("caption"), str)
+                    else None
+                )
+            else:
+                source = item
+            uploaded = await self.upload_file(chat_id, source, send_type=send_type)
+            ext_name = {1: "photo", 2: "video", 4: "gif"}.get(send_type)
+            normalized.append(
+                {
+                    "random_id": WebSocketTransport.create_rid(),
+                    "media": _document_message(uploaded, ext_name, caption),
+                }
+            )
+        return await self.send_multi_media_message(chat_id, normalized)
 
     async def send_multi_media_message(
         self, chat_id: str, media: Iterable[Mapping[str, Any]]
@@ -1104,6 +1670,7 @@ class Client:
         return wrap_default(response)
 
     start_typing = typing
+    send_chat_action = typing
 
     async def stop_typing(self, chat_id: str, typing_type: int = 1) -> DefaultResponse:
         response = await self.invoke(
@@ -1581,6 +2148,15 @@ class Client:
         )
         return wrap_default(response)
 
+    async def pin_chat_message(
+        self, chat_id: str, message_id: str, just_mine: bool = False
+    ) -> DefaultResponse:
+        """Pin a message in either a private peer or a group."""
+        _peer_id, peer_type = _require_peer_tuple(chat_id)
+        if peer_type in (1, 4):
+            return await self.pin_message(chat_id, message_id, just_mine)
+        return await self.pin_group_message(chat_id, message_id)
+
     async def unpin_messages(
         self, chat_id: str, message_ids: Iterable[str] = (), *, all_: bool = False
     ) -> DefaultResponse:
@@ -1602,10 +2178,19 @@ class Client:
         return wrap_default(response)
 
     async def unpin_message(self, chat_id: str, message_id: str) -> DefaultResponse:
-        return await self.unpin_messages(chat_id, [message_id])
+        _peer_id, peer_type = _require_peer_tuple(chat_id)
+        if peer_type in (1, 4):
+            return await self.unpin_messages(chat_id, [message_id])
+        return await self.unpin_group_message(chat_id, message_id)
 
     async def unpin_all(self, chat_id: str) -> DefaultResponse:
-        return await self.unpin_messages(chat_id, all_=True)
+        _peer_id, peer_type = _require_peer_tuple(chat_id)
+        if peer_type in (1, 4):
+            return await self.unpin_messages(chat_id, all_=True)
+        return await self.remove_group_pins(chat_id)
+
+    unpin_chat_message = unpin_message
+    unpin_all_chat_messages = unpin_all
 
     async def pin_group_message(self, chat_id: str, message_id: str) -> DefaultResponse:
         rid, date = _require_message_id(message_id)
@@ -1667,6 +2252,45 @@ class Client:
         return wrap_default(response)
 
     edit_message = edit_message_text
+
+    async def edit_message_caption(
+        self, chat_id: str, message_id: str, caption: str
+    ) -> DefaultResponse:
+        """Update the caption of a media message in an account session."""
+        rid, date = _require_message_id(message_id)
+        peer = _require_peer(chat_id)
+        history = await self._load_history(peer, date, 20)
+        source = next(
+            (
+                item
+                for item in history.get("history", [])
+                if int(item.get("rid", 0)) == rid
+            ),
+            None,
+        )
+        if not isinstance(source, Mapping) or not isinstance(
+            source.get("message"), Mapping
+        ):
+            raise ClientStateError(f"Could not load source message {message_id}")
+        updated_message = dict(source["message"])
+        document = updated_message.get("document_message")
+        if not isinstance(document, Mapping):
+            raise ClientStateError(f"Message {message_id} does not contain media")
+        updated_document = dict(document)
+        updated_document["caption"] = {"text": caption}
+        updated_message["document_message"] = updated_document
+        response = await self.invoke(
+            "bale.messaging.v2.Messaging",
+            "UpdateMessage",
+            "request.UpdateMessage",
+            "response.DefaultResponse",
+            {
+                "peer": peer,
+                "rid": rid,
+                "updated_message": updated_message,
+            },
+        )
+        return wrap_default(response)
 
     async def forward_message(
         self, chat_id: str, from_chat_id: str, message_id: str
@@ -2027,6 +2651,35 @@ class Client:
         self._peer_cache[chat.id] = chat
         return chat
 
+    async def _read_media(self, media: MediaInput) -> tuple[bytes, str]:
+        if isinstance(media, bytes):
+            return media, "upload"
+        if isinstance(media, (bytearray, memoryview)):
+            return bytes(media), "upload"
+        if isinstance(media, Path):
+            return await asyncio.to_thread(media.read_bytes), media.name
+        if isinstance(media, str):
+            parsed = urlsplit(media)
+            if parsed.scheme in {"http", "https"}:
+                data = await self._grpc.download(media)
+                name = os.path.basename(parsed.path) or "download"
+                return data, name
+            path = Path(media)
+            return await asyncio.to_thread(path.read_bytes), path.name
+        if isinstance(media, BufferedIOBase) or hasattr(media, "read"):
+            stream = media
+            original_position = stream.tell() if hasattr(stream, "tell") else None
+            if hasattr(stream, "seek"):
+                stream.seek(0)
+            value = stream.read()
+            if original_position is not None and hasattr(stream, "seek"):
+                stream.seek(original_position)
+            if not isinstance(value, bytes):
+                raise TypeError("file.read() must return bytes")
+            raw_name = getattr(stream, "name", None)
+            return value, os.path.basename(str(raw_name)) if raw_name else "upload"
+        raise TypeError("media must be bytes, a path, URL, or binary file object")
+
 
 def _is_session(value: str) -> bool:
     return re.fullmatch(r"\d+:.+", value, re.DOTALL) is not None
@@ -2056,6 +2709,17 @@ def _require_peer_tuple(value: str) -> tuple[int, int]:
 def _group_peer(value: str) -> dict[str, int]:
     peer_id, _peer_type = _require_peer_tuple(value)
     return {"group_id": peer_id, "access_hash": 1}
+
+
+def _file_location(
+    file_id: int | str, access_hash: int, file_storage_version: int
+) -> dict[str, Any]:
+    """Build the FileLocation shape shared by Bale's Nasim RPCs."""
+    return {
+        "file_id": _unsigned_int64(file_id, field_name="file_id"),
+        "access_hash": access_hash,
+        "file_storage_version": {"value": file_storage_version},
+    }
 
 
 def _out_peer(value: str) -> dict[str, int]:
@@ -2136,6 +2800,70 @@ def _group_token(value: str) -> str:
     if not token:
         raise ValueError("A Bale group invite token cannot be empty")
     return token
+
+
+def _member_is_admin(member: Mapping[str, Any]) -> bool:
+    value = member.get("is_admin")
+    if isinstance(value, Mapping):
+        return bool(value.get("value"))
+    return bool(value)
+
+
+def _document_message(
+    uploaded: Mapping[str, Any],
+    ext_name: str | None,
+    caption: str | None = None,
+    width: int = 100,
+    height: int = 100,
+    duration: int = 0,
+    title: str | None = None,
+) -> dict[str, Any]:
+    document: dict[str, Any] = {
+        "file_id": int(uploaded["file_id"]),
+        "access_hash": int(uploaded.get("access_hash", 0)),
+        "file_size": int(uploaded.get("file_size", 0)),
+        "name": str(uploaded.get("name", "upload")),
+        "mime_type": str(uploaded.get("mime_type", "application/octet-stream")),
+        "caption": {"text": caption} if caption is not None else None,
+    }
+    if ext_name in {"photo", "video", "gif"}:
+        ext: dict[str, Any] = {"w": width, "h": height}
+        if ext_name in {"video", "gif"}:
+            ext["duration"] = duration
+        document["ext"] = {f"document_ex_{ext_name}": ext}
+    elif ext_name == "audio":
+        document["ext"] = {
+            "document_ex_audio": {
+                "duration": duration,
+                "track": title or document["name"],
+            }
+        }
+    elif ext_name == "voice":
+        document["ext"] = {"document_ex_voice": {"duration": duration}}
+    return document
+
+
+def _sticker_message(sticker: str | Mapping[str, Any]) -> dict[str, Any]:
+    if isinstance(sticker, Mapping):
+        return dict(sticker)
+    parts = sticker.split(":")
+    if len(parts) != 5:
+        raise ValueError(
+            "sticker must use '<file_id>:<access_hash>:<storage_version>:'"
+            "<sticker_id>:<collection_id>'"
+        )
+    file_id, access_hash, storage_version, sticker_id, collection_id = map(int, parts)
+    return {
+        "sticker_id": {"value": sticker_id},
+        "image512": {
+            "file_location": {
+                "file_id": _unsigned_int64(file_id, field_name="file_id"),
+                "access_hash": access_hash,
+                "file_storage_version": {"value": storage_version},
+            }
+        },
+        "sticker_collection_id": {"value": collection_id},
+    }
 
 
 def _parse_auth(response: dict[str, Any]) -> Session:

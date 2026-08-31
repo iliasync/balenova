@@ -85,10 +85,15 @@ python examples/login.py
 
 ### APIهای تکمیل‌شده از BaleJS و trace رسمی
 
-علاوه بر APIهای پایه، wrapperهای فایل و upload، آواتار گروه، pin گروهی،
-multi-media، wallet/gift و upvote با نام‌های متناظر BaleJS در `Client` موجودند.
+علاوه بر APIهای پایه، wrapperهای فایل و upload، ارسال photo/video/audio/document،
+location/contact/sticker، آواتار گروه، مدیریت اعضا، pin گروهی و multi-media با
+نام‌های متناظر BaleJS در `Client` موجودند. این wrapperها فقط مسیر سشن اکانت را
+پوشش می‌دهند و APIهای اختصاصی Bot API عمداً در این پروژه اضافه نشده‌اند.
 برای session نیز `refresh_token()` و `terminate_all_sessions()` و برای لینک‌های
 دعوت `get_group_preview()` در دسترس است.
+در بررسی bundle فعلی Web بله، مدیریت sessionهای فعال (`get_auth_sessions()` و
+`terminate_session()`) و مسیرهای جدید Nasim (`get_file_urls()`، resume، cancel و
+public URL) نیز به proto و `Client` اضافه شده‌اند.
 متدهای ضبط‌شدهٔ جدید نیز شامل `click_inline_button()`،
 `message_remove_reaction()`، `get_messages_reactions()`،
 `get_messages_views()` و مجموعهٔ تماس از `start_group_call()` تا مدیریت لینک،
@@ -96,6 +101,13 @@ multi-media، wallet/gift و upvote با نام‌های متناظر BaleJS د�
 
 متدهای تماس، signaling بله را پوشش می‌دهند؛ انتقال صوت/تصویر WebRTC وظیفهٔ
 لایهٔ رسانه است و در این کتابخانه ضبط یا پیاده‌سازی نشده است.
+
+برای اجرای smoke test روی Web بله، session اکانت را فقط از طریق متغیر محیطی بدهید
+(این تست در اجرای عادی به‌صورت خودکار skip می‌شود):
+
+```bash
+BALE_SESSION='<user_id>:<jwt>' pytest -q tests/test_web_bale.py
+```
 
 ### مثال‌های بیشتر
 
