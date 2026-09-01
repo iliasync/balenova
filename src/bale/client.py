@@ -15,7 +15,7 @@ import time
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from io import BufferedIOBase
 from pathlib import Path
-from typing import Any, BinaryIO, TypedDict, TypeVar, overload
+from typing import Any, BinaryIO, TypedDict, TypeVar, cast, overload
 from urllib.parse import urlsplit
 
 from google.protobuf.message import Message as ProtobufMessage
@@ -58,7 +58,6 @@ from bale.models import (
 )
 from bale.proto import schema as pb
 from bale.protocol import ProtocolRecorder
-from bale.recovered import RecoveredAPI
 from bale.rtc import CallRtcConnection, call_rtc_connection_from_group_call
 from bale.session import Session, SessionStorage
 from bale.transports import GrpcTransport, WebSocketTransport
@@ -193,7 +192,7 @@ class Client:
         self._running = False
         self._closed = False
         self.api = ProtocolAPI(self)
-        self.recovered = RecoveredAPI(self)
+        self.recovered = self.api.recovered
         for service_name in self.api.services:
             setattr(self, service_name, getattr(self.api, service_name))
 
@@ -677,6 +676,29 @@ class Client:
         else:
             raise ValueError("either request or request_bytes is required")
         return await asyncio.wait_for(operation, timeout=timeout)
+
+    async def rpc(
+        self,
+        service: str,
+        method: str,
+        request: ProtobufMessage | None = None,
+        /,
+        *,
+        timeout: float = 10.0,
+        **fields: Any,
+    ) -> ProtobufMessage | bytes:
+        """Call any typed unary RPC with a short, Pythonic interface.
+
+        Unlike :meth:`call`, this also accepts keyword fields and resolves
+        short service names plus snake_case method and field aliases. It
+        includes the recovered RPC namespace automatically.
+        """
+        return cast(
+            ProtobufMessage | bytes,
+            await self.api.call(
+                service, method, request, timeout=timeout, **fields
+            ),
+        )
 
     async def post(
         self,

@@ -27,6 +27,8 @@ def test_models_are_easy_to_print_as_dict_and_json() -> None:
 
     decoded = json.loads(message.to_json(indent=None))
     assert decoded["text"] == "سلام"
+    assert message.as_dict() == value
+    assert json.loads(message.as_json(indent=None)) == decoded
 
 
 def test_model_helpers_support_nested_values_and_explicit_raw() -> None:

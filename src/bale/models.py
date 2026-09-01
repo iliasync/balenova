@@ -31,6 +31,14 @@ class Serializable:
             sort_keys=True,
         )
 
+    def as_dict(self, *, include_raw: bool = False) -> dict[str, Any]:
+        """Alias for :meth:`to_dict` with a discoverable Pythonic name."""
+        return self.to_dict(include_raw=include_raw)
+
+    def as_json(self, *, include_raw: bool = False, indent: int | None = 2) -> str:
+        """Alias for :meth:`to_json` suitable for generic serializers."""
+        return self.to_json(include_raw=include_raw, indent=indent)
+
 
 def model_to_dict(value: Any, *, include_raw: bool = False) -> Any:
     """Convert a Bale model (including nested models) to JSON-safe values."""

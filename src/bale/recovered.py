@@ -16,7 +16,9 @@ RECOVERED_RPCS = tuple(RECOVERED_METHODS)
 
 
 def _snake(value: str) -> str:
-    return re.sub(r"(?<!^)(?=[A-Z])", "_", value).lower()
+    value = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", value)
+    value = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", value)
+    return value.lower()
 
 
 class RecoveredService:
@@ -36,6 +38,17 @@ class RecoveredService:
     def methods(self) -> tuple[str, ...]:
         return tuple(self._methods)
 
+    def _resolve_method(self, method: str) -> str:
+        if method in self._methods:
+            return method
+        actual_method = next(
+            (candidate for candidate in self._methods if _snake(candidate) == method),
+            "",
+        )
+        if not actual_method:
+            raise LookupError(f"unknown recovered RPC {self.service}.{method}")
+        return actual_method
+
     async def call(
         self,
         method: str,
@@ -45,8 +58,9 @@ class RecoveredService:
         timeout: float = 10.0,
         **fields: Any,
     ) -> ProtobufMessage:
+        actual_method = self._resolve_method(method)
         try:
-            request_type, response_type = self._methods[method]
+            request_type, response_type = self._methods[actual_method]
         except KeyError as error:
             raise LookupError(
                 f"unknown recovered RPC {self.service}.{method}"
@@ -54,7 +68,7 @@ class RecoveredService:
         message = build_request(request_type, request, fields)
         result = await asyncio.wait_for(
             self._client.invoke_protobuf(
-                self.service, method, message, response_type=response_type
+                self.service, actual_method, message, response_type=response_type
             ),
             timeout=timeout,
         )
@@ -63,8 +77,10 @@ class RecoveredService:
         return result
 
     def __getattr__(self, method: str) -> Any:
-        if method not in self._methods:
-            raise AttributeError(method)
+        try:
+            actual_method = self._resolve_method(method)
+        except LookupError:
+            raise AttributeError(method) from None
 
         async def invoke(
             request: ProtobufMessage | None = None,
@@ -74,12 +90,17 @@ class RecoveredService:
             **fields: Any,
         ) -> ProtobufMessage:
             return await self.call(
-                method, request, timeout=_timeout, **fields
+                actual_method, request, timeout=_timeout, **fields
             )
 
         invoke.__name__ = method
         invoke.__doc__ = f"Invoke recovered RPC {self.service}.{method}."
         return invoke
+
+    def __dir__(self) -> list[str]:
+        names = set(super().__dir__())
+        names.update(_snake(method) for method in self._methods)
+        return sorted(names)
 
 
 class RecoveredAPI:
@@ -119,10 +140,19 @@ class RecoveredAPI:
         timeout: float = 10.0,
         **fields: Any,
     ) -> ProtobufMessage:
-        try:
-            namespace = self._services[service]
-        except KeyError as error:
-            raise LookupError(f"unknown recovered Bale service {service}") from error
+        namespace = self._services.get(service)
+        if namespace is None:
+            short = service.rsplit(".", 1)[-1]
+            namespace = next(
+                (
+                    candidate
+                    for full_name, candidate in self._services.items()
+                    if _snake(full_name.rsplit(".", 1)[-1]) == _snake(short)
+                ),
+                None,
+            )
+        if namespace is None:
+            raise LookupError(f"unknown recovered Bale service {service}")
         return await namespace.call(
             method, request, timeout=timeout, **fields
         )

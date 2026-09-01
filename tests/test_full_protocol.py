@@ -177,6 +177,9 @@ def test_complete_api_introspection() -> None:
     assert "meet" in api.services
     assert "search" in api.services
     assert api.has_rpc("bale.groups.v1.Groups", "GetMyGroups")
+    assert api.has_rpc("groups", "get_my_groups")
+    assert api.has_rpc("bill", "get_bill_menu")
+    assert "bale.bill.v1.Bill" in api.all_services
     assert not api.has_rpc("bale.groups.v1.Groups", "DoesNotExist")
 
 
@@ -202,10 +205,36 @@ def test_client_exposes_reference_compatible_service_namespaces() -> None:
     assert client.meet is client.api.meet
     assert client.search is client.api.search
     assert client.story is client.api.story
+    assert client.recovered is client.api.recovered
     assert BaleClient is Client
     assert pb.WebGetMyGroupsRequest is request_pb2.WebGetMyGroupsRequest
     assert pb.WebGetMyGroupsResponse is response_pb2.WebGetMyGroupsResponse
     assert PUBLIC_METHODS is METHODS
+
+
+def test_generated_and_recovered_rpc_names_have_pythonic_aliases() -> None:
+    client = Client("42:jwt")
+
+    assert callable(client.groups.get_my_groups)
+    assert client.groups.get_my_groups.__name__ == "GetMyGroups"
+    assert callable(client.recovered.bill.get_bill_menu)
+    assert "get_my_groups" in dir(client.groups)
+    assert "get_bill_menu" in dir(client.recovered.bill)
+    assert len(client.api.all_rpcs) == 690
+
+
+@pytest.mark.asyncio
+async def test_short_rpc_helper_routes_primary_and_recovered_calls() -> None:
+    client = FakeTypedClient()
+    api = ProtocolAPI(client)
+
+    await api.call("groups", "get_my_groups", mode=2, is_owner=True)
+    await api.call("bill", "get_bill_menu")
+
+    assert client.calls[0][0:2] == ("bale.groups.v1.Groups", "GetMyGroups")
+    assert client.calls[0][2].mode == 2
+    assert client.calls[0][2].isOwner is True
+    assert client.calls[1][0:2] == ("bale.bill.v1.Bill", "GetBillMenu")
 
 
 @pytest.mark.asyncio
@@ -218,8 +247,12 @@ async def test_client_complete_namespace_uses_existing_raw_transport(tmp_path) -
     )
 
     response = await client.groups.GetMyGroups(mode=2, isOwner=True)
+    pythonic_response = await client.rpc(
+        "groups", "get_my_groups", mode=3, is_owner=False
+    )
 
     assert isinstance(response, response_pb2.WebGetMyGroupsResponse)
+    assert isinstance(pythonic_response, response_pb2.WebGetMyGroupsResponse)
     service, method, payload, token = grpc.calls[0]
     request = request_pb2.WebGetMyGroupsRequest.FromString(payload)
     assert (service, method, token) == (
@@ -229,3 +262,6 @@ async def test_client_complete_namespace_uses_existing_raw_transport(tmp_path) -
     )
     assert request.mode == 2
     assert request.isOwner is True
+    pythonic_request = request_pb2.WebGetMyGroupsRequest.FromString(grpc.calls[1][2])
+    assert pythonic_request.mode == 3
+    assert pythonic_request.isOwner is False

@@ -9,6 +9,7 @@ fields (and accepts nested ``dict`` / ``Message`` values for sub-messages).
 from __future__ import annotations
 
 import asyncio
+import re
 from collections.abc import AsyncIterator
 from typing import Any, TypeVar, cast
 
@@ -16,6 +17,13 @@ from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message as PbMessage
 
 T = TypeVar("T", bound=PbMessage)
+
+
+def _snake_case(value: str) -> str:
+    """Convert generated RPC names (``GetJWTToken``) to Pythonic names."""
+    value = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", value)
+    value = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", value)
+    return value.lower()
 
 
 def populate(msg: PbMessage, fields: dict[str, Any]) -> PbMessage:
@@ -33,15 +41,32 @@ def populate(msg: PbMessage, fields: dict[str, Any]) -> PbMessage:
         if value is None:
             continue
         field = desc.fields_by_name.get(key)
+        actual_key = key
         if field is None:
-            valid = sorted(desc.fields_by_name)
+            actual_key = next(
+                (
+                    candidate
+                    for candidate in desc.fields_by_name
+                    if _snake_case(candidate) == key
+                ),
+                "",
+            )
+            field = desc.fields_by_name.get(actual_key)
+        if field is None:
+            valid = sorted(
+                {
+                    name
+                    for candidate in desc.fields_by_name
+                    for name in (candidate, _snake_case(candidate))
+                }
+            )
             shown = ", ".join(valid[:20]) + (", …" if len(valid) > 20 else "")
             raise TypeError(f"{desc.name} has no field {key!r}; valid fields: {shown}")
 
         # map<,> fields present as repeated message in the descriptor but behave
         # like a dict on the Python message.
         if _is_map(field):
-            getattr(msg, key).update(value)
+            getattr(msg, actual_key).update(value)
             continue
 
         if _is_repeated(field):
@@ -52,7 +77,7 @@ def populate(msg: PbMessage, fields: dict[str, Any]) -> PbMessage:
                     f"field {key!r} is repeated; pass a list, not "
                     f"{type(value).__name__}"
                 )
-            container = getattr(msg, key)
+            container = getattr(msg, actual_key)
             for item in value:
                 if field.type == FieldDescriptor.TYPE_MESSAGE:
                     sub = container.add()
@@ -63,13 +88,13 @@ def populate(msg: PbMessage, fields: dict[str, Any]) -> PbMessage:
                 else:
                     container.append(item)
         elif field.type == FieldDescriptor.TYPE_MESSAGE:
-            sub = getattr(msg, key)
+            sub = getattr(msg, actual_key)
             if isinstance(value, PbMessage):
                 sub.MergeFrom(value)
             else:
                 populate(sub, value)
         else:
-            setattr(msg, key, value)
+            setattr(msg, actual_key, value)
     return msg
 
 
@@ -118,6 +143,25 @@ class ServiceBase:
 
     def __init__(self, client: Any) -> None:
         self._client = client
+
+    def __getattr__(self, name: str) -> Any:
+        """Provide snake_case aliases for generated CamelCase RPC methods."""
+        if name.startswith("_"):
+            raise AttributeError(name)
+        for candidate in type(self).__dict__:
+            if not candidate.startswith("_") and _snake_case(candidate) == name:
+                return getattr(self, candidate)
+        raise AttributeError(name)
+
+    def __dir__(self) -> list[str]:
+        """Include generated snake-case aliases in interactive completion."""
+        names = set(super().__dir__())
+        names.update(
+            _snake_case(candidate)
+            for candidate in type(self).__dict__
+            if not candidate.startswith("_")
+        )
+        return sorted(names)
 
     async def _invoke(
         self,

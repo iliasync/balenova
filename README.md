@@ -51,6 +51,42 @@ async def start(event):
 app.run_forever()
 ```
 
+## فراخوانی سادهٔ همهٔ RPCها
+
+برای بیشتر کارها متدهای سطح‌بالا مثل `send_message()` خواناترند. اگر RPC خاصی
+لازم بود، نام سرویس، متد و فیلدها را می‌توان به شکل Pythonic نوشت:
+
+```python
+async def inspect_account(client):
+    groups = await client.rpc(
+        "groups",
+        "get_my_groups",
+        mode=2,
+        is_owner=True,
+    )
+    bill_menu = await client.rpc("bill", "get_bill_menu")
+
+    print(groups)
+    print(groups.SerializeToString())  # پاسخ خام protobuf در صورت نیاز
+
+app.run_task(inspect_account)
+```
+
+شکل تولیدشده نیز همچنان پشتیبانی می‌شود:
+
+```python
+groups = await app.groups.GetMyGroups(mode=2, isOwner=True)
+bill_menu = await app.recovered.bill.GetBillMenu()
+```
+
+مدل‌های سطح‌بالا مثل پیام و آپدیت مستقیماً قابل چاپ و تبدیل‌اند:
+
+```python
+print(message)
+print(message.as_dict())
+print(message.as_json())
+```
+
 برنامه را اجرا کنید:
 
 ```bash
