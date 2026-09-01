@@ -58,6 +58,8 @@ from bale.models import (
 )
 from bale.proto import schema as pb
 from bale.protocol import ProtocolRecorder
+from bale.recovered import RecoveredAPI
+from bale.rtc import CallRtcConnection, call_rtc_connection_from_group_call
 from bale.session import Session, SessionStorage
 from bale.transports import GrpcTransport, WebSocketTransport
 
@@ -191,6 +193,7 @@ class Client:
         self._running = False
         self._closed = False
         self.api = ProtocolAPI(self)
+        self.recovered = RecoveredAPI(self)
         for service_name in self.api.services:
             setattr(self, service_name, getattr(self.api, service_name))
 
@@ -2924,6 +2927,84 @@ class Client:
                 "call_id": _require_call_id(call_id),
                 "name": {"value": name} if name else None,
             },
+        )
+
+    async def join_group_call_rtc(
+        self, call_id: int | str, name: str | None = None
+    ) -> CallRtcConnection:
+        """Join a group call and return typed LiveKit credentials.
+
+        Call ``await connection.connect()`` on the result to create and connect
+        an official ``livekit.rtc.Room``. Leaving remains explicit through
+        :meth:`leave_group_call`, so callers decide whether to end the call.
+        """
+
+        joined = await self.join_group_call(call_id, name)
+        group_call = joined.get("group_call")
+        if not isinstance(group_call, Mapping):
+            raise ValueError("JoinGroupCall response does not contain GroupCall")
+        raw_url = group_call.get("url")
+        fallback_url = None
+        if not isinstance(raw_url, Mapping) or not raw_url.get("text"):
+            fallback_url = await self.get_call_wss_url(call_id)
+        return call_rtc_connection_from_group_call(
+            group_call, fallback_url=fallback_url
+        )
+
+    async def set_group_slow_mode(
+        self, chat_id: str, seconds: int | None
+    ) -> ProtobufMessage:
+        """Set or disable a group's slow-mode interval."""
+
+        peer_id, _peer_type = _require_peer_tuple(chat_id)
+        return await self.recovered.call(
+            "bale.groups.v1.Groups",
+            "SetSlowMode",
+            group={"groupId": peer_id, "accessHash": 1},
+            seconds={"value": seconds} if seconds is not None else None,
+        )
+
+    async def set_group_sign_messages(
+        self, chat_id: str, enabled: bool
+    ) -> ProtobufMessage:
+        """Enable or disable signed messages for a group."""
+
+        peer_id, _peer_type = _require_peer_tuple(chat_id)
+        return await self.recovered.call(
+            "bale.groups.v1.Groups",
+            "SetSignMessages",
+            groupPeer={"groupId": peer_id, "accessHash": 1},
+            signMessages=enabled,
+        )
+
+    async def get_bill_menu(self) -> ProtobufMessage:
+        """Return the current bill-payment menu configuration."""
+
+        return await self.recovered.call("bale.bill.v1.Bill", "GetBillMenu")
+
+    async def get_all_stories(self) -> ProtobufMessage:
+        """Return the current combined stories response."""
+
+        return await self.recovered.call("bale.story.v1.Story", "GetAllStories")
+
+    async def get_marketing_tools_config(self) -> ProtobufMessage:
+        """Return Pishvaz marketing-tool configuration."""
+
+        return await self.recovered.call(
+            "bale.pishvaz.v1.Pishvaz", "GetMarketingToolsConfig"
+        )
+
+    async def search_bale_services(
+        self, query: str, *, language: str = "fa", source: int = 0
+    ) -> ProtobufMessage:
+        """Search Bale service entries through the recovered Garson RPC."""
+
+        return await self.recovered.call(
+            "bale.garson.v1.Garson",
+            "SearchServices",
+            query={"value": query},
+            language={"value": language},
+            source=source,
         )
 
     async def leave_group_call(

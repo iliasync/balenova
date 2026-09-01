@@ -325,8 +325,8 @@ async def test_voice_credentials_accept_wrapped_bale_url() -> None:
     player.call_id = 77
 
     assert await player._credentials(
-        {"url": {"text": "wss://voice.example"}, "token": "secret"}
-    ) == ("wss://voice.example", "secret")
+        {"url": {"text": "wss://voice.example"}, "token": "e30.e30.sig"}
+    ) == ("wss://voice.example", "e30.e30.sig")
     assert unwrap({"value": "x"}) == "x"
 
 
@@ -338,14 +338,18 @@ class FakeCallClient:
     async def get_group_call(self, _chat_id: str):
         if not self.active:
             return None
-        return {"id": 76, "url": {"text": "wss://voice"}, "token": "token"}
+        return {
+            "id": 76,
+            "url": {"text": "wss://voice"},
+            "token": "e30.e30.sig",
+        }
 
     async def start_group_call(self, _chat_id: str):
         return {
             "group_call": {
                 "id": 77,
                 "url": {"text": "wss://voice"},
-                "token": "token",
+                "token": "e30.e30.sig",
             }
         }
 
@@ -354,7 +358,7 @@ class FakeCallClient:
             "group_call": {
                 "id": call_id,
                 "url": {"text": "wss://voice"},
-                "token": "token",
+                "token": "e30.e30.sig",
             }
         }
 

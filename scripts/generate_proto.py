@@ -10,7 +10,7 @@ from grpc_tools import protoc
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTO_DIRECTORY = ROOT / "src" / "bale" / "proto"
-PROTO_FILES = ("struct.proto", "request.proto", "response.proto")
+PROTO_FILES = ("struct.proto", "request.proto", "response.proto", "recovered.proto")
 
 
 def generate(output: Path) -> None:
@@ -44,7 +44,12 @@ def check() -> None:
         generate(output)
         different = [
             name
-            for name in ("struct_pb2.py", "request_pb2.py", "response_pb2.py")
+            for name in (
+                "struct_pb2.py",
+                "request_pb2.py",
+                "response_pb2.py",
+                "recovered_pb2.py",
+            )
             if (output / name).read_bytes() != (PROTO_DIRECTORY / name).read_bytes()
         ]
     if different:

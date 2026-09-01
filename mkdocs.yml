@@ -1,0 +1,52 @@
+site_name: BaleNova
+site_description: مستندات کتابخانهٔ غیررسمی حساب بله برای Python
+site_url: https://iliasync.github.io/balenova/
+repo_url: https://github.com/iliasync/balenova
+repo_name: iliasync/balenova
+docs_dir: docs
+
+theme:
+  name: material
+  language: fa
+  direction: rtl
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            members_order: source
+            separate_signature: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - خانه: index.md
+  - شروع سریع: USAGE.md
+  - API سطح‌بالا: api.md
+  - ۸۰ RPC بازیابی‌شده: recovered-rpcs.md
+  - مرجع کامل RPCها: rpc-reference.md
+  - تماس و RTC: CALL_RTC_PROTOCOL.md
+  - ممیزی وب: WEB_PROTOCOL_AUDIT.md
+
+extra:
+  generator: false

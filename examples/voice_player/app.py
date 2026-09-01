@@ -17,7 +17,7 @@ HELP = """فرمان‌ها را با ویرایش پیام خودتان اجر�
 !vc leave"""
 
 
-@app.on(events.MessageEdited, filters.outgoing & filters.text)
+@app.on(events.NewMessage, filters.outgoing & filters.text)
 async def command(event):
     text = event.text.strip()
     if not text.startswith("!vc"):
@@ -29,7 +29,7 @@ async def command(event):
     await event.message.edit_text(answer)
 
 
-async def handle_command(event: events.MessageEdited, text: str) -> str:
+async def handle_command(event: events.NewMessage, text: str) -> str:
     parts = text.split()
     action = parts[1].casefold() if len(parts) > 1 else "help"
     if action == "join":

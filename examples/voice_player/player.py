@@ -4,7 +4,7 @@ import asyncio
 import contextlib
 from typing import Any
 
-from balenova import Client
+from balenova import Client, call_rtc_connection_from_group_call
 
 
 class VoicePlayer:
@@ -140,15 +140,17 @@ class VoicePlayer:
         return f"تماس: {self.call_id}\nوضعیت: {state}\nفایل: {self.title or '-'}{error}"
 
     async def _credentials(self, group_call: dict[str, Any]) -> tuple[str, str]:
-        token = unwrap(group_call.get("token"))
         url = unwrap(group_call.get("url"))
         if not url and self.call_id is not None:
             url = await self.client.get_call_wss_url(self.call_id)
-        if not isinstance(url, str) or not url:
-            raise RuntimeError("آدرس اتصال صوتی دریافت نشد")
-        if not isinstance(token, str) or not token:
-            raise RuntimeError("مجوز اتصال صوتی دریافت نشد")
-        return url, token
+        try:
+            connection = call_rtc_connection_from_group_call(
+                group_call,
+                fallback_url=url if isinstance(url, str) else None,
+            )
+        except ValueError as error:
+            raise RuntimeError(str(error)) from error
+        return connection.server_url, connection.access_token
 
     async def _play_guarded(self, data: bytes) -> None:
         try:

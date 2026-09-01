@@ -8,6 +8,7 @@ __pycache__/
 .venv/
 build/
 dist/
+site/
 protocol/traces/
 protocol/live-*/
 protocol/browser-profile/

@@ -37,6 +37,20 @@ from bale.models import (
     model_to_json,
 )
 from bale.proto import schema as pb
+from bale.recovered import (
+    RECOVERED_METHODS,
+    RECOVERED_RPCS,
+    RecoveredAPI,
+    RecoveredService,
+)
+from bale.rtc import (
+    CallRtcConnection,
+    CallRtcPermissions,
+    LiveKitJoinRequest,
+    call_rtc_connection_from_group_call,
+    decode_livekit_join_request,
+    parse_call_wss_url,
+)
 from bale.services import ALL_RPCS, SERVICE_CLASSES
 from bale.session import Session
 
@@ -46,6 +60,8 @@ BaleClient = Client
 __all__ = [
     "ALL_RPCS",
     "METHODS",
+    "RECOVERED_METHODS",
+    "RECOVERED_RPCS",
     "SERVICE_CLASSES",
     "AuthenticationError",
     "BaleClient",
@@ -53,6 +69,8 @@ __all__ = [
     "BaleRpcError",
     "CallMode",
     "CallRecordQuality",
+    "CallRtcConnection",
+    "CallRtcPermissions",
     "Chat",
     "ChatType",
     "Client",
@@ -62,6 +80,7 @@ __all__ = [
     "GiftOpening",
     "GiftPacket",
     "GivingType",
+    "LiveKitJoinRequest",
     "Message",
     "MessageEdited",
     "MessageSent",
@@ -73,6 +92,8 @@ __all__ = [
     "PrivacyType",
     "ProtocolAPI",
     "RawUpdate",
+    "RecoveredAPI",
+    "RecoveredService",
     "ReportKind",
     "RpcStatus",
     "Session",
@@ -81,9 +102,12 @@ __all__ = [
     "Wallet",
     "WalletResponse",
     "Winner",
+    "call_rtc_connection_from_group_call",
+    "decode_livekit_join_request",
     "events",
     "filters",
     "model_to_dict",
     "model_to_json",
+    "parse_call_wss_url",
     "pb",
 ]

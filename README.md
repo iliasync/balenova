@@ -2,7 +2,7 @@
 
 راه‌اندازی سادهٔ حساب بله در Python.
 
-[GitHub](https://github.com/iliasync/balenova) · [PyPI](https://pypi.org/project/balenova/) · [گزارش مشکل](https://github.com/iliasync/balenova/issues)
+[مستندات](https://iliasync.github.io/balenova/) · [GitHub](https://github.com/iliasync/balenova) · [PyPI](https://pypi.org/project/balenova/) · [گزارش مشکل](https://github.com/iliasync/balenova/issues)
 
 ## نصب
 
@@ -17,6 +17,21 @@ python -m pip install --upgrade balenova
 ```bash
 python -m pip install --upgrade "balenova[voice]"
 ```
+
+اتصال typed به تماس گروهی با SDK رسمی LiveKit:
+
+```python
+connection = await app.join_group_call_rtc(call_id, "My client")
+room = await connection.connect()
+
+# ... publish/subscribe with livekit.rtc ...
+
+await room.disconnect()
+await app.leave_group_call(call_id)
+```
+
+جزئیات RPCها، handshake و پیام‌های protobuf در
+[`docs/CALL_RTC_PROTOCOL.md`](docs/CALL_RTC_PROTOCOL.md) آمده است.
 
 ## راه‌اندازی
 
