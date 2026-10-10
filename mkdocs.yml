@@ -9,6 +9,23 @@ theme:
   name: material
   language: fa
   direction: rtl
+  palette:
+    # پالت روشن (پیش‌فرض سیستم)
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: تغییر به حالت تاریک (Dark Mode)
+    # پالت تاریک
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: تغییر به حالت روشن (Light Mode)
   features:
     - navigation.instant
     - navigation.sections

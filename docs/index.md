@@ -37,9 +37,14 @@ app.run_forever()
 
 ## بخش‌های مستندات
 
-- [شروع سریع](USAGE.md)
-- [API سطح‌بالا](api.md)
-- [RPCهای تازهٔ بازیابی‌شده](recovered-rpcs.md)
-- [مرجع کامل RPCها](rpc-reference.md)
+- [شروع سریع و نصب](USAGE.md)
+- [ارسال پیام، رسانه‌ها و استیکر](messaging.md)
+- [کیبوردها (Inline/Reply) و ماشین حالت (FSM)](fsm_keyboards.md)
+- [امور بانکی، کارت‌ها و مینی‌اپ‌ها](banking_miniapps.md)
+- [استوری‌ها، نظرسنجی‌ها و زمان‌بندی پیام](stories_polls_schedule.md)
+- [مدیریت کامل گروه‌ها و کانال‌ها](group_management.md)
+- [مرجع متدهای شیء اصلی Client](api.md)
+- [۸۰ RPC تازهٔ بازیابی‌شده وب](recovered-rpcs.md)
+- [مرجع کامل ۶۹۰+ RPC پروتکل بله](rpc-reference.md)
 - [پروتکل تماس و RTC](CALL_RTC_PROTOCOL.md)
 - [گزارش ممیزی وب](WEB_PROTOCOL_AUDIT.md)

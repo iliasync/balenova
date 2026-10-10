@@ -3264,6 +3264,64 @@ class Client:
             await self.api.tldr.GetLinkSummary(url=url),
         )
 
+    async def create_folder(
+        self,
+        name: str,
+        chat_ids: Iterable[str] | None = None,
+    ) -> ProtobufMessage:
+        """Create a chat folder / tab with the given name and peers."""
+        peers = [_require_peer(cid) for cid in (chat_ids or [])]
+        return cast(
+            ProtobufMessage,
+            await self.api.messaging.CreateFolder(name=name, peers=peers),
+        )
+
+    async def delete_folder(self, folder_id: int) -> ProtobufMessage:
+        """Delete an existing chat folder by its numeric id."""
+        return cast(
+            ProtobufMessage,
+            await self.api.messaging.DeleteFolder(folderId=folder_id),
+        )
+
+    async def archive_dialogs(self, chat_ids: Iterable[str]) -> ProtobufMessage:
+        """Move one or more chats/dialogs into the archive."""
+        ex_peers = [{"peer": _require_peer(cid)} for cid in chat_ids]
+        return cast(
+            ProtobufMessage,
+            await self.api.messaging.ArchiveDialogs(exPeers=ex_peers),
+        )
+
+    async def unarchive_dialogs(self, chat_ids: Iterable[str]) -> ProtobufMessage:
+        """Restore one or more chats/dialogs from the archive."""
+        ex_peers = [{"peer": _require_peer(cid)} for cid in chat_ids]
+        return cast(
+            ProtobufMessage,
+            await self.api.messaging.UnArchiveDialogs(exPeers=ex_peers),
+        )
+
+    async def get_bot_info(self, bot_user_id: int) -> ProtobufMessage:
+        """Fetch bot info, commands, and description (Ketf service)."""
+        return cast(
+            ProtobufMessage,
+            await self.api.ketf.GetBotInfo(botUserId=bot_user_id),
+        )
+
+    async def change_default_card_number(self, card_number: str) -> ProtobufMessage:
+        """Set the user's primary/default bank card number."""
+        return cast(
+            ProtobufMessage,
+            await self.api.users.ChangeDefaultCardNumber(
+                defaultCardNumber=card_number
+            ),
+        )
+
+    async def remove_default_card_number(self) -> ProtobufMessage:
+        """Clear the user's primary/default bank card number."""
+        return cast(
+            ProtobufMessage,
+            await self.api.users.RemoveDefaultCardNumber(),
+        )
+
     async def get_marketing_tools_config(self) -> ProtobufMessage:
         """Return Pishvaz marketing-tool configuration."""
 
