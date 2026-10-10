@@ -1,105 +1,181 @@
-# راهنمای کیبوردها و ماشین وضعیت (FSM)
+# راهنمای کیبوردها و ماشین وضعیت گفتگو (FSM)
 
-کتابخانهٔ **BaleNova** مشابه فریم‌ورک‌های مدرن پایتون (نظیر `aiogram`)، ابزارهای کاملی برای ایجاد کلیدهای شیشه‌ای (Inline)، کیبوردهای ریپلای و ماشین وضعیت گفتگو (FSM) ارائه می‌دهد.
+این راهنما بر اساس استانداردهای کدنویسی **PEP 8** نگارش شده و نحوه ساخت کیبوردهای شیشه‌ای، کیبوردهای پاسخ و مدیریت مراحل فرم‌ها را تشریح می‌کند.
 
 ---
 
-## ۱. کیبوردهای اینلاین و ریپلای (Keyboards)
+## ۱. کیبوردهای اینلاین شیشه‌ای (InlineKeyboardMarkup)
 
-### کیبورد اینلاین (InlineKeyboardMarkup)
-دکمه‌های شیشه‌ای که زیر پیام پیوست می‌شوند و می‌توانند حاوی لینک یا دیتای کالبک (`callback_data`) باشند:
+کلیدهای شیشه‌ای زیر پیام قرار می‌گیرند و برای باز کردن لینک‌ها یا ارسال داده‌های بازگشتی (`callback_data`) کاربرد دارند:
 
 ```python
-from balenova import Client, InlineKeyboardMarkup, InlineKeyboardButton, events, filters
+from balenova import Client, events, filters
+from balenova.keyboards import InlineKeyboardButton, InlineKeyboardMarkup
 
-app = Client.from_firefox()
+app = Client.from_browser("auto")
+
+
+def build_main_inline_keyboard() -> InlineKeyboardMarkup:
+    """ساخت کیبورد اینلاین اصلی با ساختار ردیف‌های منظم."""
+    return (
+        InlineKeyboardMarkup()
+        .row(
+            InlineKeyboardButton(
+                text="🌐 سایت مستندات",
+                url="https://iliasync.github.io/balenova/",
+            ),
+            InlineKeyboardButton(
+                text="⚡ استعلام حساب",
+                callback_data="btn_check_account",
+            ),
+        )
+        .row(
+            InlineKeyboardButton(
+                text="🎮 اجرای مینی‌اپ",
+                web_app_url="https://app.bale.ai",
+            ),
+            InlineKeyboardButton(
+                text="📞 پشتیبانی",
+                callback_data="btn_support",
+            ),
+        )
+    )
 
 
 @app.on(events.NewMessage, filters.command("panel"))
-async def show_panel(event: events.NewMessage):
-    markup = InlineKeyboardMarkup()
-
-    # افزودن دکمه‌ها در یک سطر
-    markup.add(
-        InlineKeyboardButton("وب‌سایت بله", url="https://bale.ai"),
-        InlineKeyboardButton("تأیید سفارش", callback_data="btn_confirm"),
-    )
-
-    # افزودن سطر بعدی
-    markup.row(InlineKeyboardButton("پشتیبانی", callback_data="btn_support"))
-
-    await event.reply("کنترل پنل کاربری:", reply_markup=markup)
-```
-
-### کیبورد ریپلای (ReplyKeyboardMarkup)
-دکمه‌هایی که در بخش پایین صفحه (زیر ورودی چت) جایگزین کیبورد معمولی می‌شوند:
-
-```python
-from balenova import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-
-# ساخت کیبورد با درخواست دسترسی
-menu_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-menu_kb.row(
-    KeyboardButton("ارسال شماره موبایل 📱", request_contact=True),
-    KeyboardButton("ارسال موقعیت مکانی 📍", request_location=True),
-)
-
-# ارسال کیبورد
-await event.reply("لطفاً اطلاعات خود را ارسال کنید:", reply_markup=menu_kb)
-
-# حذف کیبورد در صورت نیاز
-remove_kb = ReplyKeyboardRemove()
-await event.reply("کیبورد برداشته شد.", reply_markup=remove_kb)
+async def handle_panel_command(event: events.NewMessage) -> None:
+    keyboard = build_main_inline_keyboard()
+    await event.reply("کنترل پنل کاربری:", reply_markup=keyboard)
 ```
 
 ---
 
-## ۲. ماشین وضعیت و فرم‌های چندمرحله‌ای (FSM)
+## ۲. کیبوردهای پاسخ زیرین (ReplyKeyboardMarkup)
 
-برای ساخت فرایندهای مرحله‌به‌مرحله مانند ثبت‌نام، نظرسنجی یا خرید:
+این دکمه‌ها در پایین صفحه جایگزین صفحه کلید دستگاه می‌شوند:
 
 ```python
-from balenova import Client, StatesGroup, State, events, filters
-
-app = Client.from_firefox()
-
-
-# ۱. تعریف گروه‌های وضعیت
-class Registration(StatesGroup):
-    name = State()
-    phone = State()
+from balenova.keyboards import (
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+)
 
 
-# ۲. شروع ثبت‌نام با دستور
-@app.on(events.NewMessage, filters.command("register"))
-async def start_reg(event: events.NewMessage):
+def build_contact_reply_keyboard() -> ReplyKeyboardMarkup:
+    """ساخت کیبورد پاسخ با درخواست دسترسی شماره و موقعیت."""
+    return (
+        ReplyKeyboardMarkup(resize_keyboard=True)
+        .row(
+            KeyboardButton(
+                text="📱 ارسال شماره من",
+                request_contact=True,
+            ),
+            KeyboardButton(
+                text="📍 ارسال موقعیت مکانی",
+                request_location=True,
+            ),
+        )
+        .row(
+            KeyboardButton(text="ℹ️ اطلاعات حساب"),
+            KeyboardButton(text="❌ انصراف"),
+        )
+    )
+
+
+@app.on(events.NewMessage, filters.command("menu"))
+async def handle_menu_command(event: events.NewMessage) -> None:
+    reply_kb = build_contact_reply_keyboard()
+    await event.reply("لطفاً یک گزینه را انتخاب کنید:", reply_markup=reply_kb)
+
+
+@app.on(events.NewMessage, filters.text == "❌ انصراف")
+async def handle_cancel(event: events.NewMessage) -> None:
+    # حذف کامل کیبورد از صفحه کاربر
+    remove_kb = ReplyKeyboardRemove()
+    await event.reply("منو بسته شد.", reply_markup=remove_kb)
+```
+
+---
+
+## ۳. ماشین وضعیت گفتگو و فرم‌های چندمرحله‌ای (FSM)
+
+سیستم FSM توکار برای نگهداری مقادیر موقت کاربران بدون تداخل پیام‌ها طراحی شده است:
+
+```python
+from balenova import Client, events, filters
+from balenova.fsm import State, StatesGroup
+
+app = Client.from_browser("auto")
+
+
+class UserProfileForm(StatesGroup):
+    """تعریف مراحل فرم دریافت مشخصات کاربری."""
+
+    waiting_for_name = State()
+    waiting_for_age = State()
+    waiting_for_city = State()
+
+
+# مرحله ۱: شروع دریافت مشخصات
+@app.on(events.NewMessage, filters.command("signup"))
+async def start_signup(event: events.NewMessage) -> None:
     fsm = event.get_fsm_context()
-    await fsm.set_state(Registration.name)
-    await event.reply("لطفاً نام خود را بنویسید:")
+    await fsm.set_state(UserProfileForm.waiting_for_name)
+    await event.reply("سلام! لطفاً نام و نام خانوادگی خود را ارسال کنید:")
 
 
-# ۳. دریافت نام و رفتن به وضعیت بعدی
-@app.on(events.NewMessage, filters.state(Registration.name))
-async def get_name(event: events.NewMessage):
+# مرحله ۲: اعتبارسنجی نام و رفتن به سن
+@app.on(events.NewMessage, filters.state(UserProfileForm.waiting_for_name))
+async def process_name(event: events.NewMessage) -> None:
     fsm = event.get_fsm_context()
-    await fsm.update_data(user_name=event.text)
+    full_name = event.text.strip()
 
-    await fsm.set_state(Registration.phone)
-    await event.reply(f"ممنون {event.text}! حالا شماره تماس را وارد کنید:")
+    if len(full_name) < 3:
+        await event.reply("نام وارد شده کوتاه است. لطفاً نام کامل را بنویسید:")
+        return
+
+    await fsm.update_data(full_name=full_name)
+    await fsm.set_state(UserProfileForm.waiting_for_age)
+    await event.reply(f"متشکرم {full_name}! حالا سن خود را وارد کنید:")
 
 
-# ۴. دریافت شماره و اتمام فرایند
-@app.on(events.NewMessage, filters.state(Registration.phone))
-async def get_phone(event: events.NewMessage):
+# مرحله ۳: اعتبارسنجی سن و رفتن به شهر
+@app.on(events.NewMessage, filters.state(UserProfileForm.waiting_for_age))
+async def process_age(event: events.NewMessage) -> None:
+    fsm = event.get_fsm_context()
+
+    if not event.text.isdigit():
+        await event.reply("لطفاً سن خود را فقط به صورت عدد بنویسید:")
+        return
+
+    await fsm.update_data(age=int(event.text))
+    await fsm.set_state(UserProfileForm.waiting_for_city)
+    await event.reply("در کدام شهر سکونت دارید؟")
+
+
+# مرحله ۴: دریافت شهر و ذخیره نهایی
+@app.on(events.NewMessage, filters.state(UserProfileForm.waiting_for_city))
+async def process_city(event: events.NewMessage) -> None:
     fsm = event.get_fsm_context()
     data = await fsm.get_data()
-    user_name = data.get("user_name")
 
-    # پاکسازی وضعیت برای پیام‌های بعدی
+    # پاکسازی وضعیت FSM پس از پایان فرم
     await fsm.clear()
 
-    await event.reply(f"ثبت‌نام کامل شد!\nنام: {user_name}\nتلفن: {event.text}")
+    full_name = data.get("full_name")
+    age = data.get("age")
+    city = event.text.strip()
+
+    summary = (
+        "🎉 ثبت‌نام با موفقیت انجام شد:\n"
+        f"👤 نام: {full_name}\n"
+        f"🎂 سن: {age}\n"
+        f"🏙️ شهر: {city}"
+    )
+    await event.reply(summary)
 
 
-app.run_forever()
+if __name__ == "__main__":
+    app.run_forever()
 ```

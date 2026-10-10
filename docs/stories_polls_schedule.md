@@ -1,90 +1,111 @@
 # راهنمای استوری‌ها، نظرسنجی‌ها و پیام‌های زمان‌بندی‌شده
 
-در **BaleNova** متدهای ویژه‌ای برای کار با استوری‌های کاربران و کانال‌ها، نظرسنجی‌های گروهی و ارسال پیام‌های زمان‌بندی‌شده وجود دارد.
+نمونه کدهای این صفحه به طور کامل بر اساس قواعد نام‌گذاری، فواصل خطوط و قراردادهای **PEP 8** سازمان‌دهی شده‌اند.
 
 ---
 
 ## ۱. استوری‌ها (Stories)
 
-### دریافت استوری‌ها و ایموجی‌های مجاز واکنش
+### مشاهده استوری‌ها و لیست ایموجی‌های مجاز واکنش
 ```python
+import asyncio
 from balenova import Client, model_to_dict
 
-app = Client.from_firefox()
+app = Client.from_browser("auto")
 
-async def main():
+
+async def explore_stories() -> None:
     async with app:
-        # دریافت تمام استوری‌های جاری
-        all_stories = await app.get_all_stories()
-        print(model_to_dict(all_stories))
+        # دریافت کل استوری‌های فعال
+        stories_response = await app.get_all_stories()
+        print("استوری‌ها:", model_to_dict(stories_response))
 
-        # دریافت لیست ایموجی‌های مجاز برای ری‌اکشن به استوری
+        # لیست ایموجی‌های مجاز ری‌اکشن
         emojis = await app.get_story_reaction_emojis()
         print("ایموجی‌های مجاز:", emojis)
+
+
+if __name__ == "__main__":
+    asyncio.run(explore_stories())
 ```
 
-### واکنش و مشاهده آمار بازدید استوری
+### ارسال واکنش و دریافت آمار بینندگان
 ```python
-story_id = "uuid_of_the_story"
+async def story_interactions(story_id: str) -> None:
+    async with app:
+        # ۱. ارسال ری‌اکشن به استوری
+        await app.react_to_story(
+            story_id=story_id,
+            reaction="🔥",
+        )
 
-# ارسال واکنش به استوری
-await app.react_to_story(story_id, reaction="🔥")
+        # ۲. مشاهده لیست بینندگان استوری
+        viewers = await app.get_story_viewers(
+            story_id=story_id,
+            page=1,
+            page_size=30,
+        )
+        print("بینندگان:", model_to_dict(viewers))
 
-# دریافت بینندگان و آمار استوری
-viewers = await app.get_story_viewers(story_id, page=1, page_size=50)
-print(model_to_dict(viewers))
-
-# حذف استوری
-await app.remove_story(story_id)
+        # ۳. حذف استوری
+        await app.remove_story(story_id=story_id)
 ```
 
 ---
 
 ## ۲. نظرسنجی‌ها (Polls)
 
-### دریافت نتایج نظرسنجی و رای دادن
 ```python
-poll_id = 99887766
+async def poll_operations(poll_id: int) -> None:
+    async with app:
+        # دریافت نتایج و جزئیات نظرسنجی
+        poll_info = await app.get_poll_result(poll_id=poll_id)
+        print("اطلاعات نظرسنجی:", model_to_dict(poll_info))
 
-# دریافت نتیجه کامل نظرسنجی
-result = await app.get_poll_result(poll_id)
-print(model_to_dict(result))
+        # ثبت رای به گزینه اول
+        await app.vote_poll(
+            poll_id=poll_id,
+            option_ids=[0],
+        )
 
-# ثبت رای به گزینه‌های مورد نظر (مثلاً گزینه ۱)
-await app.vote_poll(poll_id, option_ids=[1])
+        # پس گرفتن رای ثبت شده
+        await app.vote_poll(
+            poll_id=poll_id,
+            option_ids=[0],
+            is_retract=True,
+        )
 
-# پس گرفتن رای
-await app.vote_poll(poll_id, option_ids=[1], is_retract=True)
-
-# بستن نظرسنجی
-await app.close_poll(poll_id)
+        # بستن نظرسنجی توسط ادمین
+        await app.close_poll(poll_id=poll_id)
 ```
 
 ---
 
-## ۳. زمان‌بندی پیام‌ها (Scheduler)
-
-امکان مشاهده و لغو کارهای زمان‌بندی‌شده در چت‌ها:
+## ۳. پیام‌های زمان‌بندی‌شده (Scheduled Messages)
 
 ```python
-# لیست پیام‌ها و کارهای زمان‌بندی‌شده در یک چت
-tasks = await app.load_scheduled_tasks("123456789|1")
-print(model_to_dict(tasks))
+async def scheduler_operations(chat_id: str) -> None:
+    async with app:
+        # دریافت کارهای زمان‌بندی‌شده در چت
+        tasks = await app.load_scheduled_tasks(chat_id=chat_id)
+        print("تسک‌های زمان‌بندی‌شده:", model_to_dict(tasks))
 
-# لغو کارهای زمان‌بندی‌شده
-await app.cancel_scheduled_tasks(task_ids=[12345, 67890])
+        # لغو تسک‌های زمان‌بندی‌شده
+        await app.cancel_scheduled_tasks(task_ids=[101, 102])
 ```
 
 ---
 
-## ۴. پیش‌نمایش و خلاصه‌سازی هوشمند لینک‌ها (TLDR / AI)
+## ۴. پیش‌نمایش و خلاصه‌سازی هوشمند پیوندها (AI / TLDR)
 
 ```python
-# دریافت عنوان، توضیحات و تصاویر بندانگشتی لینک
-preview = await app.get_link_preview("https://ble.ir")
-print(f"عنوان: {preview.title}")
+async def analyze_url(url: str) -> None:
+    async with app:
+        # دریافت پیش‌نمایش متادیتای وب‌سایت
+        preview = await app.get_link_preview(url=url)
+        print("عنوان سایت:", preview.title)
 
-# دریافت خلاصهٔ مبتنی بر هوش مصنوعی لینک
-summary = await app.get_link_summary("https://en.wikipedia.org/wiki/Python_(programming_language)")
-print("خلاصه لینک:", summary.summary)
+        # دریافت خلاصه‌سازی هوشمند محتوای صفحه با هوش مصنوعی
+        summary_res = await app.get_link_summary(url=url)
+        print("خلاصه AI:", summary_res.summary)
 ```

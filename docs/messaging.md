@@ -1,123 +1,160 @@
-# راهنمای کامل ارسال پیام و فایل در BaleNova
+# راهنمای کامل ارسال پیام، رسانه و مدیریت گفتگو در BaleNova
 
-کتابخانهٔ **BaleNova** متدهای سطح‌بالا و ساده‌ای را شبیه به فریم‌ورک‌های مدرن تلگرام (مانند `aiogram`) در اختیارتان می‌گذارد تا بدون درگیر شدن با پروتکل‌های پیچیدهٔ وب و ساختارهای داخلی Protobuf، انواع پیام و رسانه را ارسال و مدیریت کنید.
+کتابخانهٔ **BaleNova** متدهای سطح‌بالا، تایپ‌شده و کاملاً مطابق با استانداردهای **PEP 8** را برای ارسال انواع پیام متنی، رسانه و اسناد در اختیارتان می‌گذارد.
 
 ---
 
-## ۱. ارسال پیام متنی ساده
+## ۱. ارسال پیام متنی و پاسخ (Text & Reply)
 
-برای ارسال پیام متنی، کافی است شناسهٔ چت یا کاربر را بدهید:
+برای ارسال پیام متنی ساده و پاسخ به پیام‌ها طبق قراردادهای PEP 8:
 
 ```python
+import asyncio
+from balenova import Client, events
+
+app = Client.from_browser("auto")
+
+
+@app.on(events.NewMessage)
+async def handle_message(event: events.NewMessage) -> None:
+    # ارسال پاسخ مستقیم به فرستنده
+    await event.reply("پیام شما دریافت شد!")
+
+
+async def send_direct() -> None:
+    async with app:
+        # ارسال پیام به شناسه کاربری یا گروه
+        message = await app.send_message(
+            chat_id="123456789|1",
+            text="سلام! این یک پیام آزمایشی است.",
+        )
+        print(f"پیام با شناسه {message.id} ارسال شد.")
+
+
+if __name__ == "__main__":
+    asyncio.run(send_direct())
+```
+
+---
+
+## ۲. ارسال تصاویر و ویدیوها (Photos & Videos)
+
+امکان ارسال با مسیر محلی (`str` / `Path`) یا بافر باینری (`bytes`):
+
+```python
+from pathlib import Path
 from balenova import Client
 
-app = Client.from_firefox()
+app = Client.from_browser("auto")
 
-async def main():
+
+async def send_media_examples(chat_id: str) -> None:
     async with app:
-        # ارسال به چت، گروه یا کاربر
-        msg = await app.send_message("123456789|1", "سلام! این یک پیام آزمایشی با BaleNova است.")
-        print(f"پیام با شناسه {msg.id} ارسال شد.")
+        # ۱. ارسال تصویر با کپشن
+        photo_path = Path("assets/banner.png")
+        if photo_path.exists():
+            await app.send_photo(
+                chat_id=chat_id,
+                photo=photo_path,
+                caption="تصویر اطلاعیه رسمی 🖼️",
+            )
 
-app.run(main())
+        # ۲. ارسال ویدیو با مدت زمان و ابعاد
+        await app.send_video(
+            chat_id=chat_id,
+            video="media/tutorial.mp4",
+            duration=35,
+            caption="آموزش ویدیویی کار با بات 🎬",
+        )
 ```
 
 ---
 
-## ۲. ارسال عکس و ویدیو
-
-می‌توانید عکس یا ویدیو را با ارسال مسیر فایل محلی یا بایت‌های مستقیم ارسال کنید:
+## ۳. ارسال فایل‌ها، صدا و استیکر (Documents, Voice, Stickers)
 
 ```python
-# ارسال تصویر همراه با کپشن
-await app.send_photo(
-    "123456789|1",
-    photo="banner.png",
-    caption="تصویر جدید وب‌سایت 🖼️"
-)
+async def send_documents_and_voice(chat_id: str) -> None:
+    async with app:
+        # ۱. ارسال سند PDF یا آرشیو ZIP
+        await app.send_document(
+            chat_id=chat_id,
+            document="documents/report.pdf",
+            caption="گزارش عملکرد ماهانه 📄",
+        )
 
-# ارسال ویدیو با ابعاد و مدت زمان
-await app.send_video(
-    "123456789|1",
-    video="tutorial.mp4",
-    caption="آموزش کار با بات 🎬"
-)
+        # ۲. ارسال صدای ضبط‌شده (Voice Message)
+        await app.send_voice(
+            chat_id=chat_id,
+            voice="audio/memo.ogg",
+            duration=12,
+        )
+
+        # ۳. ارسال استیکر رسمی بله
+        sticker_spec = (
+            "<file_id>:<access_hash>:<storage_version>:<sticker_id>:<collection_id>"
+        )
+        await app.send_sticker(
+            chat_id=chat_id,
+            sticker=sticker_spec,
+        )
 ```
 
 ---
 
-## ۳. ارسال فایل، وویس و استیکر
+## ۴. فوروارد، کپی، ویرایش و حذف پیام (Message Actions)
 
 ```python
-# ارسال سند یا فایل دلخواه (PDF، زیپ و ...)
-await app.send_document(
-    "123456789|1",
-    document="report.pdf",
-    caption="گزارش نهایی ماهانه 📄"
-)
+async def message_actions_example(
+    from_chat: str,
+    to_chat: str,
+    message_id: int,
+) -> None:
+    async with app:
+        # فوروارد پیام با برچسب فرستنده اصلی
+        await app.forward_message(
+            from_chat_id=from_chat,
+            to_chat_id=to_chat,
+            message_id=message_id,
+        )
 
-# ارسال صدای ضبط‌شده (Voice)
-await app.send_voice(
-    "123456789|1",
-    voice="voice.ogg",
-    duration=12
-)
+        # کپی پیام بدون درج برچسب فوروارد
+        await app.copy_message(
+            from_chat_id=from_chat,
+            to_chat_id=to_chat,
+            message_id=message_id,
+        )
 
-# ارسال استیکر بله
-await app.send_sticker(
-    "123456789|1",
-    sticker="<file_id>:<access_hash>:<storage_version>:<sticker_id>:<collection_id>"
-)
+        # ویرایش متن پیام ارسال شده
+        await app.edit_message_text(
+            chat_id=to_chat,
+            message_id=message_id,
+            text="متن ویرایش‌شده جدید ✍️",
+        )
+
+        # حذف پیام برای طرفین
+        await app.delete_message(
+            chat_id=to_chat,
+            message_id=message_id,
+        )
 ```
 
 ---
 
-## ۴. فوروارد، ویرایش و حذف پیام
+## ۵. سنجاق کردن (Pin) و واکنش‌ها (Reactions)
 
 ```python
-# فوروارد پیام به چت دیگر
-await app.forward_message(
-    from_chat_id="123456789|1",
-    to_chat_id="987654321|2",
-    message_id=msg.id
-)
+async def pin_and_react(chat_id: str, message_id: int) -> None:
+    async with app:
+        # سنجاق کردن پیام در چت یا گروه
+        await app.pin_message(chat_id=chat_id, message_id=message_id)
 
-# کپی کردن پیام (ارسال مجدد بدون تگ فوروارد)
-await app.copy_message(
-    from_chat_id="123456789|1",
-    to_chat_id="987654321|2",
-    message_id=msg.id
-)
+        # ثبت واکنش ایموجی روی پیام
+        await app.message_set_reaction(
+            chat_id=chat_id,
+            message_id=message_id,
+            reaction="❤️",
+        )
 
-# ویرایش متن پیام ارسال‌شده
-await app.edit_message_text(
-    chat_id="123456789|1",
-    message_id=msg.id,
-    text="متن ویرایش‌شده جدید ✍️"
-)
-
-# حذف پیام
-await app.delete_message(
-    chat_id="123456789|1",
-    message_id=msg.id
-)
-```
-
----
-
-## ۵. پین کردن و واکنش (Reaction) به پیام‌ها
-
-```python
-# پین کردن پیام در گروه یا چت
-await app.pin_message(chat_id="123456789|2", message_id=msg.id)
-
-# برداشتن پین پیام
-await app.unpin_message(chat_id="123456789|2", message_id=msg.id)
-
-# ثبت واکنش (ایموجی) روی پیام
-await app.message_set_reaction(
-    chat_id="123456789|1",
-    message_id=msg.id,
-    reaction="👍"
-)
+        # برداشتن سنجاق پیام
+        await app.unpin_message(chat_id=chat_id, message_id=message_id)
 ```

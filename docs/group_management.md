@@ -1,91 +1,125 @@
-# راهنمای مدیریت گروه‌ها و کانال‌ها در BaleNova
+# راهنمای مدیریت گروه‌ها، کانال‌ها و ادمین‌ها در BaleNova
 
-مدیریت جامع گروه‌ها، کانال‌ها، تنظیمات مدیران و اعضا از طریق متدهای ساده و خوانا:
+تمامی کدهای این صفحه مطابق با استانداردهای رسمی **PEP 8** با تایپ‌های مشخص و سازمان‌دهی تمیز توابع نوشته شده‌اند.
 
 ---
 
-## ۱. ساخت گروه و کانال
+## ۱. ساخت گروه و کانال جدید
 
 ```python
+import asyncio
 from balenova import Client
 
-app = Client.from_firefox()
+app = Client.from_browser("auto")
 
-async def main():
+
+async def create_communities() -> None:
     async with app:
-        # ایجاد گروه جدید با کاربران اولیه
+        # ۱. ساخت گروه جدید به همراه اعضای اولیه
         group = await app.create_group(
-            title="تیم توسعه BaleNova",
-            user_ids=[123456789]
+            title="تیم توسعه‌دهندگان پایتون",
+            user_ids=[123456789],
         )
         print(f"گروه ساخته شد: {group.id}")
 
-        # ایجاد کانال جدید
+        # ۲. ساخت کانال جدید با عنوان و توضیحات
         channel = await app.create_channel(
-            title="اخبار و اطلاع‌رسانی BaleNova",
-            about="کانال رسمی بروزرسانی‌های کتابخانه"
+            title="کانال رسمی اطلاع‌رسانی",
+            about="کانال آخرین بروزرسانی‌های سامانه",
         )
         print(f"کانال ساخته شد: {channel.id}")
 
-app.run(main())
+
+if __name__ == "__main__":
+    asyncio.run(create_communities())
 ```
 
 ---
 
-## ۲. دریافت لینک دعوت و تغییر مشخصات چت
+## ۲. لینک دعوت، نام و توضیحات چت
 
 ```python
-chat_id = "123456789|2"
+async def manage_chat_profile(chat_id: str) -> None:
+    async with app:
+        # ساخت و دریافت لینک دعوت عمومی گروه
+        invite_link = await app.export_chat_invite_link(chat_id=chat_id)
+        print("لینک دعوت:", invite_link)
 
-# دریافت لینک دعوت گروه
-invite_link = await app.export_chat_invite_link(chat_id)
-print("لینک دعوت:", invite_link)
+        # ابطال لینک قبلی و صدور لینک دعوت جدید
+        new_link = await app.revoke_chat_invite_link(chat_id=chat_id)
+        print("لینک دعوت جدید:", new_link)
 
-# باطل کردن و ساخت مجدد لینک دعوت
-new_link = await app.revoke_chat_invite_link(chat_id)
+        # تغییر عنوان چت
+        await app.set_chat_title(chat_id=chat_id, title="نام جدید گروه")
 
-# تغییر عنوان و توضیحات
-await app.set_chat_title(chat_id, "نام جدید گروه")
-await app.set_chat_description(chat_id, "قوانین جدید گروه را رعایت کنید.")
+        # تغییر توضیحات (Bio) چت
+        await app.set_chat_description(
+            chat_id=chat_id,
+            description="قوانین جدید گفتگو را مطالعه بفرمایید.",
+        )
 ```
 
 ---
 
-## ۳. مدیریت مدیران و دسترسی‌های کاربران
+## ۳. مدیریت مدیران، ترفیع و محدودسازی اعضا
 
 ```python
-target_user = 987654321
+async def manage_members_and_admins(chat_id: str, target_user_id: int) -> None:
+    async with app:
+        # ۱. ترفیع کاربر به مدیر (Promote)
+        await app.promote_chat_member(
+            chat_id=chat_id,
+            user_id=target_user_id,
+        )
 
-# ارتقای کاربر به مدیر گروه (Promote)
-await app.promote_chat_member(chat_id, user_id=target_user)
+        # ۲. عزل مدیر (Demote)
+        await app.remove_user_admin(
+            chat_id=chat_id,
+            user_id=target_user_id,
+        )
 
-# عزل مدیر (Demote)
-await app.remove_user_admin(chat_id, user_id=target_user)
+        # ۳. تنظیم حالت آرام (Slow Mode) به مدت ۳۰ ثانیه
+        await app.set_group_slow_mode(
+            chat_id=chat_id,
+            seconds=30,
+        )
 
-# اخراج کاربر از گروه (Kick)
-await app.kick_user(chat_id, user_id=target_user)
+        # ۴. اخراج کاربر از گروه (Kick)
+        await app.kick_user(
+            chat_id=chat_id,
+            user_id=target_user_id,
+        )
 
-# مسدود و بن کردن کاربر
-await app.ban_chat_member(chat_id, user_id=target_user)
+        # ۵. مسدودسازی کاربر (Ban)
+        await app.ban_chat_member(
+            chat_id=chat_id,
+            user_id=target_user_id,
+        )
 
-# رفع مسدودیت کاربر
-await app.unban_chat_member(chat_id, user_id=target_user)
+        # ۶. رفع مسدودسازی کاربر (Unban)
+        await app.unban_chat_member(
+            chat_id=chat_id,
+            user_id=target_user_id,
+        )
 ```
 
 ---
 
-## ۴. لیست مدیران و اعضای گروه
+## ۴. لیست مدیران و مشخصات کامل چت
 
 ```python
-# دریافت تعداد اعضای گروه
-count = await app.get_chat_members_count(chat_id)
-print(f"تعداد اعضا: {count}")
+async def fetch_chat_details(chat_id: str) -> None:
+    async with app:
+        # تعداد اعضای گروه یا کانال
+        members_count = await app.get_chat_members_count(chat_id=chat_id)
+        print(f"تعداد کل اعضا: {members_count}")
 
-# لیست مدیران گروه
-admins = await app.get_chat_administrators(chat_id)
-for admin in admins:
-    print(f"مدیر: {admin.id} - {admin.title}")
+        # دریافت لیست مدیران
+        admins = await app.get_chat_administrators(chat_id=chat_id)
+        for admin in admins:
+            print(f"شناسه مدیر: {admin.id} | عنوان: {admin.title}")
 
-# دریافت اطلاعات کامل گروه
-full_group = await app.get_full_group(chat_id)
+        # دریافت مشخصات کامل گروه
+        full_group_info = await app.get_full_group(chat_id=chat_id)
+        print("اطلاعات کامل:", full_group_info)
 ```
