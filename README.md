@@ -69,6 +69,7 @@ async def inspect_account(client):
     print(groups)
     print(groups.SerializeToString())  # پاسخ خام protobuf در صورت نیاز
 
+
 app.run_task(inspect_account)
 ```
 

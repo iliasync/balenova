@@ -314,13 +314,17 @@ class Message(Serializable):
             self.replied_to.bind(client)
         return self
 
-    async def answer(self, text: str) -> Message:
-        return await self._require_client().send_message(self.chat.id, text)
+    async def answer(self, text: str, *, reply_markup: Any = None) -> Message:
+        return await self._require_client().send_message(
+            self.chat.id, text, reply_markup=reply_markup
+        )
 
     respond = answer
 
-    async def reply(self, text: str) -> Message:
-        return await self._require_client().send_message(self.chat.id, text, self)
+    async def reply(self, text: str, *, reply_markup: Any = None) -> Message:
+        return await self._require_client().send_message(
+            self.chat.id, text, self, reply_markup=reply_markup
+        )
 
     async def edit_text(self, text: str) -> DefaultResponse:
         return await self._require_client().edit_message_text(
@@ -408,6 +412,10 @@ class Message(Serializable):
         return await self._require_client().report_message(
             self.chat.id, self, reason, kind
         )
+
+    def get_fsm_context(self) -> Any:
+        """Return the FSMContext bound to this message's chat and author."""
+        return self._require_client().get_fsm_context(self.chat.id, self.author.id)
 
     def _require_client(self) -> Client:
         if self._client is None:
@@ -499,9 +507,7 @@ def wrap_group(raw: dict[str, Any]) -> Chat:
         is_member=bool(_wrapped(raw.get("is_member"), False)),
         can_send_message=bool(_wrapped(raw.get("can_send_message"), False)),
         permissions=(
-            dict(raw["permissions"])
-            if isinstance(raw.get("permissions"), dict)
-            else {}
+            dict(raw["permissions"]) if isinstance(raw.get("permissions"), dict) else {}
         ),
     )
 

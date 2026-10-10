@@ -30,6 +30,89 @@ class Session:
     def __str__(self) -> str:
         return f"{self.user_id}:{self.jwt}"
 
+    @classmethod
+    def from_firefox(cls, profile_path: str | Path | None = None) -> Session:
+        """Extract active Bale session from local Firefox cookies."""
+        import base64
+        import glob
+        import json
+        import shutil
+        import sqlite3
+
+        cookie_paths: list[Path] = []
+        if profile_path is not None:
+            p = Path(profile_path).expanduser()
+            if p.is_file() and p.name == "cookies.sqlite":
+                cookie_paths.append(p)
+            elif p.is_dir():
+                found_in_dir = list(p.glob("cookies.sqlite")) or list(
+                    p.glob("**/cookies.sqlite")
+                )
+                cookie_paths.extend(found_in_dir)
+        else:
+            search_patterns = [
+                "~/.mozilla/firefox/*/cookies.sqlite",
+                "~/snap/firefox/common/.mozilla/firefox/*/cookies.sqlite",
+                "~/.var/app/org.mozilla.firefox/.mozilla/firefox/*/cookies.sqlite",
+                "~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite",
+            ]
+            appdata = os.environ.get("APPDATA")
+            if appdata:
+                search_patterns.append(
+                    os.path.join(
+                        appdata, "Mozilla", "Firefox", "Profiles", "*", "cookies.sqlite"
+                    )
+                )
+            for pat in search_patterns:
+                for match in glob.glob(os.path.expanduser(pat)):
+                    cookie_paths.append(Path(match))
+
+        for cookie_db in cookie_paths:
+            if not cookie_db.exists():
+                continue
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False) as tmp:
+                    tmp_path = Path(tmp.name)
+                try:
+                    shutil.copy2(cookie_db, tmp_path)
+                    conn = sqlite3.connect(f"file:{tmp_path}?mode=ro", uri=True)
+                    try:
+                        cursor = conn.cursor()
+                        cursor.execute(
+                            "SELECT value FROM moz_cookies "
+                            "WHERE host LIKE '%next-ws%' AND name = 'access_token'"
+                        )
+                        rows = cursor.fetchall()
+                    finally:
+                        conn.close()
+                finally:
+                    with contextlib.suppress(FileNotFoundError):
+                        tmp_path.unlink()
+
+                for (token,) in rows:
+                    if not isinstance(token, str) or "." not in token:
+                        continue
+                    parts = token.split(".")
+                    if len(parts) < 2:
+                        continue
+                    payload_b64 = parts[1] + "=" * (-len(parts[1]) % 4)
+                    try:
+                        payload_data = json.loads(base64.urlsafe_b64decode(payload_b64))
+                    except Exception:
+                        continue
+                    user_id = (
+                        payload_data.get("payload", {}).get("user_id")
+                        or payload_data.get("user_id")
+                        or payload_data.get("uid")
+                        or payload_data.get("sub")
+                    )
+                    if user_id is not None:
+                        return cls(int(user_id), token)
+            except Exception:
+                continue
+
+        raise AuthenticationError("No active Bale session found in Firefox cookies")
+
 
 class SessionStorage:
     def __init__(self, directory: str | Path, name: str) -> None:

@@ -64,10 +64,13 @@ def test_complete_protocol_registry_has_every_recovered_rpc() -> None:
     assert len(request_pb2.DESCRIPTOR.message_types_by_name) == 742
     assert len(response_pb2.DESCRIPTOR.message_types_by_name) == 507
     assert len(response_pb2.DESCRIPTOR.services_by_name) == 52
-    assert sum(
-        len(service.methods)
-        for service in response_pb2.DESCRIPTOR.services_by_name.values()
-    ) == 610
+    assert (
+        sum(
+            len(service.methods)
+            for service in response_pb2.DESCRIPTOR.services_by_name.values()
+        )
+        == 610
+    )
     assert len(set(ALL_RPCS)) == len(ALL_RPCS)
     assert set(ALL_RPCS) == set(METHODS)
 
@@ -99,8 +102,7 @@ async def test_every_complete_protocol_wrapper_builds_and_invokes() -> None:
     unary_rpcs = [
         pair
         for pair in ALL_RPCS
-        if pair
-        != ("bale.maviz.v1.MavizStream", "SubscribeToUpdates")
+        if pair != ("bale.maviz.v1.MavizStream", "SubscribeToUpdates")
     ]
     for service, method in unary_rpcs:
         response = await getattr(services[service], method)()

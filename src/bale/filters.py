@@ -8,7 +8,7 @@ import json
 import re
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from bale.client import Client
@@ -266,3 +266,20 @@ any = any_of
 
 def not_(item: Filter) -> Filter:
     return ~item
+
+
+def state(target_state: Any) -> Filter:
+    """Match messages when the user is in a specific FSM state."""
+    state_str = getattr(target_state, "state", target_state)
+
+    async def predicate(client: Client, message: Message) -> bool:
+        if not hasattr(client, "storage") or client.storage is None:
+            return False
+        current = await client.storage.get_state(message.chat.id, message.author.id)
+        if target_state is None:
+            return current is None
+        if target_state == "*":
+            return True
+        return bool(current == state_str)
+
+    return Filter(predicate, f"state({state_str})")

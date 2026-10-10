@@ -121,9 +121,7 @@ async def test_unknown_wire_update_gets_stable_variant_name(tmp_path) -> None:
     raw = {
         "update": {
             "composed_update": {
-                "_unknown_fields": [
-                    {"number": 6, "wire_type": 2, "data": b"payload"}
-                ]
+                "_unknown_fields": [{"number": 6, "wire_type": 2, "data": b"payload"}]
             }
         }
     }
@@ -145,9 +143,7 @@ async def test_compact_unknown_update_is_decoded_with_complete_proto(tmp_path) -
         {
             "update": {
                 "composed_update": {
-                    "_unknown_fields": [
-                        {"number": 6, "wire_type": 2, "data": encoded}
-                    ]
+                    "_unknown_fields": [{"number": 6, "wire_type": 2, "data": encoded}]
                 }
             }
         }
@@ -170,6 +166,5 @@ def test_every_protocol_update_variant_has_a_stable_public_name() -> None:
 
     assert len(descriptor_fields) == 142
     assert {
-        number: descriptor.name
-        for number, descriptor in descriptor_fields.items()
+        number: descriptor.name for number, descriptor in descriptor_fields.items()
     } == events._UPDATE_FIELD_NAMES

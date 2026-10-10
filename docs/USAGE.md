@@ -6,7 +6,20 @@
 python -m pip install --upgrade balenova
 ```
 
-## اجرا
+## ورود و راه‌اندازی
+
+### ورود خودکار از فایرفاکس (بدون نیاز به کد تایید)
+اگر در مرورگر فایرفاکس خود به `web.bale.ai` وارد شده‌اید، می‌توانید مستقیماً و بدون نیاز به ورود شماره تلفن یا کد پیامکی متصل شوید:
+
+```python
+from balenova import Client
+
+app = Client.from_firefox()
+app.run_forever()
+```
+
+### ورود ترمینالی با شماره تلفن
+در صورت اجرای عادی، شماره تلفن و کد ورود در ترمینال پرسیده شده و سشن برای دفعات بعدی ذخیره می‌شود:
 
 ```python
 from balenova import Client
@@ -17,17 +30,21 @@ app.run_forever()
 
 ## انتخاب سطح API
 
-سه مسیر سازگار برای کار با کتابخانه وجود دارد:
+چهار مسیر سازگار برای کار با کتابخانه وجود دارد:
 
 ```python
-# ساده‌ترین مسیر برای کارهای رایج
+# ۱. ساده‌ترین متدهای سطح‌بالا برای کارهای روزمره
 await app.send_message(chat, "سلام")
+stories = await app.get_all_stories()
+emojis = await app.get_story_reaction_emojis()
+await app.react_to_story(story_id, "❤")
 
-# دسترسی Pythonic به هر RPC تایپ‌شده؛ نام متد و فیلد snake_case است
+# ۲. فراخوانی پایتونیک به هر RPC رسمی وب
 groups = await app.rpc("groups", "get_my_groups", mode=2, is_owner=True)
 
-# نام دقیق تولیدشده از پروتکل، برای تطبیق مستقیم با مستندات Bale
-groups = await app.groups.GetMyGroups(mode=2, isOwner=True)
+# ۳. کالکشن تایپ‌شده و مستقیم تمام سرویس‌های پروتکل بله
+groups = await app.api.groups.GetMyGroups(mode=2, isOwner=True)
+poll_res = await app.api.poll.GetFullPollResult(pollId=12345)
 ```
 
 `app.rpc()` هم RPCهای اصلی و هم RPCهای بازیابی‌شده را پیدا می‌کند:
@@ -57,8 +74,8 @@ app.api.all_rpcs
 
 ```python
 print(message)
-data = message.to_dict()       # یا as_dict()
-text = message.to_json()       # یا as_json()
+data = message.to_dict()  # یا as_dict()
+text = message.to_json()  # یا as_json()
 ```
 
 برای پاسخ protobuf یا ساختارهای تو در تو از توابع عمومی استفاده کنید:

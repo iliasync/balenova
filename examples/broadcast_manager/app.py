@@ -152,9 +152,7 @@ def is_owner_command(message: Message) -> bool:
         return True
     user = app.user
     return bool(
-        user
-        and message.chat.peer_id == user.id
-        and message.chat.peer_type == 1
+        user and message.chat.peer_id == user.id and message.chat.peer_type == 1
     )
 
 
@@ -194,8 +192,7 @@ async def handle_command(message: Message, text: str) -> str:
         settings.schedule = "interval"
         next_run = scheduler.schedule_next()
         result = (
-            f"ارسال هر {settings.interval_minutes} دقیقه؛ "
-            f"بعدی: {next_run:%H:%M} ✅"
+            f"ارسال هر {settings.interval_minutes} دقیقه؛ بعدی: {next_run:%H:%M} ✅"
         )
     elif name == "!at":
         if len(parts) < 2:
@@ -204,8 +201,7 @@ async def handle_command(message: Message, text: str) -> str:
         settings.schedule = "daily"
         next_run = scheduler.schedule_next()
         result = (
-            f"ساعت {settings.daily_time} ذخیره شد؛ "
-            f"بعدی: {next_run:%Y-%m-%d %H:%M} ✅"
+            f"ساعت {settings.daily_time} ذخیره شد؛ بعدی: {next_run:%Y-%m-%d %H:%M} ✅"
         )
     elif name == "!groups":
         return await groups_command(parts[1:], message)
@@ -419,9 +415,7 @@ def parse_panel_options(text: str) -> dict[str, bool]:
     for line in text.splitlines():
         match = re.fullmatch(r"- \[([ xX])\]\s+(.+?)\s*", line)
         if match and match.group(2) in PANEL_OPTIONS:
-            requested[PANEL_OPTIONS[match.group(2)]] = (
-                match.group(1).casefold() == "x"
-            )
+            requested[PANEL_OPTIONS[match.group(2)]] = match.group(1).casefold() == "x"
     return requested
 
 

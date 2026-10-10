@@ -227,9 +227,7 @@ class BroadcastScheduler:
                 if attempt + 1 >= attempts:
                     raise
                 delay = _retry_after(error) or min(300.0, 15.0 * (2**attempt))
-                print(
-                    f"{operation}: محدودیت موقت؛ تلاش دوباره پس از {delay:g} ثانیه"
-                )
+                print(f"{operation}: محدودیت موقت؛ تلاش دوباره پس از {delay:g} ثانیه")
                 await asyncio.sleep(delay)
         raise RuntimeError("unreachable")
 

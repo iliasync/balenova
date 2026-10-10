@@ -366,9 +366,7 @@ async def test_direct_group_inventory_uses_two_bulk_rpcs(tmp_path) -> None:
         "GetMemberPermissions",
         "GetCanSeeMessages",
     ]
-    assert grpc.calls[1]["payload"] == {
-        "peers": [{"group_id": 20, "access_hash": 30}]
-    }
+    assert grpc.calls[1]["payload"] == {"peers": [{"group_id": 20, "access_hash": 30}]}
     assert len(groups) == 1
     assert groups[0].id == "20|2"
     assert groups[0].access_hash == 30
@@ -665,8 +663,7 @@ async def test_send_call_fanoos_event_builds_typed_value_items(tmp_path) -> None
     assert values["attempt"].int64Value == 7
     assert values["ratio"].doubleValue == 0.5
     assert [
-        item.stringValue or item.int64Value
-        for item in values["tags"].arrayValue.array
+        item.stringValue or item.int64Value for item in values["tags"].arrayValue.array
     ] == ["voice", 2]
 
     with pytest.raises(ValueError, match="must not be empty"):
@@ -714,16 +711,10 @@ async def test_private_call_lifecycle_and_stream_methods_use_current_shapes(
         "type": 1,
         "access_hash": 1,
     }
-    assert calls["SubmitCallFeedback"]["payload"]["user_opinion"] == {
-        "value": "good"
-    }
+    assert calls["SubmitCallFeedback"]["payload"]["user_opinion"] == {"value": "good"}
     actions = [call for call in grpc.calls if call["method"] == "TakeCallAction"]
-    assert actions[0]["payload"]["raise_hand"] == {
-        "user_identity": "participant"
-    }
-    assert actions[1]["payload"]["lower_hand"] == {
-        "user_identity": "participant"
-    }
+    assert actions[0]["payload"]["raise_hand"] == {"user_identity": "participant"}
+    assert actions[1]["payload"]["lower_hand"] == {"user_identity": "participant"}
 
     with pytest.raises(ValueError, match="between 1 and 5"):
         await client.submit_call_feedback(-789, 0)

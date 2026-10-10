@@ -18,6 +18,14 @@ class ProtocolAPI:
             setattr(self, name, service_class(client))
         self.recovered = RecoveredAPI(client)
 
+    def __getattr__(self, name: str) -> Any:
+        try:
+            return self.__dict__[name]
+        except KeyError:
+            raise AttributeError(
+                f"{self.__class__.__name__!r} object has no attribute {name!r}"
+            ) from None
+
     @property
     def services(self) -> tuple[str, ...]:
         return tuple(SERVICE_CLASSES)

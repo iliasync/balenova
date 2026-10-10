@@ -71,8 +71,7 @@ def main() -> None:
         )
         for method, request, response, source in sorted(grouped[service]):
             lines.append(
-                f"| `{method}` | {_fields(request)} | {_fields(response)} | "
-                f"{source} |"
+                f"| `{method}` | {_fields(request)} | {_fields(response)} | {source} |"
             )
         lines.append("")
     OUTPUT.write_text("\n".join(lines), encoding="utf-8")

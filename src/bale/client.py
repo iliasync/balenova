@@ -112,9 +112,7 @@ def _fanoos_value(value: Any) -> dict[str, Any]:
     if isinstance(value, float):
         return {"doubleValue": value}
     if isinstance(value, (list, tuple)):
-        return {
-            "arrayValue": {"array": [_fanoos_value(item) for item in value]}
-        }
+        return {"arrayValue": {"array": [_fanoos_value(item) for item in value]}}
     raise TypeError(
         "Fanoos values must be str, bool, int, float, list, or tuple; "
         f"got {type(value).__name__}"
@@ -171,6 +169,9 @@ class Client:
         )
         storage_name = session_name or self._phone_number or "bale"
         self._storage = SessionStorage(session_dir, storage_name)
+        from bale.fsm import MemoryStorage
+
+        self.storage = MemoryStorage()
         self._recorder = recorder
         self._grpc = grpc or GrpcTransport(recorder=recorder)
         self._websocket_options = dict(websocket_options or {})
@@ -195,6 +196,43 @@ class Client:
         self.recovered = self.api.recovered
         for service_name in self.api.services:
             setattr(self, service_name, getattr(self.api, service_name))
+
+    @classmethod
+    def from_firefox(
+        cls,
+        profile_path: str | Path | None = None,
+        *,
+        session_name: str = "firefox",
+        **kwargs: Any,
+    ) -> Client:
+        """Create a client using the active session from Firefox cookies."""
+        session = Session.from_firefox(profile_path)
+        return cls(str(session), session_name=session_name, **kwargs)
+
+    @classmethod
+    def from_browser(
+        cls,
+        browser: str = "firefox",
+        profile_path: str | Path | None = None,
+        *,
+        session_name: str | None = None,
+        **kwargs: Any,
+    ) -> Client:
+        """Create a client by extracting credentials from a local browser."""
+        browser_normalized = browser.strip().casefold()
+        if browser_normalized in {"firefox", "ff"}:
+            return cls.from_firefox(
+                profile_path, session_name=session_name or "firefox", **kwargs
+            )
+        raise NotImplementedError(
+            f"Browser '{browser}' is not supported yet; only 'firefox' is available."
+        )
+
+    def get_fsm_context(self, chat_id: int | str, user_id: int | str) -> Any:
+        """Return an FSMContext instance for a specific chat and user."""
+        from bale.fsm import FSMContext
+
+        return FSMContext(self.storage, chat_id, user_id)
 
     @property
     def connected(self) -> bool:
@@ -695,9 +733,7 @@ class Client:
         """
         return cast(
             ProtobufMessage | bytes,
-            await self.api.call(
-                service, method, request, timeout=timeout, **fields
-            ),
+            await self.api.call(service, method, request, timeout=timeout, **fields),
         )
 
     async def post(
@@ -2284,11 +2320,30 @@ class Client:
         )
 
     async def send_message(
-        self, chat_id: str, text: str, reply_to: Message | None = None
+        self,
+        chat_id: str,
+        text: str,
+        reply_to: Message | None = None,
+        *,
+        reply_markup: Any = None,
     ) -> Message:
         peer = _require_peer(chat_id)
         rid = WebSocketTransport.create_rid()
-        message_payload = {"text_message": {"text": text}}
+        if reply_markup is not None:
+            markup_dict = (
+                reply_markup.to_dict()
+                if hasattr(reply_markup, "to_dict")
+                else dict(reply_markup)
+            )
+            template_payload: dict[str, Any] = {
+                "general_message": {"text_message": {"text": text}},
+                "btn_list": [],
+            }
+            template_payload.update(markup_dict)
+            message_payload = {"template_message": template_payload}
+        else:
+            message_payload = {"text_message": {"text": text}}
+
         response = await self.invoke(
             "bale.messaging.v2.Messaging",
             "SendMessage",
@@ -2770,9 +2825,7 @@ class Client:
                     "rid": rid,
                     "video": video,
                     "invite_enable": (
-                        {"value": invite_enable}
-                        if invite_enable is not None
-                        else None
+                        {"value": invite_enable} if invite_enable is not None else None
                     ),
                 },
             },
@@ -2879,9 +2932,7 @@ class Client:
                     {"value": client_version} if client_version else None
                 ),
                 "extra_fields": dict(extra_fields or {}),
-                "is_stream": (
-                    {"value": is_stream} if is_stream is not None else None
-                ),
+                "is_stream": ({"value": is_stream} if is_stream is not None else None),
             },
         )
         return wrap_default(response)
@@ -3008,6 +3059,88 @@ class Client:
         """Return the current combined stories response."""
 
         return await self.recovered.call("bale.story.v1.Story", "GetAllStories")
+
+    async def get_story_reaction_emojis(self) -> list[str]:
+        """Return the list of allowed story reaction emojis."""
+        res = await self.api.story.GetStoryReactionEmojis()
+        return [
+            item.emoji.decode("utf-8")
+            if isinstance(item.emoji, bytes)
+            else str(item.emoji)
+            for item in getattr(res, "emojis", [])
+        ]
+
+    async def get_story(self, story_id: str) -> ProtobufMessage:
+        """Fetch details of a specific story by its UUID."""
+        return cast(
+            ProtobufMessage, await self.api.story.GetStoryById(storyId=story_id)
+        )
+
+    async def get_story_viewers(
+        self, story_id: str, *, page: int = 1, page_size: int = 20
+    ) -> ProtobufMessage:
+        """Return viewer information and metrics for a story."""
+        return cast(
+            ProtobufMessage,
+            await self.api.story.GetViewers(
+                storyId=story_id,
+                pagination={"pageNumber": page, "pageSize": page_size},
+            ),
+        )
+
+    async def react_to_story(
+        self,
+        story_id: str,
+        reaction: str,
+        *,
+        reaction_type: int = 0,
+    ) -> None:
+        """Send a reaction or emoji to a story."""
+        await self.api.story.ReactToStory(
+            storyId=story_id,
+            reaction=reaction,
+            reactionType=reaction_type,
+        )
+
+    async def remove_story(self, story_id: str) -> None:
+        """Delete an existing story by id."""
+        await self.api.story.RemoveStory(storyId=story_id)
+
+    async def get_poll_results(self, poll_ids: Iterable[int]) -> ProtobufMessage:
+        """Return summarized results for a collection of poll IDs."""
+        return cast(
+            ProtobufMessage,
+            await self.api.poll.GetPollResults(pollIds=list(poll_ids)),
+        )
+
+    async def get_poll_result(self, poll_id: int) -> ProtobufMessage:
+        """Return full details and breakdown of a specific poll."""
+        return cast(
+            ProtobufMessage,
+            await self.api.poll.GetFullPollResult(pollId=poll_id),
+        )
+
+    async def vote_poll(
+        self,
+        poll_id: int,
+        option_ids: Iterable[int],
+        *,
+        is_retract: bool = False,
+    ) -> ProtobufMessage:
+        """Submit or retract votes for options in a poll."""
+        return cast(
+            ProtobufMessage,
+            await self.api.poll.Vote(
+                pollId=poll_id,
+                isRetract=is_retract,
+                voteAt=int(time.time() * 1000),
+                optionIds=list(option_ids),
+            ),
+        )
+
+    async def close_poll(self, poll_id: int) -> None:
+        """Close an active poll so no further answers can be cast."""
+        await self.api.poll.ClosePoll(pollId=poll_id)
 
     async def get_marketing_tools_config(self) -> ProtobufMessage:
         """Return Pishvaz marketing-tool configuration."""
@@ -4043,10 +4176,7 @@ def _user_id(value: int | str) -> int:
 def _require_message_id(value: str) -> tuple[int, int]:
     match = _MESSAGE_PATTERN.fullmatch(value.strip())
     if match is None:
-        raise ValueError(
-            "Expected a message id like '-123|1700000000', "
-            f"got {value!r}"
-        )
+        raise ValueError(f"Expected a message id like '-123|1700000000', got {value!r}")
     rid = _signed_int64(match.group("rid"), field_name="message rid")
     date = _signed_int64(match.group("date"), field_name="message date")
     if date < 0:

@@ -89,9 +89,7 @@ class RecoveredService:
             _timeout: float = 10.0,
             **fields: Any,
         ) -> ProtobufMessage:
-            return await self.call(
-                actual_method, request, timeout=_timeout, **fields
-            )
+            return await self.call(actual_method, request, timeout=_timeout, **fields)
 
         invoke.__name__ = method
         invoke.__doc__ = f"Invoke recovered RPC {self.service}.{method}."
@@ -153,9 +151,7 @@ class RecoveredAPI:
             )
         if namespace is None:
             raise LookupError(f"unknown recovered Bale service {service}")
-        return await namespace.call(
-            method, request, timeout=timeout, **fields
-        )
+        return await namespace.call(method, request, timeout=timeout, **fields)
 
 
 __all__ = [

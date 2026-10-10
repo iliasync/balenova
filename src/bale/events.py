@@ -86,16 +86,19 @@ class NewMessage(Update):
     def is_channel(self) -> bool:
         return self.chat.type is ChatType.CHANNEL
 
-    async def answer(self, text: str) -> Message:
-        return await self.message.answer(text)
+    async def answer(self, text: str, *, reply_markup: Any = None) -> Message:
+        return await self.message.answer(text, reply_markup=reply_markup)
 
     respond = answer
 
-    async def reply(self, text: str) -> Message:
-        return await self.message.reply(text)
+    async def reply(self, text: str, *, reply_markup: Any = None) -> Message:
+        return await self.message.reply(text, reply_markup=reply_markup)
 
     async def delete(self, just_me: bool = False) -> Any:
         return await self.message.delete(just_me)
+
+    def get_fsm_context(self) -> Any:
+        return self.message.get_fsm_context()
 
 
 @dataclass(slots=True)
@@ -157,8 +160,10 @@ def _decode_complete_update_field(field: dict[str, Any]) -> dict[str, Any]:
     data = field.get("data")
     update_type = cast(Any, struct_pb2).WebUpdate
     descriptor = update_type.DESCRIPTOR.fields_by_number.get(number)
-    if descriptor is None or descriptor.message_type is None or not isinstance(
-        data, bytes | bytearray | memoryview
+    if (
+        descriptor is None
+        or descriptor.message_type is None
+        or not isinstance(data, bytes | bytearray | memoryview)
     ):
         return field
     try:

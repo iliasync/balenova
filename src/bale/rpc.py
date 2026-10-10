@@ -6,6 +6,7 @@ The keyword form is built by :func:`populate`, a generic recursive setter that
 understands scalar, singular-message, repeated-scalar and repeated-message
 fields (and accepts nested ``dict`` / ``Message`` values for sub-messages).
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -110,9 +111,7 @@ def _is_repeated(field: Any) -> bool:
 def _is_map(field: Any) -> bool:
     mt = getattr(field, "message_type", None)
     return bool(
-        mt is not None
-        and getattr(mt, "GetOptions", None)
-        and mt.GetOptions().map_entry
+        mt is not None and getattr(mt, "GetOptions", None) and mt.GetOptions().map_entry
     )
 
 
@@ -124,9 +123,7 @@ def build_request(
     """Resolve a request message from either a pre-built ``request`` or kwargs."""
     if request is not None:
         if fields:
-            raise TypeError(
-                "pass either a request message or field kwargs, not both"
-            )
+            raise TypeError("pass either a request message or field kwargs, not both")
         if not isinstance(request, req_type):
             raise TypeError(
                 f"expected {req_type.__name__}, got {type(request).__name__}"

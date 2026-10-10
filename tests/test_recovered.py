@@ -65,9 +65,7 @@ async def test_high_level_recovered_convenience_methods(monkeypatch) -> None:
     client = Client("42:account-token")
     calls: list[tuple[str, dict[str, Any]]] = []
 
-    async def capture(
-        service: str, method: str, **fields: Any
-    ) -> ProtobufMessage:
+    async def capture(service: str, method: str, **fields: Any) -> ProtobufMessage:
         calls.append((method, fields))
         return next(iter(RECOVERED_METHODS.values()))[1]()
 

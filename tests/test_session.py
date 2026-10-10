@@ -33,3 +33,30 @@ async def test_session_storage_is_atomic_private_and_deletable(tmp_path) -> None
 
     await storage.delete()
     assert await storage.load() is None
+
+
+def test_session_from_firefox_mock(tmp_path) -> None:
+    import base64
+    import json
+    import sqlite3
+
+    db_path = tmp_path / "cookies.sqlite"
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute(
+        "CREATE TABLE moz_cookies "
+        "(id INTEGER PRIMARY KEY, host TEXT, name TEXT, value TEXT)"
+    )
+    payload = json.dumps({"payload": {"user_id": 987654}}).encode()
+    b64_payload = base64.urlsafe_b64encode(payload).decode().rstrip("=")
+    fake_token = f"fakeheader.{b64_payload}.fakesig"
+    c.execute(
+        "INSERT INTO moz_cookies (host, name, value) VALUES (?, ?, ?)",
+        (".next-ws.bale.ai", "access_token", fake_token),
+    )
+    conn.commit()
+    conn.close()
+
+    session = Session.from_firefox(db_path)
+    assert session.user_id == 987654
+    assert session.jwt == fake_token

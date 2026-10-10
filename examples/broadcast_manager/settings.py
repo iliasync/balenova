@@ -47,18 +47,14 @@ class SettingsStore:
                 **{key: value for key, value in raw.items() if key in allowed}
             )
             # Keep hand-edited settings within conservative API-friendly bounds.
-            settings.gap_seconds = min(
-                600.0, max(10.0, float(settings.gap_seconds))
-            )
+            settings.gap_seconds = min(600.0, max(10.0, float(settings.gap_seconds)))
             settings.scan_gap_seconds = min(
                 30.0, max(3.0, float(settings.scan_gap_seconds))
             )
             settings.retry_attempts = min(10, max(6, int(settings.retry_attempts)))
             settings.retry_rate_limits = bool(settings.retry_rate_limits)
             settings.show_scan_progress = bool(settings.show_scan_progress)
-            settings.interval_minutes = min(
-                60, max(1, int(settings.interval_minutes))
-            )
+            settings.interval_minutes = min(60, max(1, int(settings.interval_minutes)))
             group_ids = (
                 settings.group_ids if isinstance(settings.group_ids, list) else []
             )
@@ -68,9 +64,9 @@ class SettingsStore:
                 if isinstance(settings.panel_message_keys, list)
                 else []
             )
-            settings.panel_message_keys = list(
-                dict.fromkeys(map(str, panel_keys))
-            )[-20:]
+            settings.panel_message_keys = list(dict.fromkeys(map(str, panel_keys)))[
+                -20:
+            ]
         except (TypeError, ValueError):
             return Settings()
         return settings

@@ -77,9 +77,7 @@ def test_parse_browser_call_url_decodes_safe_rtc_metadata() -> None:
         }
     )
 
-    connection = parse_call_wss_url(
-        f"wss://meet.example.test/instance/rtc/v1?{query}"
-    )
+    connection = parse_call_wss_url(f"wss://meet.example.test/instance/rtc/v1?{query}")
 
     assert connection.server_url == (
         "wss://meet.example.test/instance/rtc/v1?region=test"
@@ -158,9 +156,7 @@ async def test_connection_uses_official_livekit_room(monkeypatch) -> None:
     livekit.rtc = rtc  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "livekit", livekit)
     monkeypatch.setitem(sys.modules, "livekit.rtc", rtc)
-    connection = CallRtcConnection(
-        "wss://meet.example.test/instance", fake_token()
-    )
+    connection = CallRtcConnection("wss://meet.example.test/instance", fake_token())
     options = object()
 
     room = await connection.connect(options)

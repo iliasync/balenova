@@ -297,9 +297,7 @@ async def test_group_link_uses_preview_membership_and_send_permission(tmp_path) 
     )
     scheduler.settings.scan_gap_seconds = 0
 
-    assert await scheduler.group_from_link(
-        "https://ble.ir/join/allowed"
-    ) == "99|5"
+    assert await scheduler.group_from_link("https://ble.ir/join/allowed") == "99|5"
 
 
 @pytest.mark.asyncio

@@ -41,9 +41,7 @@ class VoicePlayer:
         self.call_id = int(group_call["id"])
         self._started_call = started_call
         try:
-            joined = await self.client.join_group_call(
-                self.call_id, "BaleNova Player"
-            )
+            joined = await self.client.join_group_call(self.call_id, "BaleNova Player")
             joined_call = joined.get("group_call")
             if isinstance(joined_call, dict):
                 group_call = joined_call
@@ -56,12 +54,8 @@ class VoicePlayer:
                 self.CHANNELS,
                 queue_size_ms=100,
             )
-            track = rtc.LocalAudioTrack.create_audio_track(
-                "BaleNova", self.source
-            )
-            options = rtc.TrackPublishOptions(
-                source=rtc.TrackSource.SOURCE_MICROPHONE
-            )
+            track = rtc.LocalAudioTrack.create_audio_track("BaleNova", self.source)
+            options = rtc.TrackPublishOptions(source=rtc.TrackSource.SOURCE_MICROPHONE)
             await self.room.local_participant.publish_track(track, options)
             self.chat_id = chat_id
             return self.call_id

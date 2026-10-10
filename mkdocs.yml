@@ -42,6 +42,7 @@ markdown_extensions:
 nav:
   - خانه: index.md
   - شروع سریع: USAGE.md
+  - کیبوردها و FSM: fsm_keyboards.md
   - API سطح‌بالا: api.md
   - ۸۰ RPC بازیابی‌شده: recovered-rpcs.md
   - مرجع کامل RPCها: rpc-reference.md
