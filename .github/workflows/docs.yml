@@ -23,7 +23,8 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -e ".[docs]"
+      - run: pip install "pymdown-extensions>=10.14" "mkdocs-material>=9.5" "mkdocstrings[python]>=0.28"
+      - run: pip install -e .
       - run: python scripts/generate_rpc_docs.py
       - run: python -m mkdocs build --strict
       - uses: actions/upload-pages-artifact@v3
