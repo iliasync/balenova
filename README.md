@@ -104,10 +104,12 @@ from balenova import Client, events, filters
 
 app = Client.from_firefox()
 
+
 # پاسخ به دستور /start
 @app.on(events.NewMessage, filters.command("start"))
 async def start_handler(event: events.NewMessage):
     await event.reply("سلام! من با کتابخانه BaleNova آماده خدمت‌ام 🌱")
+
 
 # دریافت پیام‌های متنی در چت‌های خصوصی
 @app.on(events.NewMessage, filters.private & filters.text)
@@ -117,10 +119,12 @@ async def private_msg(event: events.NewMessage):
     elif event.text == "پینگ":
         await event.answer("پونگ 🏓")
 
+
 # واکنش به تغییر و ادیت شدن پیام
 @app.on(events.MessageEdited)
 async def edited_msg(event: events.MessageEdited):
     print(f"پیام در چت {event.chat.id} ویرایش شد: {event.text}")
+
 
 app.run_forever()
 ```
@@ -138,9 +142,7 @@ markup.add(
     InlineKeyboardButton("ورود به سایت بله", url="https://bale.ai"),
     InlineKeyboardButton("تایید سفارش", callback_data="order_ok"),
 )
-markup.row(
-    InlineKeyboardButton("پشتیبانی آنلاین", callback_data="support")
-)
+markup.row(InlineKeyboardButton("پشتیبانی آنلاین", callback_data="support"))
 
 await app.send_message(chat_id, "منوی اصلی خدمات:", reply_markup=markup)
 ```
@@ -172,9 +174,11 @@ from balenova import Client, StatesGroup, State, events, filters
 
 app = Client.from_firefox()
 
+
 class RegisterFlow(StatesGroup):
     waiting_for_name = State()
     waiting_for_city = State()
+
 
 @app.on(events.NewMessage, filters.command("register"))
 async def start_reg(event: events.NewMessage):
@@ -182,12 +186,14 @@ async def start_reg(event: events.NewMessage):
     await fsm.set_state(RegisterFlow.waiting_for_name)
     await event.reply("نام خود را ارسال کنید:")
 
+
 @app.on(events.NewMessage, filters.state(RegisterFlow.waiting_for_name))
 async def get_name(event: events.NewMessage):
     fsm = event.get_fsm_context()
     await fsm.update_data(name=event.text)
     await fsm.set_state(RegisterFlow.waiting_for_city)
     await event.reply(f"خوش آمدید {event.text}! در کدام شهر زندگی می‌کنید؟")
+
 
 @app.on(events.NewMessage, filters.state(RegisterFlow.waiting_for_city))
 async def get_city(event: events.NewMessage):
@@ -197,6 +203,7 @@ async def get_city(event: events.NewMessage):
     city = event.text
     await fsm.clear()  # پایان وضعیت
     await event.reply(f"ثبت نام کامل شد:\n👤 نام: {user_name}\n🏙️ شهر: {city}")
+
 
 app.run_forever()
 ```

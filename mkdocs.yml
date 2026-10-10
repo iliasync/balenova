@@ -42,7 +42,11 @@ markdown_extensions:
 nav:
   - خانه: index.md
   - شروع سریع: USAGE.md
+  - پیام‌ها و رسانه: messaging.md
   - کیبوردها و FSM: fsm_keyboards.md
+  - امور بانکی و مینی‌اپ‌ها: banking_miniapps.md
+  - استوری، نظرسنجی و زمان‌بندی: stories_polls_schedule.md
+  - مدیریت گروه‌ها و کانال‌ها: group_management.md
   - API سطح‌بالا: api.md
   - ۸۰ RPC بازیابی‌شده: recovered-rpcs.md
   - مرجع کامل RPCها: rpc-reference.md

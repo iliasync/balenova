@@ -14,21 +14,20 @@ from balenova import Client, InlineKeyboardMarkup, InlineKeyboardButton, events,
 
 app = Client.from_firefox()
 
+
 @app.on(events.NewMessage, filters.command("panel"))
 async def show_panel(event: events.NewMessage):
     markup = InlineKeyboardMarkup()
-    
+
     # افزودن دکمه‌ها در یک سطر
     markup.add(
         InlineKeyboardButton("وب‌سایت بله", url="https://bale.ai"),
         InlineKeyboardButton("تأیید سفارش", callback_data="btn_confirm"),
     )
-    
+
     # افزودن سطر بعدی
-    markup.row(
-        InlineKeyboardButton("پشتیبانی", callback_data="btn_support")
-    )
-    
+    markup.row(InlineKeyboardButton("پشتیبانی", callback_data="btn_support"))
+
     await event.reply("کنترل پنل کاربری:", reply_markup=markup)
 ```
 
@@ -64,10 +63,12 @@ from balenova import Client, StatesGroup, State, events, filters
 
 app = Client.from_firefox()
 
+
 # ۱. تعریف گروه‌های وضعیت
 class Registration(StatesGroup):
     name = State()
     phone = State()
+
 
 # ۲. شروع ثبت‌نام با دستور
 @app.on(events.NewMessage, filters.command("register"))
@@ -76,14 +77,16 @@ async def start_reg(event: events.NewMessage):
     await fsm.set_state(Registration.name)
     await event.reply("لطفاً نام خود را بنویسید:")
 
+
 # ۳. دریافت نام و رفتن به وضعیت بعدی
 @app.on(events.NewMessage, filters.state(Registration.name))
 async def get_name(event: events.NewMessage):
     fsm = event.get_fsm_context()
     await fsm.update_data(user_name=event.text)
-    
+
     await fsm.set_state(Registration.phone)
     await event.reply(f"ممنون {event.text}! حالا شماره تماس را وارد کنید:")
+
 
 # ۴. دریافت شماره و اتمام فرایند
 @app.on(events.NewMessage, filters.state(Registration.phone))
@@ -91,11 +94,12 @@ async def get_phone(event: events.NewMessage):
     fsm = event.get_fsm_context()
     data = await fsm.get_data()
     user_name = data.get("user_name")
-    
+
     # پاکسازی وضعیت برای پیام‌های بعدی
     await fsm.clear()
-    
+
     await event.reply(f"ثبت‌نام کامل شد!\nنام: {user_name}\nتلفن: {event.text}")
+
 
 app.run_forever()
 ```

@@ -113,6 +113,31 @@ class Session:
 
         raise AuthenticationError("No active Bale session found in Firefox cookies")
 
+    @classmethod
+    def from_browser(
+        cls,
+        browser: str = "auto",
+        profile_path: str | Path | None = None,
+    ) -> Session:
+        """Extract active Bale session from local browsers.
+
+        Auto-detects Firefox, Snap Firefox, Flatpak, and custom browser profiles.
+        """
+        b = browser.strip().casefold()
+        if b in {"firefox", "ff"}:
+            return cls.from_firefox(profile_path)
+
+        # Auto detection: try Firefox first (unencrypted cookies), then others
+        errors: list[str] = []
+        try:
+            return cls.from_firefox(profile_path)
+        except AuthenticationError as exc:
+            errors.append(f"Firefox: {exc}")
+
+        raise AuthenticationError(
+            f"No active Bale session found in browsers. Tried: {', '.join(errors)}"
+        )
+
 
 class SessionStorage:
     def __init__(self, directory: str | Path, name: str) -> None:

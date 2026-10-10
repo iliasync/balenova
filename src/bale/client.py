@@ -3142,6 +3142,128 @@ class Client:
         """Close an active poll so no further answers can be cast."""
         await self.api.poll.ClosePoll(pollId=poll_id)
 
+    async def get_payvand_cards(self) -> ProtobufMessage:
+        """Return the user's linked/saved bank cards (Payvand cards)."""
+        return cast(ProtobufMessage, await self.api.bank.GetPayvandCardList())
+
+    async def get_card_balance(
+        self,
+        card_number: str,
+        cvv2: str,
+        expire_date: str,
+        pin2: str,
+    ) -> ProtobufMessage:
+        """Inquire bank card balance via Bank RPC."""
+        return cast(
+            ProtobufMessage,
+            await self.api.bank.GetCardRemain(
+                pan=card_number,
+                cvv2=cvv2,
+                expireDate=expire_date,
+                pin2=pin2,
+            ),
+        )
+
+    async def get_card_transfer_token(
+        self,
+        peer_user_id: int | None = None,
+        msg_rid: int | None = None,
+        description: str | None = None,
+    ) -> ProtobufMessage:
+        """Acquire a card-to-card transfer payment token."""
+        kwargs: dict[str, Any] = {}
+        if peer_user_id is not None:
+            kwargs["peerUserId"] = peer_user_id
+        if msg_rid is not None:
+            kwargs["msgRid"] = msg_rid
+        if description is not None:
+            kwargs["description"] = description
+        return cast(
+            ProtobufMessage,
+            await self.api.bank.GetCardTransferToken(**kwargs),
+        )
+
+    async def get_miniapp_url(
+        self,
+        bot_user_id: int,
+        *,
+        screen_mode: int = 1,
+        theme_params: dict[str, Any] | None = None,
+        direct_link: dict[str, Any] | None = None,
+    ) -> ProtobufMessage:
+        """Fetch the launch URL for a bot's Mini App (Appzar)."""
+        kwargs: dict[str, Any] = {
+            "botUserId": bot_user_id,
+            "screenMode": screen_mode,
+        }
+        if theme_params:
+            kwargs["themeParams"] = theme_params
+        if direct_link:
+            kwargs["directLink"] = direct_link
+        return cast(
+            ProtobufMessage,
+            await self.api.appzar.GetMiniAppUrl(**kwargs),
+        )
+
+    async def load_scheduled_tasks(
+        self,
+        chat_id: str,
+        *,
+        task_type: int = 0,
+        status: int = 0,
+    ) -> ProtobufMessage:
+        """List scheduled tasks (e.g. scheduled messages) for a given peer chat."""
+        peer = _require_peer(chat_id)
+        return cast(
+            ProtobufMessage,
+            await self.api.scheduler.ListTasks(
+                exPeer={"peer": peer},
+                type=task_type,
+                status=status,
+            ),
+        )
+
+    async def schedule_task(
+        self,
+        chat_id: str,
+        scheduled_at: int,
+        payload: dict[str, Any],
+    ) -> ProtobufMessage:
+        """Schedule a message or task to be sent at a future timestamp."""
+        peer = _require_peer(chat_id)
+        return cast(
+            ProtobufMessage,
+            await self.api.scheduler.ScheduleTask(
+                exPeer={"peer": peer},
+                scheduledAt=scheduled_at,
+                payload=payload,
+            ),
+        )
+
+    async def cancel_scheduled_tasks(
+        self,
+        task_ids: Iterable[int],
+    ) -> ProtobufMessage:
+        """Cancel one or more scheduled tasks."""
+        return cast(
+            ProtobufMessage,
+            await self.api.scheduler.UnScheduleTask(taskIDs=list(task_ids)),
+        )
+
+    async def get_link_preview(self, url: str) -> ProtobufMessage:
+        """Fetch link preview metadata (title, description, image) via TLDR service."""
+        return cast(
+            ProtobufMessage,
+            await self.api.tldr.GetLinkPreview(url=url),
+        )
+
+    async def get_link_summary(self, url: str) -> ProtobufMessage:
+        """Fetch AI-generated summary of a URL content via TLDR service."""
+        return cast(
+            ProtobufMessage,
+            await self.api.tldr.GetLinkSummary(url=url),
+        )
+
     async def get_marketing_tools_config(self) -> ProtobufMessage:
         """Return Pishvaz marketing-tool configuration."""
 
