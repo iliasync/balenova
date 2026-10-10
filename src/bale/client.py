@@ -32,6 +32,7 @@ from bale.dispatcher import (
 )
 from bale.errors import AuthenticationError, BaleRpcError, ClientStateError
 from bale.events import MessageEdited, NewMessage, Update, build_updates
+from bale.extended_methods import ClientExtendedMethodsMixin
 from bale.filters import Filter, command
 from bale.models import (
     CallMode,
@@ -119,7 +120,7 @@ def _fanoos_value(value: Any) -> dict[str, Any]:
     )
 
 
-class Client:
+class Client(ClientExtendedMethodsMixin):
     """An async client for real Bale user sessions.
 
     By default the client loads a named session. If it is missing or expired,
@@ -3310,9 +3311,7 @@ class Client:
         """Set the user's primary/default bank card number."""
         return cast(
             ProtobufMessage,
-            await self.api.users.ChangeDefaultCardNumber(
-                defaultCardNumber=card_number
-            ),
+            await self.api.users.ChangeDefaultCardNumber(defaultCardNumber=card_number),
         )
 
     async def remove_default_card_number(self) -> ProtobufMessage:
