@@ -484,6 +484,90 @@ def peer_type_to_chat_type(peer_type: int) -> ChatType:
     }.get(peer_type, ChatType.UNKNOWN)
 
 
+def chat_type_to_peer_type(chat_type: ChatType | str | int) -> int:
+    """Convert a ChatType enum, type name string, or integer to Bale wire peer type."""
+    if isinstance(chat_type, int):
+        return chat_type
+    if isinstance(chat_type, ChatType):
+        mapping = {
+            ChatType.PRIVATE: 1,
+            ChatType.GROUP: 2,
+            ChatType.CHANNEL: 3,
+            ChatType.BOT: 4,
+            ChatType.SUPERGROUP: 5,
+            ChatType.THREAD: 6,
+        }
+        return mapping.get(chat_type, 1)
+    if isinstance(chat_type, str):
+        normalized = chat_type.strip().lower()
+        if normalized.isdigit():
+            return int(normalized)
+        str_mapping = {
+            "private": 1,
+            "user": 1,
+            "group": 2,
+            "channel": 3,
+            "bot": 4,
+            "supergroup": 5,
+            "thread": 6,
+        }
+        if normalized in str_mapping:
+            return str_mapping[normalized]
+    raise ValueError(f"Invalid or unrecognized chat/peer type: {chat_type!r}")
+
+
+def chat_id_to_peer_id(chat_id: int | str | User | Chat) -> int:
+    """Extract numeric peer_id from a Bale chat_id (e.g. '123456|1' -> 123456)."""
+    if isinstance(chat_id, Chat):
+        return chat_id.peer_id
+    if isinstance(chat_id, User):
+        return chat_id.id
+    if isinstance(chat_id, int):
+        return chat_id
+    if isinstance(chat_id, str):
+        stripped = chat_id.strip()
+        if "|" in stripped:
+            first = stripped.split("|", 1)[0].strip()
+            if first.lstrip("-").isdigit():
+                return int(first)
+        if stripped.lstrip("-").isdigit():
+            return int(stripped)
+    raise ValueError(f"Cannot extract numeric peer_id from {chat_id!r}")
+
+
+def peer_id_to_chat_id(
+    peer_id: int | str,
+    peer_type: int | str | ChatType = 1,
+) -> str:
+    """Format peer_id and peer_type into standard Bale chat_id string.
+
+    Example:
+        >>> peer_id_to_chat_id(123456, 1)
+        '123456|1'
+    """
+    numeric_id = int(str(peer_id).strip())
+    resolved_type = chat_type_to_peer_type(peer_type)
+    return f"{numeric_id}|{resolved_type}"
+
+
+def parse_chat_id(chat_id: int | str | User | Chat) -> tuple[int, int]:
+    """Parse any chat identifier into a (peer_id, peer_type) tuple."""
+    if isinstance(chat_id, Chat):
+        return chat_id.peer_id, chat_id.peer_type
+    if isinstance(chat_id, User):
+        return chat_id.id, 4 if chat_id.is_bot else 1
+    if isinstance(chat_id, int):
+        return chat_id, 1
+    if isinstance(chat_id, str):
+        stripped = chat_id.strip()
+        if "|" in stripped:
+            p_id, p_type = stripped.split("|", 1)
+            return int(p_id.strip()), int(p_type.strip())
+        if stripped.lstrip("-").isdigit():
+            return int(stripped), 1
+    raise ValueError(f"Cannot parse chat_id from {chat_id!r}")
+
+
 def wrap_user(raw: dict[str, Any]) -> User:
     return User(
         id=int(raw.get("id", 0)),

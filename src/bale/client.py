@@ -50,6 +50,9 @@ from bale.models import (
     ReportKind,
     User,
     WalletResponse,
+    chat_id_to_peer_id,
+    parse_chat_id,
+    peer_id_to_chat_id,
     wrap_default,
     wrap_group,
     wrap_message,
@@ -939,6 +942,45 @@ class Client(ClientExtendedMethodsMixin):
         if peer is None:
             raise ClientStateError(f"Could not resolve Bale peer {chat_id!r}")
         return peer.id
+
+    @staticmethod
+    def chat_id_to_peer_id(chat_id: int | str | User | Chat) -> int:
+        """Convert a Bale chat_id (e.g. '123456|1', '987654|2') to its numeric peer_id.
+
+        Examples:
+            >>> Client.chat_id_to_peer_id("123456|1")
+            123456
+            >>> Client.chat_id_to_peer_id("987654|2")
+            987654
+        """
+        return chat_id_to_peer_id(chat_id)
+
+    @staticmethod
+    def peer_id_to_chat_id(
+        peer_id: int | str,
+        peer_type: int | str | ChatType = 1,
+    ) -> str:
+        """Convert numeric peer_id and peer_type to a standard Bale chat_id string.
+
+        Examples:
+            >>> Client.peer_id_to_chat_id(123456, 1)
+            '123456|1'
+            >>> Client.peer_id_to_chat_id(987654, 'group')
+            '987654|2'
+            >>> Client.peer_id_to_chat_id(987654, ChatType.CHANNEL)
+            '987654|3'
+        """
+        return peer_id_to_chat_id(peer_id, peer_type)
+
+    @staticmethod
+    def parse_chat_id(chat_id: int | str | User | Chat) -> tuple[int, int]:
+        """Parse any Bale chat identifier into a (peer_id, peer_type) tuple.
+
+        Examples:
+            >>> Client.parse_chat_id("123456|2")
+            (123456, 2)
+        """
+        return parse_chat_id(chat_id)
 
     async def load_users(self, users: Iterable[int | str]) -> list[User]:
         response = await self.invoke(

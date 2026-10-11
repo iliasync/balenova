@@ -369,6 +369,79 @@ await app.message_set_reaction(
 
 ---
 
+## تبدیل شناسه‌ها (Chat ID & Peer ID Conversions)
+
+### `app.chat_id_to_peer_id`
+استخراج شناسه عددی خالص (peer_id) از یک chat_id یا شیء چت و کاربر.
+
+<div dir="ltr" markdown="1">
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `chat_id` | String / Integer / Chat / User | **Required** | شناسه رشته‌ای چت (مانند '123456|1')، شیء کاربر، چت یا شناسه عددی. |
+
+</div>
+
+**مقدار بازگشتی:** عدد صحیح (`int`) نشان‌دهنده شناسه یکتای peer_id.
+
+**نمونه کد پایتون (PEP 8):**
+```python
+# استخراج شناسه عددی خالص
+peer_id = app.chat_id_to_peer_id("123456789|1")
+print("شناسه کاربر:", peer_id)  # 123456789
+```
+
+---
+
+### `app.peer_id_to_chat_id`
+تبدیل شناسه عددی و نوع چت به رشته استاندارد chat_id مورد استفاده در کلیه متدهای پیام‌رسانی بله.
+
+<div dir="ltr" markdown="1">
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `peer_id` | Integer / String | **Required** | شناسه عددی چت یا کاربر. |
+| `peer_type` | Integer / String / ChatType | Optional | نوع چت: ۱ (کاربر)، ۲ (گروه)، ۳ (کانال)، ۴ (بات) یا معادل رشته‌ای ('group', 'channel'). پیش‌فرض ۱. |
+
+</div>
+
+**مقدار بازگشتی:** رشته (`str`) استاندارد چت مانند `'123456789|1'` یا `'987654321|2'`.
+
+**نمونه کد پایتون (PEP 8):**
+```python
+# تبدیل به chat_id
+user_chat = app.peer_id_to_chat_id(123456789, 1)
+group_chat = app.peer_id_to_chat_id(987654321, "group")
+channel_chat = app.peer_id_to_chat_id(555666777, ChatType.CHANNEL)
+
+print(user_chat)     # 123456789|1
+print(group_chat)    # 987654321|2
+print(channel_chat)  # 555666777|3
+```
+
+---
+
+### `app.parse_chat_id`
+تجزیه هر نوع شناسه یا شیء چت به تاپل دو مقداری `(peer_id, peer_type)`.
+
+<div dir="ltr" markdown="1">
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `chat_id` | String / Integer / Chat / User | **Required** | شناسه ورودی جهت تجزیه. |
+
+</div>
+
+**مقدار بازگشتی:** تاپل `tuple[int, int]` شامل شناسه عددی و کد نوع گفتگو.
+
+**نمونه کد پایتون (PEP 8):**
+```python
+p_id, p_type = app.parse_chat_id("987654321|2")
+print(f"شناسه: {p_id}, نوع: {p_type}")  # شناسه: 987654321, نوع: 2
+```
+
+---
+
 ## امور بانکی و کیف‌پول (Banking & Wallet)
 
 ### `app.get_payvand_cards`

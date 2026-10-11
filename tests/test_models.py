@@ -47,3 +47,47 @@ def test_proto_messages_can_be_printed_as_json() -> None:
     request = request_pb2.SetOnline()
     assert model_to_dict(request) == {}
     assert model_to_json(request, indent=None) == "{}"
+
+
+def test_peer_and_chat_id_conversions() -> None:
+    from bale import (
+        Client,
+        chat_id_to_peer_id,
+        chat_type_to_peer_type,
+        parse_chat_id,
+        peer_id_to_chat_id,
+    )
+
+    # Function tests
+    assert chat_id_to_peer_id("123456|1") == 123456
+    assert chat_id_to_peer_id("987654|2") == 987654
+    assert chat_id_to_peer_id(123456) == 123456
+    assert chat_id_to_peer_id("123456") == 123456
+
+    user = User(42, username="alice")
+    chat = Chat(99, 2, title="A group")
+    assert chat_id_to_peer_id(user) == 42
+    assert chat_id_to_peer_id(chat) == 99
+
+    assert peer_id_to_chat_id(123456, 1) == "123456|1"
+    assert peer_id_to_chat_id(987654, 2) == "987654|2"
+    assert peer_id_to_chat_id(987654, "group") == "987654|2"
+    assert peer_id_to_chat_id(987654, ChatType.CHANNEL) == "987654|3"
+    assert peer_id_to_chat_id(987654, "bot") == "987654|4"
+
+    assert parse_chat_id("987654|2") == (987654, 2)
+    assert parse_chat_id(chat) == (99, 2)
+
+    assert chat_type_to_peer_type(ChatType.SUPERGROUP) == 5
+    assert chat_type_to_peer_type("channel") == 3
+
+    # Client class & instance method tests
+    assert Client.chat_id_to_peer_id("123456|1") == 123456
+    assert Client.peer_id_to_chat_id(123456, "private") == "123456|1"
+    assert Client.parse_chat_id("123456|1") == (123456, 1)
+
+    app = Client("dummy_session")
+    assert app.chat_id_to_peer_id("555|3") == 555
+    assert app.peer_id_to_chat_id(555, 3) == "555|3"
+    assert app.parse_chat_id("555|3") == (555, 3)
+

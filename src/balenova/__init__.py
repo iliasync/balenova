@@ -41,8 +41,12 @@ from bale.models import (
     Wallet,
     WalletResponse,
     Winner,
+    chat_id_to_peer_id,
+    chat_type_to_peer_type,
     model_to_dict,
     model_to_json,
+    parse_chat_id,
+    peer_id_to_chat_id,
 )
 from bale.proto import schema as pb
 from bale.recovered import (
@@ -120,11 +124,15 @@ __all__ = [
     "WalletResponse",
     "Winner",
     "call_rtc_connection_from_group_call",
+    "chat_id_to_peer_id",
+    "chat_type_to_peer_type",
     "decode_livekit_join_request",
     "events",
     "filters",
     "model_to_dict",
     "model_to_json",
     "parse_call_wss_url",
+    "parse_chat_id",
     "pb",
+    "peer_id_to_chat_id",
 ]
