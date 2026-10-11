@@ -4381,17 +4381,25 @@ def _looks_like_phone(value: str) -> bool:
     )
 
 
-def _parse_peer(value: str) -> tuple[int, int] | None:
-    match = _PEER_PATTERN.fullmatch(value.strip())
-    if match is None:
+def _parse_peer(value: Any) -> tuple[int, int] | None:
+    if isinstance(value, str):
+        match = _PEER_PATTERN.fullmatch(value.strip())
+        if match is not None:
+            return int(match.group("id")), int(match.group("type"))
+    from bale.models import parse_chat_id
+
+    try:
+        return parse_chat_id(value)
+    except Exception:
         return None
-    return int(match.group("id")), int(match.group("type"))
 
 
-def _require_peer(value: str) -> dict[str, int]:
+def _require_peer(value: Any) -> dict[str, int]:
     parsed = _parse_peer(value)
     if parsed is None:
-        raise ValueError(f"Expected a Bale peer like '123|1', received {value!r}")
+        raise ValueError(
+            f"Expected a Bale peer like '123|1' or integer ID, received {value!r}"
+        )
     return {"id": parsed[0], "type": parsed[1]}
 
 
