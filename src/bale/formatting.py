@@ -32,15 +32,27 @@ def spoiler(text: str, description: str = "") -> str:
 
 
 def code(text: str) -> str:
-    """Format inline monospace code."""
+    """Format inline monospace code (`text`)."""
     return f"`{text}`"
 
 
-def pre(text: str, language: str = "") -> str:
-    """Format preformatted code block."""
-    if language:
-        return f"```{language}\n{text}\n```"
-    return f"```\n{text}\n```"
+def code_block(text: str, language: str = "") -> str:
+    """Format a multi-line code block with optional syntax language.
+
+    Format:
+    ```language
+    line1
+    line2
+    ```
+    """
+    clean_lang = language.strip()
+    clean_text = text.rstrip("\n")
+    if clean_lang:
+        return f"```{clean_lang}\n{clean_text}\n```"
+    return f"```\n{clean_text}\n```"
+
+
+pre = code_block
 
 
 def escape_markdown(text: str) -> str:

@@ -1,8 +1,8 @@
 <div align="center" dir="rtl">
 
-# 🚀 BaleNova (بلـه‌نـوا)
+# 🚀 BaleNova (بله‌نوا)
 
-[![Version](https://img.shields.io/badge/version-0.4.1-emerald.svg?style=for-the-badge)](https://pypi.org/project/balenova/)
+[![Version](https://img.shields.io/badge/version-0.4.4-emerald.svg?style=for-the-badge)](https://pypi.org/project/balenova/)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/balenova/)
 [![Protocol](https://img.shields.io/badge/protocol-Protobuf%20%7C%20gRPC--Web%20%7C%20WebSocket-5865F2.svg?style=for-the-badge)](https://web.bale.ai)
 [![Methods](https://img.shields.io/badge/methods-690%20RPCs%20%7C%20830%2B%20Pythonic-f59e0b.svg?style=for-the-badge)](https://iliasync.github.io/balenova/all_methods_guide/)
@@ -258,14 +258,20 @@ await app.message_set_reaction(chat_id, message_id, "❤️")
 قالب‌بندی در بله بر اساس استاندارد رسمی [مستندات بله (docs.bale.ai)](https://docs.bale.ai/#%D9%82%D8%A7%D9%84%D8%A8%D8%A8%D9%86%D8%AF%DB%8C-%D9%85%D8%AA%D9%86) پیاده‌سازی شده و توابع کمکی کاربردی برای ساخت متن‌های زیبا در اختیارتان قرار دارد:
 
 ```python
-from balenova import bold, italic, link, spoiler, code, pre
+from balenova import bold, italic, link, spoiler, code, code_block
+
+snippet = """def hello():
+    print("Welcome to BaleNova!")
+"""
 
 text = (
     f"{bold('پیام مهم!')}\n\n"
     f"این یک متن {italic('کج')} است.\n"
     f"برای مشاهده سایت: {link('وب‌سایت بله', 'https://bale.ai')}\n"
     f"نمایش آنی / اسپویلر بله: {spoiler('متن مخفی', 'توضیحات تکمیلی')}\n"
-    f"کد دستوری: {code('pip install balenova')}\n"
+    f"کد کوتاه: {code('pip install balenova')}\n\n"
+    f"بلاک کد با مشخص کردن زبان:\n"
+    f"{code_block(snippet, language='python')}"
 )
 
 await app.send_message(chat_id, text)

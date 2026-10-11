@@ -12,7 +12,16 @@ from bale.errors import (
 )
 from bale.events import MessageEdited, MessageSent, NewMessage, RawUpdate, Update
 from bale.filters import Filter
-from bale.formatting import bold, code, escape_markdown, italic, link, pre, spoiler
+from bale.formatting import (
+    bold,
+    code,
+    code_block,
+    escape_markdown,
+    italic,
+    link,
+    pre,
+    spoiler,
+)
 from bale.fsm import FSMContext, MemoryStorage, State, StatesGroup
 from bale.keyboards import (
     InlineKeyboardButton,
@@ -71,7 +80,7 @@ from bale.rtc import (
 from bale.services import ALL_RPCS, SERVICE_CLASSES
 from bale.session import Session
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 BaleClient = Client
 
 __all__ = [
@@ -135,6 +144,7 @@ __all__ = [
     "chat_id_to_peer_id",
     "chat_type_to_peer_type",
     "code",
+    "code_block",
     "convert_chat_id",
     "decode_livekit_join_request",
     "escape_markdown",

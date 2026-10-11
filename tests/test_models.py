@@ -136,7 +136,7 @@ def test_toggle_chat_id_and_telegram_formats() -> None:
 
 
 def test_bale_formatting_helpers() -> None:
-    from bale import bold, code, escape_markdown, italic, link, pre, spoiler
+    from bale import bold, code, code_block, escape_markdown, italic, link, pre, spoiler
     from bale.models import MessageEntity, MessageEntityType
 
     assert bold("سلام") == "*سلام*"
@@ -145,6 +145,7 @@ def test_bale_formatting_helpers() -> None:
     assert spoiler("متن", "توضیح") == "```[متن]توضیح```"
     assert code("pip install balenova") == "`pip install balenova`"
     assert pre("hello\nworld") == "```\nhello\nworld\n```"
+    assert code_block("print('hi')", language="python") == "```python\nprint('hi')\n```"
     assert escape_markdown("*hello*") == r"\*hello\*"
 
     entity = MessageEntity(type=MessageEntityType.BOT_COMMAND, offset=0, length=6)
