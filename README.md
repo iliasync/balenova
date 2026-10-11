@@ -2,7 +2,7 @@
 
 # 🚀 BaleNova (بلـه‌نـوا)
 
-[![Version](https://img.shields.io/badge/version-0.4.0-emerald.svg?style=for-the-badge)](https://pypi.org/project/balenova/)
+[![Version](https://img.shields.io/badge/version-0.4.1-emerald.svg?style=for-the-badge)](https://pypi.org/project/balenova/)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/balenova/)
 [![Protocol](https://img.shields.io/badge/protocol-Protobuf%20%7C%20gRPC--Web%20%7C%20WebSocket-5865F2.svg?style=for-the-badge)](https://web.bale.ai)
 [![Methods](https://img.shields.io/badge/methods-690%20RPCs%20%7C%20830%2B%20Pythonic-f59e0b.svg?style=for-the-badge)](https://iliasync.github.io/balenova/all_methods_guide/)
