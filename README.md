@@ -201,314 +201,180 @@ async def process_phone(event: events.NewMessage):
 
 ## 💳 امور بانکی، کیف‌پول و کارت به کارت
 
-کتابخانه BaleNova کامل‌ترین ابزارهای مالی و بانکی پیام‌رسان بله (شبکه شتاب، پرداخت‌ساز، پیوند و کیف‌پول) را به صورت متدهای سطح‌بالا و تایپ‌شده ارائه می‌دهد:
+```python
+# ۱. دریافت لیست کارت‌های بانکی پیوند ذخیره‌شده
+cards = await app.get_payvand_cards()
 
-### متد 
-دریافت لیست کارت‌های بانکی پیوند شتابی ثبت‌شده روی شماره کاربر جاری.
+# ۲. استعلام موجودی کارت بانکی شتابی با رمز دوم
+balance = await app.get_card_balance(
+    card_number="6037997123456789",
+    cvv2="123",
+    expire_date="28/05",
+    pin2="123456"
+)
+print("موجودی قابل برداشت:", balance.availableBalanceAmount)
 
-<div dir=ltr markdown="1">
+# ۳. دریافت توکن انتقال وجه کارت به کارت
+token_res = await app.get_card_transfer_token(peer_user_id=123456, description="تسویه فاکتور")
+print("آدرس درگاه بله:", token_res.requestEndPoint)
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| *None* | — | — | This method takes no parameters. |
-
-</div>
-
-**مقدار بازگشتی:** شیء Protobuf شامل لیست کارت‌های بانکی ().
-
-
-
----
-
-### متد 
-استعلام موجودی کارت بانکی شتابی با استفاده از رمز دوم (پویا یا ایستا).
-
-<div dir=ltr markdown="1">
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | String | **Required** | شماره ۱۶ رقمی کارت بانکی شتابی مبدا. |
-|  | String | **Required** | کد ۳ یا ۴ رقمی CVV2 درج‌شده روی کارت. |
-|  | String | **Required** | تاریخ انقضای کارت با فرمت YY/MM (مانند '28/05'). |
-|  | String | **Required** | رمز دوم اینترنتی (رمز یکبار مصرف یا پویا). |
-
-</div>
-
-**مقدار بازگشتی:** شیء Protobuf شامل فیلدهای  و .
-
-
-
----
-
-### متد 
-دریافت توکن امن انتقال وجه کارت به کارت جهت شروع تراکنش درون‌برنامه‌ای بله.
-
-<div dir=ltr markdown="1">
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | Integer | Optional | شناسه عددی کاربر مقصد (در صورت انتقال به شخص). |
-|  | Integer | Optional | شناسه تصادفی پیام درخواست پول. |
-|  | String | Optional | شرح تراکنش و بابت پرداخت. |
-
-</div>
-
-**مقدار بازگشتی:** شیء شامل آدرس درگاه () و توکن تراکنش ().
-
-
-
----
-
-### متد  و 
-مشاهده موجودی کیف‌پول بله و ثبت درخواست تسویه حساب به شماره شبا یا کارت بانکی.
-
-<div dir=ltr markdown="1">
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | Integer | **Required (in cash_out)** | مبلغ برداشت به ریال. |
-|  | String | Optional (in cash_out) | شماره شبای مقصد با پیشوند IR (۲۴ رقمی). |
-|  | String | Optional (in cash_out) | شماره کارت بانکی مقصد (۱۶ رقمی). |
-
-</div>
-
-
+# ۴. تسویه و برداشت از کیف‌پول بله
+await app.cash_out(amount=100000, iban="IR123456789012345678901234")
+```
 
 ---
 
 ## 💬 ارسال انواع پیام، فایل و آلبوم رسانه‌ای
 
-BaleNova متدهای استاندارد سطح‌بالا و کامل برای ارسال انواع پیام و رسانه‌ها مطابق استانداردهای Telegram Bot API فراهم ساخته است:
+```python
+# ارسال تصویر همراه با کپشن
+await app.send_photo(chat_id, "banner.png", caption="تصویر اطلاعیه 🖼️")
 
-### متد 
-ارسال پیام متنی به چت، گروه، کانال یا کاربر با پشتیبانی از کیبورد شیشه‌ای یا ریپلای.
+# ارسال ویدیو با مدت زمان
+await app.send_video(chat_id, "clip.mp4", duration=45, caption="کلیپ آموزشی")
 
-<div dir=ltr markdown="1">
+# ارسال صدای ضبط شده (Voice)
+await app.send_voice(chat_id, "voice.ogg", duration=15)
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | String / Integer | **Required** | شناسه مقصد چت (مانند '123456789|1' یا '987654321|2'). |
-|  | String | **Required** | متن پیام ارسالی (پشتیبانی از قالب‌بندی متنی). |
-|  | Integer | Optional | شناسه پیامی که این پیام به عنوان پاسخ به آن ارسال می‌شود. |
-|  | InlineKeyboardMarkup / ReplyKeyboardMarkup | Optional | کیبورد شیشه‌ای یا دکمه‌های پاسخ پیوست شده به پیام. |
+# ارسال فایل زیپ یا پی‌دی‌اف
+await app.send_document(chat_id, "archive.zip")
 
-</div>
-
-**مقدار بازگشتی:** شیء  ارسال شده.
-
-
-
----
-
-### متدهای ارسال چندرسانه‌ای (, , , )
-
-<div dir=ltr markdown="1">
-
-| Method | Media Parameter | Extra Parameters | Description |
-| :--- | :--- | :--- | :--- |
-|  |  (Path / Bytes / URL) | , , ,  | ارسال عکس همراه با کپشن اختیاری. |
-|  |  (Path / Bytes / URL) | , , ,  | ارسال ویدیو با مدت زمان و رزولوشن. |
-|  |  (Path / Bytes / OGG) | , ,  | ارسال پیام صوتی با شکل موج. |
-|  |  (Path / Bytes) | ,  | ارسال انواع فایل، PDF و آرشیو ZIP. |
-|  |  (ID String) |  | ارسال استیکرهای رسمی بله. |
-
-</div>
-
-
+# ارسال استیکر، فوروارد و پین کردن پیام
+await app.forward_message(from_chat_id, to_chat_id, message_id)
+await app.pin_message(chat_id, message_id)
+await app.message_set_reaction(chat_id, message_id, "❤️")
+```
 
 ---
 
-### متدهای ویرایش، حذف، فوروارد، پین و ری‌اکشن
+## 🔄 تبدیل شناسه چت و شناسه پیر (`chat_id` ⟷ `peer_id`)
 
-<div dir=ltr markdown="1">
+در پیام‌رسان بله، شناسه‌های گفتگو به دو شیوه شناسه ترکیبی (`chat_id` مانند `'123456|1'` یا `'987654|2'`) و شناسه عددی خالص (`peer_id`) نمایش داده می‌شوند. همچنین در مقایسه با تلگرام (که گروه‌ها با شناسه منفی مانند `-1509600244` و کانال‌ها با پیشوند `-100...` مشخص می‌شوند)، BaleNova متدهای هوشمندی برای تبدیل خودکار دوطرفه و تشخیص نوع شناسه بدون نیاز به اینترنت فراهم کرده است:
 
-| Method | Parameters | Required | Description |
+<div dir="ltr" markdown="1">
+
+| Method / Function | Input | Output | Description |
 | :--- | :--- | :--- | :--- |
-|  | , ,  | **All Required** | ویرایش متن پیام ارسال شده. |
-|  | , ,  | ,  | حذف پیام برای طرفین یا فقط کاربر جاری. |
-|  | , ,  | **All Required** | فوروارد پیام با حفظ برچسب فرستنده. |
-|  | , ,  | **All Required** | کپی تمیز پیام بدون برچسب فوروارد. |
-|  | ,  | **All Required** | سنجاق کردن پیام در بالای صفحه چت. |
-|  | ,  | **All Required** | برداشتن سنجاق پیام پین‌شده. |
-|  | , ,  | **All Required** | ثبت واکنش ایموجی (مانند '❤️', '🔥'). |
+| `app.toggle_chat_id(identifier)` | `chat_id` or `peer_id` | `peer_id` or `chat_id` | تبدیل هوشمند دوطرفه خودکار بین `chat_id` و `peer_id`. |
+| `app.chat_id_to_peer_id(chat_id)` | `String / Integer / Chat / User` | `Integer` | استخراج شناسه عددی خالص (peer_id) از رشته یا مدل چت. |
+| `app.peer_id_to_chat_id(peer_id, peer_type)` | `peer_id`, `peer_type=1` | `String` | ساخت رشته استاندارد chat_id از شناسه و نوع چت. |
+| `app.parse_chat_id(chat_id)` | `chat_id` | `(peer_id, peer_type)` | تجزیه شناسه به تاپل دو مقداری `(شناسه عددی, نوع پیر)`. |
 
 </div>
 
+**جدول انواع گفتگو در بله (Peer Type):**
+- `1` یا `'private'` / `'user'`: گفتگوی خصوصی دوطرفه
+- `2` یا `'group'`: گروه عادی
+- `3` یا `'channel'`: کانال اطلاع‌رسانی
+- `4` یا `'bot'`: ربات بله
+- `5` یا `'supergroup'`: ابرگروه
+- `6` یا `'thread'`: رشته پیام و تاپیک
 
+```python
+from balenova import Client, ChatType, toggle_chat_id, chat_id_to_peer_id, peer_id_to_chat_id
 
----
+# ۱. تبدیل هوشمند دوطرفه خودکار (Auto-Detect Two-Way)
+# اگر chat_id بفرستید، peer_id عددی دریافت می‌کنید:
+p1 = Client.toggle_chat_id("123456789|1")     # -> 123456789
+p2 = Client.toggle_chat_id("-100273076292")   # -> 273076292 (کانال تلگرامی/بله)
+p3 = Client.toggle_chat_id(-1509600244)       # -> 1509600244 (گروه تلگرامی/بله)
 
-## 🔄 تبدیل شناسه چت و شناسه پیر ( ⟷ )
+# اگر peer_id عددی بفرستید، chat_id رشته‌ای دریافت می‌کنید:
+c1 = Client.toggle_chat_id(123456789)                         # -> "123456789|1"
+c2 = Client.toggle_chat_id(987654321, peer_type="group")      # -> "987654321|2"
+c3 = Client.toggle_chat_id(273076292, peer_type="channel", telegram_style=True)  # -> "-100273076292"
 
-در پیام‌رسان بله، شناسه‌های گفتگو ترکیبی از شناسه عددی و نوع گفتگو هستند (مانند  برای کاربر یا  برای گروه). BaleNova توابع و متدهای اختصاصی و بدون نیاز به اینترنت برای تبدیل دوطرفه فراهم کرده است:
+# ۲. تبدیل مستقیم chat_id به peer_id عددی
+peer_id = Client.chat_id_to_peer_id("123456789|1")  # -> 123456789
+group_id = Client.chat_id_to_peer_id("987654321|2") # -> 987654321
 
-<div dir=ltr markdown="1">
+# ۳. تبدیل مستقیم peer_id به chat_id با نام نوع یا عدد
+user_chat_id = Client.peer_id_to_chat_id(123456789, 1)          # -> "123456789|1"
+group_chat_id = Client.peer_id_to_chat_id(987654321, "group")   # -> "987654321|2"
+channel_chat_id = Client.peer_id_to_chat_id(555666777, ChatType.CHANNEL) # -> "555666777|3"
 
-| Function / Method | Input | Output | Description |
-| :--- | :--- | :--- | :--- |
-|  |  |  | استخراج شناسه عددی خالص (peer_id) از رشته chat_id. |
-|  | ,  |  | ساخت رشته استاندارد chat_id از شناسه و نوع چت. |
-|  |  |  | تجزیه شناسه به تاپل دو مقداری . |
-
-</div>
-
-**جدول انواع نوع چت (Peer Type):**
--  یا  / : گفتگوی خصوصی دوطرفه
--  یا : گروه عادی
--  یا : کانال اطلاع‌رسانی
--  یا : ربات بله
--  یا : ابرگروه
--  یا : تاپیک و رشته پیام
-
-
+# ۴. تجزیه سریع به تاپل
+p_id, p_type = Client.parse_chat_id("987654321|2")  # -> (987654321, 2)
+```
 
 ---
 
 ## 📸 استوری‌ها، نظرسنجی‌ها و پیام‌های زمان‌بندی‌شده
 
-پشتیبانی کامل از قابلیت‌های اختصاصی جدید پیام‌رسان بله:
+```python
+# استوری‌ها: دریافت، ری‌اکشن و آمار بازدید
+stories = await app.get_all_stories()
+await app.react_to_story(story_id="uuid_story", reaction="🔥")
+viewers = await app.get_story_viewers(story_id="uuid_story")
 
-### متد  و 
-بارگذاری استوری‌ها، مشاهده بینندگان و ارسال واکنش ایموجی:
+# نظرسنجی: دریافت نتیجه، ثبت رای و بستن
+poll_result = await app.get_poll_result(poll_id=987654)
+await app.vote_poll(poll_id=987654, option_ids=[0])
+await app.close_poll(poll_id=987654)
 
-<div dir=ltr markdown="1">
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | String | **Required (in react/viewers)** | شناسه یکتای UUID استوری. |
-|  | String | **Required (in react)** | ایموجی واکنش (مانند '🔥', '❤', '👏'). |
-|  | Integer | Optional (in viewers) | شماره صفحه نتایج بینندگان (پیش‌فرض ۱). |
-
-</div>
-
-
-
----
-
-### متد  و 
-دریافت آمار زنده، ثبت رای یا لغو رای در نظرسنجی‌ها:
-
-<div dir=ltr markdown="1">
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | Integer | **Required** | شناسه عددی نظرسنجی. |
-|  | Iterable[Integer] | **Required (in vote)** | شناسه‌های گزینه‌های مورد نظر (شروع از ۰). |
-|  | Boolean | Optional (in vote) | لغو و پس گرفتن رای قبلی (پیش‌فرض False). |
-
-</div>
-
-
-
----
-
-### متد  و 
-مدیریت صف پیام‌های زمان‌بندی‌شده جهت ارسال در زمان معین در آینده:
-
-
+# پیام‌های زمان‌بندی شده: مشاهده تسک‌ها و لغو
+tasks = await app.load_scheduled_tasks(chat_id)
+await app.cancel_scheduled_tasks(task_ids=[101, 102])
+```
 
 ---
 
 ## 👥 مدیریت پیشرفته گروه‌ها، کانال‌ها و ادمین‌ها
 
-پشتیبانی کامل از تمامی قابلیت‌های مدیریت و نظارت بر گروه‌ها و کانال‌ها:
+```python
+# ایجاد گروه و کانال جدید
+group = await app.create_group("گروه برنامه‌نویسان", user_ids=[12345, 67890])
+channel = await app.create_channel("کانال رسمی اخبار", about="اطلاع‌رسانی مهم")
 
-### متد  و 
+# لینک دعوت گروه
+invite_url = await app.export_chat_invite_link(group.id)
 
-<div dir=ltr markdown="1">
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | String | **Required** | عنوان یا نام گروه / کانال جدید. |
-|  | Iterable[Integer] | Optional (group) | شناسه‌های کاربری اعضای اولیه برای عضویت در گروه. |
-|  | String | Optional (channel) | توضیحات یا بیوگرافی کانال. |
-
-</div>
-
-**مقدار بازگشتی:** شیء  ساخته‌شده شامل شناسه uid=1000(mahan) gid=1000(mahan) groups=1000(mahan),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),100(users),111(lpadmin),114(lxd),116(docker).
-
-
-
----
-
-### متدهای لینک دعوت، ارتقا، عزل، اخراج و اسلومود
-
-<div dir=ltr markdown="1">
-
-| Method | Parameters | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  |  | **Required** | ساخت و دریافت لینک دعوت اختصاصی. |
-|  |  | **Required** | باطل کردن لینک قبلی و صدور لینک جدید. |
-|  | ,  | **All Required** | ارتقای یک عضو عادی به مدیر (Admin). |
-|  | ,  | **All Required** | عزل مدیر و بازگرداندن به عضو عادی. |
-|  | ,  | **All Required** | اخراج کاربر از گروه (امکان بازگشت با لینک دارد). |
-|  | ,  | **All Required** | مسدودسازی کامل کاربر در گروه (بن دائم). |
-|  | ,  | **All Required** | رفع مسدودیت (Unban) کاربر. |
-|  | ,  | **All Required** | فعال‌سازی حالت آرام (Slow Mode) بر حسب ثانیه. |
-
-</div>
-
-
+# ارتقا، عزل و اخراج اعضا
+await app.promote_chat_member(group.id, user_id=12345)
+await app.remove_user_admin(group.id, user_id=12345)
+await app.kick_user(group.id, user_id=67890)
+await app.set_group_slow_mode(group.id, seconds=15)
+```
 
 ---
 
 ## 📞 تماس‌های صوتی و تصویری گروهی (WebRTC / LiveKit)
 
-پیام‌رسان بله برای تماس‌های صوتی و تصویری گروهی از سرورهای پیشرفته **LiveKit WebRTC** استفاده می‌کند. BaleNova پشتیبانی Native و کاملی از این قابلیت ارائه می‌دهد:
+اتصال Native به سرورهای کنفرانس تصویری و صوتی بله:
 
-### متد 
-اتصال بلادرنگ به سرورهای کنفرانس WebRTC بله در یک تماس گروهی.
+```python
+# ورود به اتاق تماس با پروتکل رسمی LiveKit
+conn = await app.join_group_call_rtc(call_id=1234567, client_name="ربات پاسخگو")
+room = await conn.connect()
 
-<div dir=ltr markdown="1">
+# کار با استریم‌های صوت و تصویر با livekit.rtc ...
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-|  | Integer | **Required** | شناسه عددی تماس گروهی. |
-|  | String | Optional | نام نمایشی کلاینت در اتاق کنفرانس صوتی/تصویری. |
-
-</div>
-
-**مقدار بازگشتی:** شیء  جهت اتصال مستقیم به اتاق لایوکیت.
-
-
+await room.disconnect()
+await app.leave_group_call(call_id=1234567)
+```
 
 ---
 
 ## 🌐 نحوه استفاده از کلیه ۶۹۰ متد وب بله
 
-کتابخانه BaleNova به سه شیوه بسیار منعطف دسترسی به **۱۰۰٪ تمامی ۶۹۰ متد پروتکل رسمی وب بله** را ممکن می‌سازد:
+کتابخانه به سه شیوه منعطف از تمام متدهای پروتکل پشتیبانی می‌کند:
 
-### ۱. متدهای پایتونیک سطح‌بالا و تایپ‌شده مستقیم ()
-بیش از **۸۳۰ متد** پایتونیک مستقل روی شیء  تعریف شده‌اند که پارامترهای هر متد را به صورت تایپ‌شده با نام‌های استاندارد پایتونی دریافت می‌کنند:
+```python
+# شیوه ۱: متد پایتونیک مستقیم با آرگومان‌های صریح روی کلاینت (بیش از ۸۳۰ متد)
+res = await app.charge(payment_token="tok_123", reference_no="ref_456")
+res = await app.inquiry_bill(bill_type=1, bill_parameters="...")
 
+# شیوه ۲: از طریق متد منعطف rpc
+res = await app.rpc("bank", "GetCardRemain", pan="6037...", cvv2="123", expireDate="28/05", pin2="...")
 
+# شیوه ۳: از طریق namespace رسمی و تایپ‌شده api
+res = await app.api.bank.GetCardRemain(pan="6037...", cvv2="123", expireDate="28/05", pin2="...")
+```
 
----
-
-### ۲. فراخوانی داینامیک با متد 
-فراخوانی هر متد بر اساس نام سرویس و متد بدون واسطه:
-
-
-
----
-
-### ۳. فراخوانی ساختاریافته از طریق فضای نام رسمی 
-دسترسی کامپایل‌شده و سلسله‌مراتبی بر اساس بسته‌های رسمی پروتکل:
-
-
+📖 **برای مشاهده پارامترها و نمونه کد تک‌تک ۶۹۰ متد، به [راهنمای جامع ۶۹۰ متد در مستندات رسمی](https://iliasync.github.io/balenova/all_methods_guide/) مراجعه کنید.**
 
 ---
 
-### 📑 مراجع مستندات تفصیلی متدها
-
-| مرجع مستندات | توضیحات | لینک |
-| :--- | :--- | :--- |
-| **راهنمای جامع ۶۹۰ متد RPC** | مستندات کامل تک‌تک ۶۹۰ متد پروتکل وب به سبک Telegram Bot API همراه با جداول LTR فیلدها و انواع داده‌ها | [مشاهده راهنمای ۶۹۰ متد](https://iliasync.github.io/balenova/all_methods_guide/) |
-| **راهنمای متدهای پایتونیک** | تشریح کامل متدهای سطح‌بالای کلاینت با انواع داده پایتون و نمونه کدهای PEP 8 | [مشاهده متدهای پایتونیک](https://iliasync.github.io/balenova/pythonic_rpc_methods/) |
-| **امور مالی و مینی‌اپ‌ها** | راهنمای کارت به کارت، استعلام موجودی، خرید شارژ، قبوض و اجرای MiniAppها | [مشاهده راهنمای مالی](https://iliasync.github.io/balenova/banking_miniapps/) |
-| **استوری‌ها و پیام‌های زمان‌بندی‌شده** | راهنمای کامل استوری، نظرسنجی و صف زمان‌بندی پیام‌ها | [مشاهده راهنمای استوری‌ها](https://iliasync.github.io/balenova/stories_polls_schedule/) |
-
----
 ## 🛠️ راهنمای توسعه و مشارکت
 
 ```bash

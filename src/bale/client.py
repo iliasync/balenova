@@ -53,6 +53,7 @@ from bale.models import (
     chat_id_to_peer_id,
     parse_chat_id,
     peer_id_to_chat_id,
+    toggle_chat_id,
     wrap_default,
     wrap_group,
     wrap_message,
@@ -981,6 +982,37 @@ class Client(ClientExtendedMethodsMixin):
             (123456, 2)
         """
         return parse_chat_id(chat_id)
+
+    @staticmethod
+    def toggle_chat_id(
+        identifier: int | str | User | Chat,
+        *,
+        peer_type: int | str | ChatType = 1,
+        telegram_style: bool = False,
+    ) -> int | str:
+        """Two-way smart converter between chat_id and peer_id.
+
+        Auto-detects input type:
+            - If input is a chat_id (e.g. '123456|1', -100273076292), returns
+              integer peer_id.
+            - If input is a raw peer_id (e.g. 123456), returns formatted
+              chat_id string.
+
+        Examples:
+            >>> Client.toggle_chat_id("123456|1")
+            123456
+            >>> Client.toggle_chat_id(123456)
+            '123456|1'
+            >>> Client.toggle_chat_id(987654, peer_type="group")
+            '987654|2'
+            >>> Client.toggle_chat_id("-100273076292")
+            273076292
+        """
+        return toggle_chat_id(
+            identifier, peer_type=peer_type, telegram_style=telegram_style
+        )
+
+    convert_chat_id = toggle_chat_id
 
     async def load_users(self, users: Iterable[int | str]) -> list[User]:
         response = await self.invoke(

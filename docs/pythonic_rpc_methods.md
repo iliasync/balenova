@@ -442,6 +442,36 @@ print(f"شناسه: {p_id}, نوع: {p_type}")  # شناسه: 987654321, نوع:
 
 ---
 
+### `app.toggle_chat_id` (یا `convert_chat_id`)
+تبدیل هوشمند دوطرفه خودکار: اگر `chat_id` داده شود (مانند `'123456|1'` یا `-100...`) آن را به `peer_id` عددی خالص تبدیل می‌کند؛ و اگر `peer_id` عددی داده شود، آن را به رشته `chat_id` قالب‌بندی‌شده تبدیل می‌کند.
+
+<div dir="ltr" markdown="1">
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `identifier` | Integer / String / Chat / User | **Required** | شناسه ورودی جهت تبدیل دوطرفه هوشمند. |
+| `peer_type` | Integer / String / ChatType | Optional | نوع چت در صورتی که ورودی عدد خام باشد (پیش‌فرض ۱). |
+| `telegram_style` | Boolean | Optional | ساخت شناسه تلگرامی (-100... برای کانال یا منفی برای گروه). پیش‌فرض False. |
+
+</div>
+
+**مقدار بازگشتی:** شناسه تبدیل‌شده به فرمت متقابل (`int` یا `str`).
+
+**نمونه کد پایتون (PEP 8):**
+```python
+# ۱. تشخیص خودکار chat_id و تبدیل به peer_id عددی
+p1 = app.toggle_chat_id("123456789|1")     # -> 123456789
+p2 = app.toggle_chat_id("-100273076292")   # -> 273076292
+p3 = app.toggle_chat_id(-1509600244)       # -> 1509600244
+
+# ۲. تشخیص خودکار peer_id عددی و تبدیل به chat_id رشته‌ای
+c1 = app.toggle_chat_id(123456789)                         # -> "123456789|1"
+c2 = app.toggle_chat_id(987654321, peer_type="group")      # -> "987654321|2"
+c3 = app.toggle_chat_id(273076292, peer_type="channel", telegram_style=True)  # -> "-100273076292"
+```
+
+---
+
 ## امور بانکی و کیف‌پول (Banking & Wallet)
 
 ### `app.get_payvand_cards`

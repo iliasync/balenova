@@ -517,20 +517,36 @@ def chat_type_to_peer_type(chat_type: ChatType | str | int) -> int:
 
 
 def chat_id_to_peer_id(chat_id: int | str | User | Chat) -> int:
-    """Extract numeric peer_id from a Bale chat_id (e.g. '123456|1' -> 123456)."""
+    """Extract numeric peer_id from any chat identifier.
+
+    Supports:
+        - Bale format: '123456|1' -> 123456, '987654|2' -> 987654
+        - Telegram format: -100273076292 -> 273076292 (channel),
+          -1509600244 -> 1509600244 (group)
+        - Raw numbers / models: User / Chat -> integer ID
+    """
     if isinstance(chat_id, Chat):
         return chat_id.peer_id
     if isinstance(chat_id, User):
         return chat_id.id
     if isinstance(chat_id, int):
+        if chat_id < 0:
+            s = str(chat_id)
+            if s.startswith("-100") and len(s) > 4:
+                return int(s[4:])
+            return abs(chat_id)
         return chat_id
     if isinstance(chat_id, str):
         stripped = chat_id.strip()
         if "|" in stripped:
             first = stripped.split("|", 1)[0].strip()
             if first.lstrip("-").isdigit():
-                return int(first)
-        if stripped.lstrip("-").isdigit():
+                return abs(int(first))
+        if stripped.startswith("-100") and len(stripped) > 4 and stripped[4:].isdigit():
+            return int(stripped[4:])
+        if stripped.startswith("-") and stripped[1:].isdigit():
+            return int(stripped[1:])
+        if stripped.isdigit():
             return int(stripped)
     raise ValueError(f"Cannot extract numeric peer_id from {chat_id!r}")
 
@@ -538,34 +554,120 @@ def chat_id_to_peer_id(chat_id: int | str | User | Chat) -> int:
 def peer_id_to_chat_id(
     peer_id: int | str,
     peer_type: int | str | ChatType = 1,
+    *,
+    telegram_style: bool = False,
 ) -> str:
     """Format peer_id and peer_type into standard Bale chat_id string.
 
-    Example:
+    Supports optional telegram_style (-100... / -...).
+
+    Examples:
         >>> peer_id_to_chat_id(123456, 1)
         '123456|1'
+        >>> peer_id_to_chat_id(987654, 'group')
+        '987654|2'
+        >>> peer_id_to_chat_id(273076292, 'channel', telegram_style=True)
+        '-100273076292'
     """
-    numeric_id = int(str(peer_id).strip())
+    numeric_id = chat_id_to_peer_id(peer_id)
     resolved_type = chat_type_to_peer_type(peer_type)
+    if telegram_style:
+        if resolved_type in (3, 5):  # Channel / Supergroup
+            return f"-100{numeric_id}"
+        if resolved_type == 2:  # Group
+            return f"-{numeric_id}"
+        return str(numeric_id)
     return f"{numeric_id}|{resolved_type}"
 
 
 def parse_chat_id(chat_id: int | str | User | Chat) -> tuple[int, int]:
-    """Parse any chat identifier into a (peer_id, peer_type) tuple."""
+    """Parse any chat identifier into a (peer_id, peer_type) tuple.
+
+    Auto-detects:
+        - Bale format: '123456|1' -> (123456, 1)
+        - Telegram channels (-100...): -100273076292 -> (273076292, 3)
+        - Telegram groups (-...): -1509600244 -> (1509600244, 2)
+        - Positive integer / string: 123456 -> (123456, 1)
+    """
     if isinstance(chat_id, Chat):
         return chat_id.peer_id, chat_id.peer_type
     if isinstance(chat_id, User):
         return chat_id.id, 4 if chat_id.is_bot else 1
     if isinstance(chat_id, int):
+        if chat_id < 0:
+            s = str(chat_id)
+            if s.startswith("-100") and len(s) > 4:
+                return int(s[4:]), 3
+            return abs(chat_id), 2
         return chat_id, 1
     if isinstance(chat_id, str):
         stripped = chat_id.strip()
         if "|" in stripped:
             p_id, p_type = stripped.split("|", 1)
-            return int(p_id.strip()), int(p_type.strip())
-        if stripped.lstrip("-").isdigit():
+            return abs(int(p_id.strip())), int(p_type.strip())
+        if stripped.startswith("-100") and len(stripped) > 4 and stripped[4:].isdigit():
+            return int(stripped[4:]), 3
+        if stripped.startswith("-") and stripped[1:].isdigit():
+            return int(stripped[1:]), 2
+        if stripped.isdigit():
             return int(stripped), 1
     raise ValueError(f"Cannot parse chat_id from {chat_id!r}")
+
+
+def toggle_chat_id(
+    identifier: int | str | User | Chat,
+    *,
+    peer_type: int | str | ChatType = 1,
+    telegram_style: bool = False,
+) -> int | str:
+    """Two-way smart converter between chat_id and peer_id.
+
+    Auto-detects input type:
+        - If input is a Bale chat_id (e.g. '123456|1') or Telegram ID (-100...),
+          it converts it to a raw numeric peer_id (int).
+        - If input is a raw numeric peer_id (e.g. 123456),
+          it converts it to a formatted chat_id string (str).
+
+    Examples:
+        >>> toggle_chat_id('123456|1')
+        123456
+        >>> toggle_chat_id('-100273076292')
+        273076292
+        >>> toggle_chat_id(123456)
+        '123456|1'
+        >>> toggle_chat_id(987654, peer_type='group')
+        '987654|2'
+        >>> toggle_chat_id(273076292, peer_type='channel', telegram_style=True)
+        '-100273076292'
+    """
+    if isinstance(identifier, (Chat, User)):
+        return identifier.peer_id if isinstance(identifier, Chat) else identifier.id
+
+    if isinstance(identifier, str):
+        stripped = identifier.strip()
+        if "|" in stripped:
+            return chat_id_to_peer_id(stripped)
+        if stripped.startswith("-"):
+            return chat_id_to_peer_id(stripped)
+        if stripped.isdigit():
+            # Positive digits string: treat as raw peer_id and convert to chat_id
+            return peer_id_to_chat_id(
+                int(stripped), peer_type, telegram_style=telegram_style
+            )
+
+    if isinstance(identifier, int):
+        if identifier < 0:
+            # Negative int is Telegram-style group/channel -> extract peer_id
+            return chat_id_to_peer_id(identifier)
+        # Positive int is raw peer_id -> convert to chat_id string
+        return peer_id_to_chat_id(
+            identifier, peer_type, telegram_style=telegram_style
+        )
+
+    raise ValueError(f"Cannot toggle identifier: {identifier!r}")
+
+
+convert_chat_id = toggle_chat_id
 
 
 def wrap_user(raw: dict[str, Any]) -> User:

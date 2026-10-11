@@ -91,3 +91,49 @@ def test_peer_and_chat_id_conversions() -> None:
     assert app.peer_id_to_chat_id(555, 3) == "555|3"
     assert app.parse_chat_id("555|3") == (555, 3)
 
+
+def test_toggle_chat_id_and_telegram_formats() -> None:
+    from bale import (
+        Client,
+        chat_id_to_peer_id,
+        parse_chat_id,
+        peer_id_to_chat_id,
+        toggle_chat_id,
+    )
+
+    # Telegram format parsing
+    assert chat_id_to_peer_id("-100273076292") == 273076292
+    assert chat_id_to_peer_id(-100273076292) == 273076292
+    assert chat_id_to_peer_id("-1509600244") == 1509600244
+    assert chat_id_to_peer_id(-1509600244) == 1509600244
+
+    assert parse_chat_id("-100273076292") == (273076292, 3)
+    assert parse_chat_id(-1509600244) == (1509600244, 2)
+
+    # Telegram format output
+    chan_tid = peer_id_to_chat_id(273076292, "channel", telegram_style=True)
+    assert chan_tid == "-100273076292"
+    grp_tid = peer_id_to_chat_id(1509600244, "group", telegram_style=True)
+    assert grp_tid == "-1509600244"
+    user_tid = peer_id_to_chat_id(1110450697, "private", telegram_style=True)
+    assert user_tid == "1110450697"
+
+    # Smart two-way toggle
+    assert toggle_chat_id("123456|1") == 123456
+    assert toggle_chat_id("987654|2") == 987654
+    assert toggle_chat_id("-100273076292") == 273076292
+    assert toggle_chat_id(-1509600244) == 1509600244
+
+    assert toggle_chat_id(123456) == "123456|1"
+    assert toggle_chat_id(987654, peer_type="group") == "987654|2"
+    toggle_chan = toggle_chat_id(
+        273076292, peer_type="channel", telegram_style=True
+    )
+    assert toggle_chan == "-100273076292"
+
+    # Client method
+    assert Client.toggle_chat_id("123456|1") == 123456
+    assert Client.toggle_chat_id(123456) == "123456|1"
+    assert Client.convert_chat_id("-100273076292") == 273076292
+
+

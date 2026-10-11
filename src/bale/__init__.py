@@ -43,10 +43,12 @@ from bale.models import (
     Winner,
     chat_id_to_peer_id,
     chat_type_to_peer_type,
+    convert_chat_id,
     model_to_dict,
     model_to_json,
     parse_chat_id,
     peer_id_to_chat_id,
+    toggle_chat_id,
 )
 from bale.proto import schema as pb
 from bale.recovered import (
@@ -126,6 +128,7 @@ __all__ = [
     "call_rtc_connection_from_group_call",
     "chat_id_to_peer_id",
     "chat_type_to_peer_type",
+    "convert_chat_id",
     "decode_livekit_join_request",
     "events",
     "filters",
@@ -135,4 +138,5 @@ __all__ = [
     "parse_chat_id",
     "pb",
     "peer_id_to_chat_id",
+    "toggle_chat_id",
 ]
