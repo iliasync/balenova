@@ -660,9 +660,7 @@ def toggle_chat_id(
             # Negative int is Telegram-style group/channel -> extract peer_id
             return chat_id_to_peer_id(identifier)
         # Positive int is raw peer_id -> convert to chat_id string
-        return peer_id_to_chat_id(
-            identifier, peer_type, telegram_style=telegram_style
-        )
+        return peer_id_to_chat_id(identifier, peer_type, telegram_style=telegram_style)
 
     raise ValueError(f"Cannot toggle identifier: {identifier!r}")
 

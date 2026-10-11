@@ -71,17 +71,23 @@ pip install --upgrade "balenova[voice]"
 
 ## 🔑 احراز هویت و ورود هوشمند
 
-### ۱. ورود خودکار از مرورگر (بدون کد پیامکی)
-اگر در مرورگر فایرفاکس وارد وب بله شده‌اید، این متد بدون درخواست شماره یا OTP سشن را استخراج می‌کند:
+### ۱. ورود خودکار از مرورگر (بدون کد پیامکی - Cross-Platform)
+اگر در هر مرورگری (Firefox, Chrome, Edge, Brave, Opera, Vivaldi و...) وارد وب بله شده‌اید، BaleNova به‌صورت خودکار در تمام سیستم‌عامل‌ها سشن را استخراج می‌کند:
+
+- **سیستم‌عامل‌های پشتیبانی‌شده:** Linux (Native, Snap, Flatpak), Windows, macOS, Android (Termux)
+- **مرورگرها:** Firefox, Chrome, Chromium, Brave, Microsoft Edge, Opera, Vivaldi, Arc, LibreWolf, Waterfox
 
 ```python
 from balenova import Client
 
-# تشخیص هوشمند مسیرهای مرورگر (شامل فایرفاکس، اسنپ و فلت‌پک)
+# جستجو و تشخیص کاملاً خودکار در سیستم‌عامل
 app = Client.from_browser("auto")
 
-# یا مستقیماً:
-# app = Client.from_firefox()
+# یا انتخاب یک مرورگر خاص:
+# app = Client.from_browser("chrome")
+# app = Client.from_browser("firefox")
+# app = Client.from_browser("edge")
+# app = Client.from_browser("brave")
 
 app.run_forever()
 ```

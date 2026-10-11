@@ -60,3 +60,36 @@ def test_session_from_firefox_mock(tmp_path) -> None:
     session = Session.from_firefox(db_path)
     assert session.user_id == 987654
     assert session.jwt == fake_token
+
+
+def test_session_from_chromium_mock(tmp_path) -> None:
+    import base64
+    import json
+    import sqlite3
+
+    db_path = tmp_path / "Cookies"
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute(
+        "CREATE TABLE cookies "
+        "(host_key TEXT, name TEXT, value TEXT, encrypted_value BLOB)"
+    )
+    payload = json.dumps({"payload": {"user_id": 112233}}).encode()
+    b64_payload = base64.urlsafe_b64encode(payload).decode().rstrip("=")
+    fake_token = f"fakeheader.{b64_payload}.fakesig"
+    c.execute(
+        "INSERT INTO cookies (host_key, name, value, encrypted_value) "
+        "VALUES (?, ?, ?, ?)",
+        (".bale.ai", "access_token", fake_token, b""),
+    )
+    conn.commit()
+    conn.close()
+
+    session = Session.from_chromium(profile_path=db_path)
+    assert session.user_id == 112233
+    assert session.jwt == fake_token
+
+    # Test from_browser routing
+    session_browser = Session.from_browser(browser="chrome", profile_path=db_path)
+    assert session_browser.user_id == 112233
+    assert session_browser.jwt == fake_token

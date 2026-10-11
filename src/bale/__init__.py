@@ -68,7 +68,7 @@ from bale.rtc import (
 from bale.services import ALL_RPCS, SERVICE_CLASSES
 from bale.session import Session
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 BaleClient = Client
 
 __all__ = [

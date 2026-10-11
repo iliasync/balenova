@@ -126,14 +126,10 @@ def test_toggle_chat_id_and_telegram_formats() -> None:
 
     assert toggle_chat_id(123456) == "123456|1"
     assert toggle_chat_id(987654, peer_type="group") == "987654|2"
-    toggle_chan = toggle_chat_id(
-        273076292, peer_type="channel", telegram_style=True
-    )
+    toggle_chan = toggle_chat_id(273076292, peer_type="channel", telegram_style=True)
     assert toggle_chan == "-100273076292"
 
     # Client method
     assert Client.toggle_chat_id("123456|1") == 123456
     assert Client.toggle_chat_id(123456) == "123456|1"
     assert Client.convert_chat_id("-100273076292") == 273076292
-
-

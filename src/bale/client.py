@@ -215,22 +215,49 @@ class Client(ClientExtendedMethodsMixin):
         return cls(str(session), session_name=session_name, **kwargs)
 
     @classmethod
-    def from_browser(
+    def from_chromium(
         cls,
-        browser: str = "firefox",
+        browser_name: str = "chrome",
         profile_path: str | Path | None = None,
         *,
         session_name: str | None = None,
         **kwargs: Any,
     ) -> Client:
-        """Create a client by extracting credentials from a local browser."""
-        browser_normalized = browser.strip().casefold()
-        if browser_normalized in {"firefox", "ff"}:
-            return cls.from_firefox(
-                profile_path, session_name=session_name or "firefox", **kwargs
-            )
-        raise NotImplementedError(
-            f"Browser '{browser}' is not supported yet; only 'firefox' is available."
+        """Create a client using the active session from Chromium cookies."""
+        session = Session.from_chromium(browser_name, profile_path)
+        return cls(
+            str(session),
+            session_name=session_name or browser_name or "chromium",
+            **kwargs,
+        )
+
+    @classmethod
+    def from_browser(
+        cls,
+        browser: str = "auto",
+        profile_path: str | Path | None = None,
+        *,
+        session_name: str | None = None,
+        **kwargs: Any,
+    ) -> Client:
+        """Create a client by extracting credentials from a local browser.
+
+        Supports:
+            - Operating Systems: Linux (Native, Snap, Flatpak), Windows,
+              macOS, Android (Termux)
+            - Browsers: 'auto', 'firefox', 'chrome', 'chromium', 'edge',
+              'brave', 'opera', 'vivaldi'
+
+        Examples:
+            >>> app = Client.from_browser("auto")
+            >>> app = Client.from_browser("firefox")
+            >>> app = Client.from_browser("chrome")
+        """
+        session = Session.from_browser(browser=browser, profile_path=profile_path)
+        return cls(
+            str(session),
+            session_name=session_name or f"browser_{browser}",
+            **kwargs,
         )
 
     def get_fsm_context(self, chat_id: int | str, user_id: int | str) -> Any:
