@@ -1,6 +1,6 @@
 """Compatibility package for the BaleNova client."""
 
-from bale import events, filters
+from bale import events, filters, formatting
 from bale.api import ProtocolAPI
 from bale.client import Client
 from bale.errors import (
@@ -12,6 +12,7 @@ from bale.errors import (
 )
 from bale.events import MessageEdited, MessageSent, NewMessage, RawUpdate, Update
 from bale.filters import Filter
+from bale.formatting import bold, code, escape_markdown, italic, link, pre, spoiler
 from bale.fsm import FSMContext, MemoryStorage, State, StatesGroup
 from bale.keyboards import (
     InlineKeyboardButton,
@@ -31,6 +32,8 @@ from bale.models import (
     GiftPacket,
     GivingType,
     Message,
+    MessageEntity,
+    MessageEntityType,
     OtherMessage,
     PacketResponse,
     PeerSource,
@@ -68,7 +71,7 @@ from bale.rtc import (
 from bale.services import ALL_RPCS, SERVICE_CLASSES
 from bale.session import Session
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 BaleClient = Client
 
 __all__ = [
@@ -102,6 +105,8 @@ __all__ = [
     "MemoryStorage",
     "Message",
     "MessageEdited",
+    "MessageEntity",
+    "MessageEntityType",
     "MessageSent",
     "NewMessage",
     "OtherMessage",
@@ -125,18 +130,26 @@ __all__ = [
     "Wallet",
     "WalletResponse",
     "Winner",
+    "bold",
     "call_rtc_connection_from_group_call",
     "chat_id_to_peer_id",
     "chat_type_to_peer_type",
+    "code",
     "convert_chat_id",
     "decode_livekit_join_request",
+    "escape_markdown",
     "events",
     "filters",
+    "formatting",
+    "italic",
+    "link",
     "model_to_dict",
     "model_to_json",
     "parse_call_wss_url",
     "parse_chat_id",
     "pb",
     "peer_id_to_chat_id",
+    "pre",
+    "spoiler",
     "toggle_chat_id",
 ]

@@ -133,3 +133,20 @@ def test_toggle_chat_id_and_telegram_formats() -> None:
     assert Client.toggle_chat_id("123456|1") == 123456
     assert Client.toggle_chat_id(123456) == "123456|1"
     assert Client.convert_chat_id("-100273076292") == 273076292
+
+
+def test_bale_formatting_helpers() -> None:
+    from bale import bold, code, escape_markdown, italic, link, pre, spoiler
+    from bale.models import MessageEntity, MessageEntityType
+
+    assert bold("سلام") == "*سلام*"
+    assert italic("متن") == "_متن_"
+    assert link("بله", "https://bale.ai") == "[بله](https://bale.ai)"
+    assert spoiler("متن", "توضیح") == "```[متن]توضیح```"
+    assert code("pip install balenova") == "`pip install balenova`"
+    assert pre("hello\nworld") == "```\nhello\nworld\n```"
+    assert escape_markdown("*hello*") == r"\*hello\*"
+
+    entity = MessageEntity(type=MessageEntityType.BOT_COMMAND, offset=0, length=6)
+    assert entity.type == MessageEntityType.BOT_COMMAND
+    assert entity.to_dict()["offset"] == 0

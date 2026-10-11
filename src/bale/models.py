@@ -432,6 +432,27 @@ class DefaultResponse(Serializable):
     ext: dict[str, Any] = field(default_factory=dict)
 
 
+class MessageEntityType(str, Enum):
+    MENTION = "mention"
+    BOT_COMMAND = "bot_command"
+    HASHTAG = "hashtag"
+    URL = "url"
+    BOLD = "bold"
+    ITALIC = "italic"
+    CODE = "code"
+    PRE = "pre"
+    TEXT_LINK = "text_link"
+
+
+@dataclass(frozen=True, slots=True)
+class MessageEntity(Serializable):
+    type: str | MessageEntityType
+    offset: int
+    length: int
+    url: str | None = None
+    user: User | None = None
+
+
 @dataclass(frozen=True, slots=True)
 class OtherMessage(Serializable):
     date: int
