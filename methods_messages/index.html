@@ -1,0 +1,4948 @@
+
+<!doctype html>
+<html lang="fa" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="مستندات کتابخانهٔ غیررسمی حساب بله برای Python">
+      
+      
+      
+        <link rel="canonical" href="https://iliasync.github.io/balenova/methods_messages/">
+      
+      
+        <link rel="prev" href="../keyboards/">
+      
+      
+        <link rel="next" href="../methods_chats/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>پیام‌ها و رسانه‌ها - BaleNova</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="rtl" data-md-color-scheme="slate" data-md-color-primary="light-blue" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#messages-media-api" class="md-skip">
+          پرش به محتویات
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="سرتیتر">
+    <a href=".." title="BaleNova" class="md-header__button md-logo" aria-label="BaleNova" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            BaleNova
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              پیام‌ها و رسانه‌ها
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="light-blue" data-md-color-accent="cyan"  aria-label="تغییر به حالت روشن (Light Mode)"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="تغییر به حالت روشن (Light Mode)" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="light-blue" data-md-color-accent="cyan"  aria-label="تغییر به حالت تاریک (Dark Mode)"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="تغییر به حالت تاریک (Dark Mode)" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="جستجو" placeholder="جستجو" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="جستجو">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="هم‌رسانی" aria-label="هم‌رسانی" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="بازنشانی" aria-label="بازنشانی" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            راه‌اندازی جستجو
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/iliasync/balenova" title="رفتن به مخزن" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    iliasync/balenova
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="زبانه‌ها" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+  شروع کار
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../types/" class="md-tabs__link">
+          
+  
+  
+  انواع داده و مدل‌ها
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  مرجع متدها (به سبک تلگرام)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../cookbook/" class="md-tabs__link">
+          
+  
+  
+  سناریوهای عملی و پروژه‌ها
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../WEB_PROTOCOL_AUDIT/" class="md-tabs__link">
+          
+  
+  
+  پروتکل و زیرساخت (پیشرفته)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../USAGE/" class="md-tabs__link">
+          
+  
+  
+  آرشیو یادداشت‌های فنی
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="هدایت" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="BaleNova" class="md-nav__button md-logo" aria-label="BaleNova" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    BaleNova
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/iliasync/balenova" title="رفتن به مخزن" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    iliasync/balenova
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    شروع کار
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    شروع کار
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    معرفی و معماری
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    نصب و احراز هویت
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bot_development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ساخت ربات و سیستم رویدادها
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fsm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ماشین وضعیت و فرم‌ها (FSM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    مدیریت خطاها و استثناها
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    انواع داده و مدل‌ها
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    انواع داده و مدل‌ها
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    کاتالوگ مدل‌ها و کلاس‌های داده
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../keyboards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    کیبوردها و تعاملات دکمه‌ای
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    مرجع متدها (به سبک تلگرام)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    مرجع متدها (به سبک تلگرام)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    پیام‌ها و رسانه‌ها
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    پیام‌ها و رسانه‌ها
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="فهرست موضوعات">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      فهرست موضوعات
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        فهرست الفبایی متدها
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="فهرست الفبایی متدها">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#send_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_history
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_history">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_media
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="download_media">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_file
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="download_file">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mark_as_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mark_as_read
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mark_as_read">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edit_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        edit_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="edit_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="delete_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward_messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forward_messages
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="forward_messages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        copy_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="copy_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_photo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_photo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_document
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_document">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_audio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_audio
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_audio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_video" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_video
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_video">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_voice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_voice
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_voice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_sticker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_sticker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_sticker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_location
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_location">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_contact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_contact
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_contact">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pin_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pin_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pin_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpin_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unpin_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unpin_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpin_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unpin_all
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unpin_all">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set_reaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set_reaction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="set_reaction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove_reaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remove_reaction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="remove_reaction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_action
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_action">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../methods_chats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    گفت‌وگوها، گروه‌ها و کانال‌ها
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../methods_users/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    کاربران و مخاطبین
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../methods_wallet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    امور بانکی، کیف پول و پاکت هدیه
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../methods_stories_polls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    استوری، نظرسنجی و زمان‌بندی
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../methods_calls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    تماس‌های صوتی و تصویری (WebRTC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../methods_settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    امنیت، نشست‌ها و حریم خصوصی
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    سناریوهای عملی و پروژه‌ها
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    سناریوهای عملی و پروژه‌ها
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    کوک‌بوک و کدهای آماده ربات
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    پرسش‌های متداول (FAQ)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    پروتکل و زیرساخت (پیشرفته)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    پروتکل و زیرساخت (پیشرفته)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEB_PROTOCOL_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ممیزی پروتکل وب
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CALL_RTC_PROTOCOL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    پروتکل تماس لایوکیت
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all_methods_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    مرجع ۶۹۰ متد پروتکل
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rpc-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    مرجع کامل RPCها
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../recovered-rpcs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ۸۰ RPC بازیابی‌شده
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pythonic_rpc_methods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    کاتالوگ متدهای پایتونیک
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    آرشیو یادداشت‌های فنی
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    آرشیو یادداشت‌های فنی
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../USAGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    راهنمای شروع سریع پیشین
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    رابط کاربری سطح پایین API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    یادداشت‌های پیام‌رسانی
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group_management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    مدیریت پیشین گروه‌ها
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../banking_miniapps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    امور بانکی و مینی‌اپ‌ها (نسخه ۱)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fsm_keyboards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    کیبوردهای FSM پیشین
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stories_polls_schedule/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    استوری و نظرسنجی (نسخه ۱)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="فهرست موضوعات">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      فهرست موضوعات
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        فهرست الفبایی متدها
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="فهرست الفبایی متدها">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#send_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_history
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_history">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_media
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="download_media">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        download_file
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="download_file">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mark_as_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mark_as_read
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mark_as_read">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edit_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        edit_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="edit_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="delete_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward_messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forward_messages
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="forward_messages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        copy_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="copy_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_photo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_photo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_document
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_document">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_audio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_audio
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_audio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_video" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_video
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_video">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_voice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_voice
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_voice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_sticker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_sticker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_sticker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_location
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_location">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_contact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_contact
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_contact">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pin_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pin_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pin_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpin_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unpin_message
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unpin_message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpin_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unpin_all
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unpin_all">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set_reaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set_reaction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="set_reaction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove_reaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remove_reaction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="remove_reaction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_action
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="send_action">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-value_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="messages-media-api">💬 مرجع جامع متدهای پیام‌ها و رسانه‌ها (Messages &amp; Media API)<a class="headerlink" href="#messages-media-api" title="Permanent link">&para;</a></h1>
+<p>این بخش شامل تمام متدهای ارسال، دریافت تاریخچه، دانلود مدیا، ویرایش، حذف، فوروارد، پین، ری‌اکشن، سین‌زدن و کار با انواع رسانه‌ها در پیام‌رسان بله است.</p>
+<hr />
+<h2 id="_1">فهرست الفبایی متدها<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Return Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#send_message"><code>send_message</code></a></td>
+<td style="text-align: left;">ارسال پیام متنی به کاربر، گروه یا کانال</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#edit_message"><code>edit_message</code></a></td>
+<td style="text-align: left;">ویرایش متن یک پیام ارسال‌شده</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#delete_message"><code>delete_message</code></a></td>
+<td style="text-align: left;">حذف یک پیام از تاریخچه گفت‌وگو</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#forward_messages"><code>forward_messages</code></a></td>
+<td style="text-align: left;">فوروارد کردن پیام از یک چت به چت دیگر</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#copy_message"><code>copy_message</code></a></td>
+<td style="text-align: left;">کپی کردن پیام بدون برچسب فوروارد</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#get_history"><code>get_history</code></a></td>
+<td style="text-align: left;">دریافت تاریخچه پیام‌های قبلی چت با صفحه‌بندی</td>
+<td style="text-align: left;"><code>List[</code><a href="../types/#message"><code>Message</code></a><code>]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#mark_as_read"><code>mark_as_read</code></a></td>
+<td style="text-align: left;">اعلام خوانده‌شدن (Seen / Read) پیام‌های چت</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#download_media"><code>download_media</code></a></td>
+<td style="text-align: left;">دانلود مستقیم فایل، تصویر، ویس یا ویدیو به صورت بایت</td>
+<td style="text-align: left;"><code>bytes</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#download_file"><code>download_file</code></a></td>
+<td style="text-align: left;">دانلود فایل با شناسه فایل ابری بله</td>
+<td style="text-align: left;"><code>bytes</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_photo"><code>send_photo</code></a></td>
+<td style="text-align: left;">ارسال عکس همراه با کپشن</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_document"><code>send_document</code></a></td>
+<td style="text-align: left;">ارسال فایل یا سند بدون فشرده‌سازی</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_audio"><code>send_audio</code></a></td>
+<td style="text-align: left;">ارسال فایل موسیقی یا فایل صوتی</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_video"><code>send_video</code></a></td>
+<td style="text-align: left;">ارسال ویدیو با قابلیت پیش‌نمایش</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_voice"><code>send_voice</code></a></td>
+<td style="text-align: left;">ارسال پیام صوتی (Voice) با شکل‌موج</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_sticker"><code>send_sticker</code></a></td>
+<td style="text-align: left;">ارسال استیکر بله</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_location"><code>send_location</code></a></td>
+<td style="text-align: left;">ارسال موقعیت مکانی جغرافیایی (GPS)</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_contact"><code>send_contact</code></a></td>
+<td style="text-align: left;">ارسال کارت مخاطب و شماره تماس</td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#pin_message"><code>pin_message</code></a></td>
+<td style="text-align: left;">پین کردن پیام در بالای صفحه چت</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#unpin_message"><code>unpin_message</code></a></td>
+<td style="text-align: left;">برداشتن سنجاق پیام</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#unpin_all"><code>unpin_all</code></a></td>
+<td style="text-align: left;">حذف تمام پیام‌های پین‌شده در چت</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#set_reaction"><code>set_reaction</code></a></td>
+<td style="text-align: left;">ثبت ایموجی واکنش روی پیام</td>
+<td style="text-align: left;"><code>dict</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#remove_reaction"><code>remove_reaction</code></a></td>
+<td style="text-align: left;">حذف واکنش قبلی روی پیام</td>
+<td style="text-align: left;"><code>dict</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#send_action"><code>send_action</code></a></td>
+<td style="text-align: left;">ارسال وضعیت (تایپینگ، آپلود و...)</td>
+<td style="text-align: left;"><code>DefaultResponse</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="send_message"><code>send_message</code><a class="headerlink" href="#send_message" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال پیام متنی به چت، گروه یا کانال با پشتیبانی از مارک‌داون و کیبوردها.</p>
+<h4 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str, User, Chat]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه مقصد (عددی، یوزرنیم با/بدون <code>@</code>، یا Peer)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>text</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">متن پیام (تا ۴۰۹۶ کاراکتر)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>reply_to_message_id</code></td>
+<td style="text-align: left;"><code>Optional[Union[int, str]]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>None</code></td>
+<td style="text-align: left;">شناسه پیامی که پاسخ به آن ارسال می‌شود</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>reply_markup</code></td>
+<td style="text-align: left;"><code>Optional[Union[InlineKeyboardMarkup, ReplyKeyboardMarkup]]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>None</code></td>
+<td style="text-align: left;">دکمه‌های شیشه‌ای یا ریپلای کیبورد</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value">Return Value<a class="headerlink" href="#return-value" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="s2">"pv_ilia"</span><span class="p">,</span> <span class="s2">"سلام از BaleNova! 🚀"</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="get_history"><code>get_history</code><a class="headerlink" href="#get_history" title="Permanent link">&para;</a></h3>
+<p><span class="badge get">GET</span> <span class="badge async">Async</span></p>
+<p>دریافت پیام‌های قبلی چت با قابلیت پیمایش زمانی (Pagination). (نام مستعار: <code>load_history</code>, <code>get_messages</code>).</p>
+<h4 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت یا گروه</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>from_date</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>-1</code></td>
+<td style="text-align: left;">زمان شروع برحسب میلی‌ثانیه (<code>-1</code> یعنی از جدیدترین پیام‌ها)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>limit</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>20</code></td>
+<td style="text-align: left;">تعداد پیام‌هایی که باید برگردانده شوند</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_1">Return Value<a class="headerlink" href="#return-value_1" title="Permanent link">&para;</a></h5>
+<p><code>List[</code><a href="../types/#message"><code>Message</code></a><code>]</code></p>
+<h5 id="code-example">Code Example<a class="headerlink" href="#code-example" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># واکشی ۵۰ پیام اخیر چت</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">messages</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_history</span><span class="p">(</span><span class="s2">"pv_ilia"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">from_user</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">m</span><span class="o">.</span><span class="n">from_user</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'ناشناس'</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="download_media"><code>download_media</code><a class="headerlink" href="#download_media" title="Permanent link">&para;</a></h3>
+<p><span class="badge get">GET</span> <span class="badge async">Async</span></p>
+<p>دانلود مستقیم فایل چندرسانه‌ای پیوست‌شده به پیام (عکس، ویدیو، وویس، سند یا استیکر) به صورت بایت خام.</p>
+<h4 id="parameters_2">Parameters<a class="headerlink" href="#parameters_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>message</code></td>
+<td style="text-align: left;"><a href="../types/#message"><code>Message</code></a></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شیء پیامی که دارای رسانه است</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_2">Return Value<a class="headerlink" href="#return-value_2" title="Permanent link">&para;</a></h5>
+<p><code>bytes</code> — بایت‌های محتوای فایل دانلودشده.</p>
+<h5 id="code-example_1">Code Example<a class="headerlink" href="#code-example_1" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># روش ۱: از طریق کلاینت</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">media_bytes</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">download_media</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"downloaded_file.jpg"</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">media_bytes</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># روش ۲: به صورت اکتیو رکورد روی خود شیء پیام!</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">file_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">message</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+</code></pre></div>
+<hr />
+<h3 id="download_file"><code>download_file</code><a class="headerlink" href="#download_file" title="Permanent link">&para;</a></h3>
+<p><span class="badge get">GET</span> <span class="badge async">Async</span></p>
+<p>دانلود هر فایلی از سرورهای ابری بله با استفاده از شناسه فایل (<code>file_id</code>).</p>
+<h4 id="parameters_3">Parameters<a class="headerlink" href="#parameters_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>file_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه یکتای فایل</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>access_hash</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">اکسس هش معتبر فایل</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_3">Return Value<a class="headerlink" href="#return-value_3" title="Permanent link">&para;</a></h5>
+<p><code>bytes</code></p>
+<hr />
+<h3 id="mark_as_read"><code>mark_as_read</code><a class="headerlink" href="#mark_as_read" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>علامت‌گذاری پیام‌های یک چت به عنوان «خوانده‌شده» (سین زدن). (نام مستعار: <code>message_read</code>, <code>read_chat</code>).</p>
+<h4 id="parameters_4">Parameters<a class="headerlink" href="#parameters_4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>date</code></td>
+<td style="text-align: left;"><code>Optional[int]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;">زمان حال</td>
+<td style="text-align: left;">پیام‌های تا این زمان به عنوان خوانده‌شده ثبت می‌شوند</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_4">Return Value<a class="headerlink" href="#return-value_4" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+<h5 id="code-example_2">Code Example<a class="headerlink" href="#code-example_2" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># سین زدن تمام پیام‌های دریافتی تا این لحظه</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">mark_as_read</span><span class="p">(</span><span class="s2">"pv_ilia"</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="edit_message"><code>edit_message</code><a class="headerlink" href="#edit_message" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ویرایش متن یک پیام ارسال‌شده. (نام مستعار: <code>edit_message_text</code>).</p>
+<h4 id="parameters_5">Parameters<a class="headerlink" href="#parameters_5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str, User, Chat]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیامی که باید ویرایش شود</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>text</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">متن جدید</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_5">Return Value<a class="headerlink" href="#return-value_5" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">edit_message</span><span class="p">(</span><span class="s2">"pv_ilia"</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">"متن ویرایش شد! ✏️"</span><span class="p">)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># یا اکتیو رکورد:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="s2">"متن جدید"</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="delete_message"><code>delete_message</code><a class="headerlink" href="#delete_message" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>حذف یک پیام از چت. (نام مستعار: <code>delete_messages</code>).</p>
+<h4 id="parameters_6">Parameters<a class="headerlink" href="#parameters_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str, User, Chat]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیام</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_6">Return Value<a class="headerlink" href="#return-value_6" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">delete_message</span><span class="p">(</span><span class="s2">"pv_ilia"</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># یا اکتیو رکورد:</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</code></pre></div>
+<hr />
+<h3 id="forward_messages"><code>forward_messages</code><a class="headerlink" href="#forward_messages" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>فوروارد پیام از یک چت به چت دیگر. (نام مستعار: <code>forward_message</code>).</p>
+<h4 id="parameters_7">Parameters<a class="headerlink" href="#parameters_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>from_chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مبدا</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیام</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_7">Return Value<a class="headerlink" href="#return-value_7" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+<hr />
+<h3 id="copy_message"><code>copy_message</code><a class="headerlink" href="#copy_message" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>کپی کردن پیام بدون نمایش نام فرستنده اصلی یا برچسب فوروارد.</p>
+<h4 id="parameters_8">Parameters<a class="headerlink" href="#parameters_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>from_chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مبدا</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیام</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_8">Return Value<a class="headerlink" href="#return-value_8" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="send_photo"><code>send_photo</code><a class="headerlink" href="#send_photo" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال تصویر به همراه کپشن اختیاری.</p>
+<h4 id="parameters_9">Parameters<a class="headerlink" href="#parameters_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>photo</code></td>
+<td style="text-align: left;"><code>Union[str, bytes, BinaryIO]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">مسیر فایل روی دیسک، بایت‌ها، یا شیء فایل</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>caption</code></td>
+<td style="text-align: left;"><code>Optional[str]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>""</code></td>
+<td style="text-align: left;">کپشن زیر تصویر</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>reply_to_message_id</code></td>
+<td style="text-align: left;"><code>Optional[Union[int, str]]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>None</code></td>
+<td style="text-align: left;">شناسه پیام ریپلای</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_9">Return Value<a class="headerlink" href="#return-value_9" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="send_document"><code>send_document</code><a class="headerlink" href="#send_document" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال فایل یا سند دلخواه (PDF, ZIP, APK و...).</p>
+<h4 id="parameters_10">Parameters<a class="headerlink" href="#parameters_10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>document</code></td>
+<td style="text-align: left;"><code>Union[str, bytes, BinaryIO]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">مسیر فایل یا بایت‌های داده</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>file_name</code></td>
+<td style="text-align: left;"><code>Optional[str]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;">نام فایل</td>
+<td style="text-align: left;">نام نمایشی فایل</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>caption</code></td>
+<td style="text-align: left;"><code>Optional[str]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>""</code></td>
+<td style="text-align: left;">کپشن پیوست‌شده</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_10">Return Value<a class="headerlink" href="#return-value_10" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="send_audio"><code>send_audio</code><a class="headerlink" href="#send_audio" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال فایل صوتی یا موسیقی.</p>
+<h4 id="parameters_11">Parameters<a class="headerlink" href="#parameters_11" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>audio</code></td>
+<td style="text-align: left;"><code>Union[str, bytes, BinaryIO]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">مسیر یا بایت‌های موسیقی</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>caption</code></td>
+<td style="text-align: left;"><code>Optional[str]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>""</code></td>
+<td style="text-align: left;">کپشن</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_11">Return Value<a class="headerlink" href="#return-value_11" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="send_video"><code>send_video</code><a class="headerlink" href="#send_video" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال فایل ویدیویی.</p>
+<h4 id="parameters_12">Parameters<a class="headerlink" href="#parameters_12" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>video</code></td>
+<td style="text-align: left;"><code>Union[str, bytes, BinaryIO]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">مسیر یا بایت‌های ویدیو</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>caption</code></td>
+<td style="text-align: left;"><code>Optional[str]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>""</code></td>
+<td style="text-align: left;">کپشن</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_12">Return Value<a class="headerlink" href="#return-value_12" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="send_voice"><code>send_voice</code><a class="headerlink" href="#send_voice" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال پیام صوتی (Voice Note) با شکل‌موج.</p>
+<h4 id="parameters_13">Parameters<a class="headerlink" href="#parameters_13" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>voice</code></td>
+<td style="text-align: left;"><code>Union[str, bytes, BinaryIO]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">مسیر فایل ویس (OGG/Opus)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>duration</code></td>
+<td style="text-align: left;"><code>Optional[int]</code></td>
+<td style="text-align: center;"><span class="badge optional">No</span></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: left;">مدت زمان به ثانیه</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_13">Return Value<a class="headerlink" href="#return-value_13" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="send_sticker"><code>send_sticker</code><a class="headerlink" href="#send_sticker" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال استیکر با شناسه فایل یا فایل تصویری.</p>
+<h4 id="parameters_14">Parameters<a class="headerlink" href="#parameters_14" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">چت مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sticker</code></td>
+<td style="text-align: left;"><code>Union[str, bytes]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه فایل استیکر یا مسیر فایل</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_14">Return Value<a class="headerlink" href="#return-value_14" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="send_location"><code>send_location</code><a class="headerlink" href="#send_location" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال مختصات جغرافیایی به صورت نقشه تعاملی بله.</p>
+<h4 id="parameters_15">Parameters<a class="headerlink" href="#parameters_15" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>latitude</code></td>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">عرض جغرافیایی (Latitude)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>longitude</code></td>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">طول جغرافیایی (Longitude)</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_15">Return Value<a class="headerlink" href="#return-value_15" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># ارسال لوکیشن میدان آزادی تهران</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_location</span><span class="p">(</span><span class="s2">"pv_ilia"</span><span class="p">,</span> <span class="n">latitude</span><span class="o">=</span><span class="mf">35.6997</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="mf">51.3380</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="send_contact"><code>send_contact</code><a class="headerlink" href="#send_contact" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال کارت مخاطب و شماره همراه به چت.</p>
+<h4 id="parameters_16">Parameters<a class="headerlink" href="#parameters_16" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه مقصد</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>phone_number</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شماره تلفن همراه مخاطب</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>name</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">نام نمایشی مخاطب</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_16">Return Value<a class="headerlink" href="#return-value_16" title="Permanent link">&para;</a></h5>
+<p><a href="../types/#message"><code>Message</code></a></p>
+<hr />
+<h3 id="pin_message"><code>pin_message</code><a class="headerlink" href="#pin_message" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>سنجاق کردن یک پیام در بالای چت یا گروه.</p>
+<h4 id="parameters_17">Parameters<a class="headerlink" href="#parameters_17" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت یا گروه</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیامی که باید پین شود</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_17">Return Value<a class="headerlink" href="#return-value_17" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+<hr />
+<h3 id="unpin_message"><code>unpin_message</code><a class="headerlink" href="#unpin_message" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>برداشتن سنجاق از یک پیام مشخص.</p>
+<h4 id="parameters_18">Parameters<a class="headerlink" href="#parameters_18" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیام پین‌شده</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_18">Return Value<a class="headerlink" href="#return-value_18" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+<hr />
+<h3 id="unpin_all"><code>unpin_all</code><a class="headerlink" href="#unpin_all" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>حذف تمام سنجاق‌های گفت‌وگو.</p>
+<h4 id="parameters_19">Parameters<a class="headerlink" href="#parameters_19" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_19">Return Value<a class="headerlink" href="#return-value_19" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+<hr />
+<h3 id="set_reaction"><code>set_reaction</code><a class="headerlink" href="#set_reaction" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ثبت واکنش ایموجی (مانند 👍, ❤️, 🔥, 🎉) روی پیام.</p>
+<h4 id="parameters_20">Parameters<a class="headerlink" href="#parameters_20" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت هدف</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیام</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>code</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">کاراکتر ایموجی واکنش (مانند <code>"❤️"</code> یا <code>"🔥"</code>)</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_20">Return Value<a class="headerlink" href="#return-value_20" title="Permanent link">&para;</a></h5>
+<p><code>dict</code></p>
+<hr />
+<h3 id="remove_reaction"><code>remove_reaction</code><a class="headerlink" href="#remove_reaction" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>حذف واکنش ثبت‌شده کاربر از روی پیام.</p>
+<h4 id="parameters_21">Parameters<a class="headerlink" href="#parameters_21" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت هدف</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>message_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه پیام</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>code</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">ایموجی قبلاً ثبت‌شده</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_21">Return Value<a class="headerlink" href="#return-value_21" title="Permanent link">&para;</a></h5>
+<p><code>dict</code></p>
+<hr />
+<h3 id="send_action"><code>send_action</code><a class="headerlink" href="#send_action" title="Permanent link">&para;</a></h3>
+<p><span class="badge post">POST</span> <span class="badge async">Async</span></p>
+<p>ارسال وضعیت زنده چت به منظور نمایش تایپ، آپلود فایل و غیره.</p>
+<h4 id="parameters_22">Parameters<a class="headerlink" href="#parameters_22" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>chat_id</code></td>
+<td style="text-align: left;"><code>Union[int, str]</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">شناسه چت</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>action</code></td>
+<td style="text-align: left;"><code>ChatAction</code></td>
+<td style="text-align: center;"><span class="badge required">Yes</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">وضعیت از <code>bale.enums.ChatAction</code> (مثل <code>TYPING</code>, <code>RECORD_VOICE</code>)</td>
+</tr>
+</tbody>
+</table>
+<h5 id="return-value_22">Return Value<a class="headerlink" href="#return-value_22" title="Permanent link">&para;</a></h5>
+<p><code>DefaultResponse</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  برگشت به بالا
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "search.highlight", "search.suggest", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u06a9\u067e\u06cc \u0634\u062f", "clipboard.copy": "\u06a9\u067e\u06cc \u06a9\u0631\u062f\u0646", "search.result.more.one": "1 \u0645\u0648\u0631\u062f \u062f\u06cc\u06af\u0631 \u062f\u0631 \u0627\u06cc\u0646 \u0635\u0641\u062d\u0647", "search.result.more.other": "# \u0645\u0648\u0631\u062f \u062f\u06cc\u06af\u0631 \u062f\u0631 \u0627\u06cc\u0646 \u0635\u0641\u062d\u0647", "search.result.none": "\u0633\u0646\u062f\u06cc \u06cc\u0627\u0641\u062a \u0646\u0634\u062f", "search.result.one": "1 \u0633\u0646\u062f \u06cc\u0627\u0641\u062a \u0634\u062f", "search.result.other": "# \u0633\u0646\u062f \u06cc\u0627\u0641\u062a \u0634\u062f", "search.result.placeholder": "\u0628\u0631\u0627\u06cc \u0634\u0631\u0648\u0639 \u062c\u0633\u062a\u062c\u0648 \u062a\u0627\u06cc\u067e \u06a9\u0646\u06cc\u062f", "search.result.term.missing": "\u0645\u0648\u062c\u0648\u062f \u0646\u06cc\u0633\u062a", "select.version": "\u0627\u0646\u062a\u062e\u0627\u0628 \u0648\u06cc\u0631\u0627\u06cc\u0634"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
