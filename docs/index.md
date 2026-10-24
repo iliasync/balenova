@@ -1,4 +1,4 @@
-# ⚡ BaleNova (باله‌نوا)
+# ⚡ BaleNova (بله‌نوا)
 
 <div class="hero-card">
   <div class="hero-title">BaleNova Documentation</div>
@@ -68,7 +68,7 @@
     @app.on(events.NewMessage(pattern=r"^/start", incoming=True))
     async def on_start(event: events.NewMessage):
         print(f"پیام جدید از {event.from_user.first_name}: {event.text}")
-        await event.reply("سلام! ربات باله‌نوا با موفقیت فعال شد 🚀")
+        await event.reply("سلام! ربات بله‌نوا با موفقیت فعال شد 🚀")
         await event.react("❤️")
 
     # اجرای مداوم و گوش به زنگ
@@ -96,7 +96,7 @@
 
 ## 📊 جدول مقایسه BaleNova با روش‌های قدیمی
 
-| قابلیت | BaleNova (باله‌نوا) | روش‌های خام و سنتی |
+| قابلیت | BaleNova (بله‌نوا) | روش‌های خام و سنتی |
 | :--- | :---: | :---: |
 | **سطح سادگی کد** | بسیار بالا (بدون درگیری با پروتکل) | پیچیده و نیازمند دانش Protobuf |
 | **سیستم رویدادها** | کلاس‌های ساختاریافته تلتون (`events.*`) | دیکشنری‌های خام و نامشخص |

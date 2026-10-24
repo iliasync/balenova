@@ -1,4 +1,4 @@
-# ⚡ BaleNova (باله‌نوا)
+# ⚡ BaleNova (بله‌نوا)
 
 > **فریم‌ورک فوق‌سریع، ناهمگام (Async) و مدرن پایتون برای پیام‌رسان و سوپراپ بله**  
 > *Next-Generation High-Performance Async Python Framework for Bale Messenger & SuperApp*
@@ -60,7 +60,7 @@ async def main():
         print(f"Logged in as: {me.full_name} (@{me.username})")
 
         # ارسال پیام به چت شخصی (Saved Messages)
-        msg = await app.send_message(f"{me.id}|1", "سلام از باله‌نوا 🚀")
+        msg = await app.send_message(f"{me.id}|1", "سلام از بله‌نوا 🚀")
         print(f"پیام ارسال شد با شناسه: {msg.id}")
 
         # ویرایش پیام
@@ -87,7 +87,7 @@ async def start_handler(event: events.NewMessage):
     print(event)
 
     # پاسخ مستقیم و ارسال ری‌اکشن
-    await event.reply(f"درود {event.from_user.first_name}! ربات باله‌نوا آماده است ⚡")
+    await event.reply(f"درود {event.from_user.first_name}! ربات بله‌نوا آماده است ⚡")
     await event.react("❤️")
 
 # دریافت دستور پینگ
