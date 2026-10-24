@@ -1,6 +1,6 @@
 """Compatibility package for the BaleNova client."""
 
-from bale import events, filters, formatting
+from bale import enums, events, filters, formatting, types
 from bale.api import ProtocolAPI
 from bale.client import Client
 from bale.errors import (
@@ -80,7 +80,7 @@ from bale.rtc import (
 from bale.services import ALL_RPCS, SERVICE_CLASSES
 from bale.session import Session
 
-__version__ = "0.4.4"
+__version__ = "0.5.0"
 BaleClient = Client
 
 __all__ = [
@@ -147,6 +147,7 @@ __all__ = [
     "code_block",
     "convert_chat_id",
     "decode_livekit_join_request",
+    "enums",
     "escape_markdown",
     "events",
     "filters",
@@ -162,4 +163,5 @@ __all__ = [
     "pre",
     "spoiler",
     "toggle_chat_id",
+    "types",
 ]

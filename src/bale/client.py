@@ -147,7 +147,9 @@ class Client(ClientExtendedMethodsMixin):
         grpc: GrpcTransport | None = None,
         websocket_options: Mapping[str, Any] | None = None,
         recorder: ProtocolRecorder | None = None,
+        device_title: str = "BaleNova",
     ) -> None:
+        self.device_title = device_title
         normalized_credential = credential.strip() if credential else None
         if credential is not None and not normalized_credential:
             raise AuthenticationError("The supplied Bale credential is empty")
@@ -274,6 +276,14 @@ class Client(ClientExtendedMethodsMixin):
     def session(self) -> str | None:
         return str(self._session) if self._session else None
 
+    @property
+    def user_id(self) -> int | None:
+        if self.user is not None:
+            return self.user.id
+        if self._session is not None:
+            return self._session.user_id
+        return None
+
     @overload
     def on_message(
         self, callback: Filter | None = None
@@ -308,13 +318,56 @@ class Client(ClientExtendedMethodsMixin):
 
     def on(
         self,
-        event_type: type[Update] = Update,
+        event_or_type: Any = Update,
         filter_: Filter | None = None,
+        **kwargs: Any,
     ) -> Callable[[UpdateHandler], UpdateHandler]:
-        """Register a handler for one class of update."""
+        """Register a handler for one class of update (Telethon/Pyrogram syntax)."""
+        from bale.events import Event, Update
+
+        actual_event_type: type[Update] = Update
+        actual_filter: Filter | None = filter_
+
+        if isinstance(event_or_type, Event):
+            target = getattr(event_or_type, "target_update_type", None)
+            actual_event_type = (
+                target if (target and issubclass(target, Update)) else Update
+            )
+            if event_or_type.filter is not None:
+                actual_filter = (
+                    (event_or_type.filter & actual_filter)
+                    if actual_filter is not None
+                    else event_or_type.filter
+                )
+        elif inspect.isclass(event_or_type) and issubclass(event_or_type, Update):
+            actual_event_type = event_or_type
+            if issubclass(event_or_type, Event) and kwargs:
+                builder_obj = cast(Any, event_or_type)(**kwargs)
+                b_filter: Filter | None = getattr(builder_obj, "filter", None)
+                if b_filter is not None:
+                    actual_filter = (
+                        (b_filter & actual_filter)
+                        if actual_filter is not None
+                        else b_filter
+                    )
+        elif inspect.isclass(event_or_type) and issubclass(event_or_type, Event):
+            event_builder = cast(Any, event_or_type)(**kwargs)
+            target = getattr(event_builder, "target_update_type", None)
+            actual_event_type = (
+                target if (target and issubclass(target, Update)) else Update
+            )
+            eb_filter: Filter | None = getattr(event_builder, "filter", None)
+            if eb_filter is not None:
+                actual_filter = (
+                    (eb_filter & actual_filter)
+                    if actual_filter is not None
+                    else eb_filter
+                )
 
         def decorator(callback: UpdateHandler) -> UpdateHandler:
-            return self.dispatcher.add_update_handler(callback, event_type, filter_)
+            return self.dispatcher.add_update_handler(
+                callback, actual_event_type, actual_filter
+            )
 
         return decorator
 
@@ -509,14 +562,14 @@ class Client(ClientExtendedMethodsMixin):
                 "app_id": 4,
                 "api_key": _API_KEY,
                 "device_hash": "ce5ced83-a9ab-47fa-80c8-ed425eeb2ace",
-                "device_title": "Chrome_138.0.0.0, Python async client",
+                "device_title": getattr(self, "device_title", "BaleNova"),
                 "send_code_type": 1,
                 "options": b"\x00\x01",
             },
         )
 
     async def validate_code(self, transaction_hash: str, code: str) -> dict[str, Any]:
-        return await self._grpc.request(
+        response = await self._grpc.request(
             "bale.auth.v1.Auth",
             "ValidateCode",
             "request.ValidateCode",
@@ -527,11 +580,17 @@ class Client(ClientExtendedMethodsMixin):
                 "is_jwt": {"value": True},
             },
         )
+        try:
+            self._session = _parse_auth(response)
+            await self._storage.save(self._session)
+        except Exception:
+            pass
+        return response
 
     async def validate_password(
         self, transaction_hash: str, password: str
     ) -> dict[str, Any]:
-        return await self._grpc.request(
+        response = await self._grpc.request(
             "bale.auth.v1.Auth",
             "ValidatePassword",
             "request.ValidatePassword",
@@ -542,11 +601,17 @@ class Client(ClientExtendedMethodsMixin):
                 "is_jwt": {"value": True},
             },
         )
+        try:
+            self._session = _parse_auth(response)
+            await self._storage.save(self._session)
+        except Exception:
+            pass
+        return response
 
     async def sign_up(
         self, transaction_hash: str, name: str, password: str | None = None
     ) -> dict[str, Any]:
-        return await self._grpc.request(
+        response = await self._grpc.request(
             "bale.auth.v1.Auth",
             "SignUp",
             "request.SignUp",
@@ -557,6 +622,12 @@ class Client(ClientExtendedMethodsMixin):
                 "password": {"value": password} if password else None,
             },
         )
+        try:
+            self._session = _parse_auth(response)
+            await self._storage.save(self._session)
+        except Exception:
+            pass
+        return response
 
     async def terminate_all_sessions(self) -> DefaultResponse:
         """Invalidate all other authenticated Bale sessions."""
@@ -940,20 +1011,26 @@ class Client(ClientExtendedMethodsMixin):
             raise ClientStateError("Could not load the Bale user profile")
         return user
 
-    async def get_chat(self, chat_id: str) -> User | Chat | None:
-        cached = self._peer_cache.get(chat_id)
+    async def get_chat(self, chat_id: str | int | User | Chat) -> User | Chat | None:
+        key = str(chat_id.id if isinstance(chat_id, (User, Chat)) else chat_id)
+        cached = self._peer_cache.get(key)
         if cached:
             return cached
         peer = _parse_peer(chat_id)
         if peer:
             return await self._load_peer(*peer)
-        normalized = _normalize_query(chat_id)
+        normalized = _normalize_query(key)
         response = await self.search_contacts(normalized)
         users = response.get("users") or []
         groups = response.get("groups") or []
         return users[0] if users else groups[0] if groups else None
 
     get_entity = get_chat
+
+    async def get_user(self, user_id: int | str | User) -> User | None:
+        """Fetch high-level User information by ID or @username."""
+        res = await self.get_chat(user_id)
+        return res if isinstance(res, User) else None
 
     async def resolve_peer_id(self, chat_id: int | str | User | Chat) -> int | str:
         """Resolve a Bale peer object, numeric id, or username to its id."""
@@ -1933,6 +2010,102 @@ class Client(ClientExtendedMethodsMixin):
                 "exclude_pinned_dialogs": exclude_pinned,
             },
         )
+
+    async def get_dialogs(
+        self,
+        limit: int = 40,
+        min_date: int = -1,
+        *,
+        exclude_pinned: bool = False,
+    ) -> Any:
+        """Return account dialogs as high-level Dialog objects (Telethon style)."""
+        from bale.models import wrap_group, wrap_user
+        from bale.types.dialog import Dialog, DialogsList
+
+        response = await self.load_dialogs(
+            limit=limit, min_date=min_date, exclude_pinned=exclude_pinned
+        )
+        users_map: dict[int, User] = {}
+        groups_map: dict[int, Chat] = {}
+
+        for u in response.get("users", []):
+            if isinstance(u, dict) and "id" in u:
+                user_obj = wrap_user(u).bind(self)
+                users_map[user_obj.id] = user_obj
+
+        for g in response.get("groups", []):
+            if isinstance(g, dict) and "id" in g:
+                grp_obj = wrap_group(g).bind(self)
+                groups_map[grp_obj.peer_id] = grp_obj
+
+        user_peers = [
+            int(p["uid"])
+            for p in response.get("user_peers", [])
+            if isinstance(p, dict)
+            and p.get("uid") is not None
+            and int(p["uid"]) not in users_map
+        ]
+        if user_peers:
+            with contextlib.suppress(Exception):
+                loaded_users = await self.load_users(user_peers[:40])
+                for lu in loaded_users:
+                    users_map[lu.id] = lu
+
+        group_peers = [
+            int(p["group_id"])
+            for p in response.get("group_peers", [])
+            if isinstance(p, dict)
+            and p.get("group_id") is not None
+            and int(p["group_id"]) not in groups_map
+        ]
+        if group_peers:
+            with contextlib.suppress(Exception):
+                for gid in group_peers[:20]:
+                    ginfo = await self.get_full_group(str(gid))
+                    if ginfo:
+                        grp_obj = wrap_group(ginfo).bind(self)
+                        groups_map[grp_obj.peer_id] = grp_obj
+
+        dialogs = DialogsList()
+        for d in response.get("dialogs", []):
+            if not isinstance(d, dict):
+                continue
+            peer = d.get("peer") or {}
+            p_id = int(peer.get("id", 0))
+            p_type = int(peer.get("type", 0))
+
+            if p_type in (2, 3, 5) and p_id in groups_map:
+                chat = groups_map[p_id]
+            elif p_type == 1 and p_id in users_map:
+                u = users_map[p_id]
+                chat = Chat(
+                    peer_id=u.id, peer_type=1, title=u.full_name, username=u.username
+                ).bind(self)
+            else:
+                chat = Chat(peer_id=p_id, peer_type=p_type).bind(self)
+
+            top_msg = None
+            if d.get("message"):
+                with contextlib.suppress(Exception):
+                    top_msg = self._wrap_message(
+                        {
+                            "peer": peer,
+                            "sender_uid": d.get("sender_uid", 0),
+                            "date": d.get("date", 0),
+                            "rid": d.get("rid", 0),
+                            "message": d.get("message"),
+                        }
+                    )
+
+            dialog_obj = Dialog(
+                chat=chat,
+                top_message=top_msg,
+                unread_count=int(d.get("counter", 0) or 0),
+                is_pinned=bool(d.get("is_pinned", False)),
+            ).bind(self)
+            dialogs.append(dialog_obj)
+
+        return dialogs
 
     async def get_dialogs_by_type(
         self,
@@ -4040,6 +4213,18 @@ class Client(ClientExtendedMethodsMixin):
             return wallet
 
     get_my_kifpools = get_wallet
+
+    # High-level Telegram-style method aliases
+    set_reaction = message_set_reaction
+    remove_reaction = message_remove_reaction
+    edit_message = edit_message_text
+    delete_messages = delete_message
+    kick_chat_member = kick_user
+    get_chats = get_dialogs
+    get_history = load_history
+    get_messages = load_history
+    mark_as_read = message_read
+    read_chat = message_read
 
     async def prime_wallet_cache(self) -> WalletResponse | None:
         try:

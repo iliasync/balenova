@@ -1,433 +1,196 @@
-<div align="center" dir="rtl">
+# ⚡ BaleNova (باله‌نوا)
 
-# 🚀 BaleNova (بله‌نوا)
+> **فریم‌ورک فوق‌سریع، ناهمگام (Async) و مدرن پایتون برای پیام‌رسان و سوپراپ بله**  
+> *Next-Generation High-Performance Async Python Framework for Bale Messenger & SuperApp*
 
-[![Version](https://img.shields.io/badge/version-0.4.4-emerald.svg?style=for-the-badge)](https://pypi.org/project/balenova/)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/balenova/)
-[![Protocol](https://img.shields.io/badge/protocol-Protobuf%20%7C%20gRPC--Web%20%7C%20WebSocket-5865F2.svg?style=for-the-badge)](https://web.bale.ai)
-[![Methods](https://img.shields.io/badge/methods-690%20RPCs%20%7C%20830%2B%20Pythonic-f59e0b.svg?style=for-the-badge)](https://iliasync.github.io/balenova/all_methods_guide/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![PyPI version](https://img.shields.io/badge/pypi-v0.5.0-0088cc.svg?logo=pypi&logoColor=white)](https://pypi.org/project/balenova/)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-0088cc.svg)](https://iliasync.github.io/balenova/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Syntax](https://img.shields.io/badge/syntax-Telethon%20%26%20Pyrogram-blueviolet.svg)](https://github.com/iliasync/balenova)
+[![Zero RPC](https://img.shields.io/badge/API-Zero--RPC%20Pure%20Python-success.svg)](https://github.com/iliasync/balenova)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-**کتابخانه ناهمگام (Async)، فوق‌العاده سریع، تایپ‌شده و جامع پایتون برای تعامل با پیام‌رسان بله با معماری الهام‌گرفته از aiogram و Telethon.**  
-پوشش ۱۰۰ درصدی ۶۹۰ متد رسمی پروتکل وب بله با بیش از ۸۳۰ متد پایتونیک مستقل روی شیء `app`، ورود خودکار بدون کد تایید از مرورگر، ساخت کیبوردهای شیشه‌ای و ریپلای، ماشین وضعیت گفتگو (FSM)، کارت به کارت و کیف‌پول بانکی، استوری‌ها، تماس‌های زنده صوتی و تصویری گروهی با WebRTC/LiveKit و مینی‌اپ‌ها.
-
-[📖 ورود به سایت مستندات رسمی (GitHub Pages)](https://iliasync.github.io/balenova/) · [📑 راهنمای جامع ۶۹۰ متد با پارامترها](https://iliasync.github.io/balenova/all_methods_guide/) · [📦 پکیج در PyPI](https://pypi.org/project/balenova/) · [🐛 گزارش باگ یا پیشنهاد](https://github.com/iliasync/balenova/issues)
-
----
-
-</div>
-
-<div dir="rtl">
-
-## 📑 فهرست مطالب
-
-1. [✨ ویژگی‌های شاخص و مزیت‌ها](#-ویژگیهای-شاخص-و-مزیتها)
-2. [📦 نصب و راه‌اندازی](#-نصب-و-راهاندازی)
-3. [🔑 احراز هویت و ورود هوشمند](#-احراز-هویت-و-ورود-هوشمند)
-   - [ورود خودکار از مرورگرها (Firefox, Snap, Flatpak) بدون کد تایید](#۱-ورود-خودکار-از-مرورگر-بدون-کد-پیامکی)
-   - [ورود با شماره تلفن و کد تایید ترمینالی](#۲-ورود-با-شماره-تلفن-و-کد-پیامکی)
-4. [⚡ شروع سریع و ساخت اولین ربات](#-شروع-سریع-و-ساخت-اولین-ربات)
-5. [⌨️ کیبوردهای شیشه‌ای و پاسخ (Keyboards)](#-کیبوردهای-شیشهای-و-پاسخ-keyboards)
-6. [🚦 ماشین وضعیت و فرم‌های چندمرحله‌ای (FSM)](#-ماشین-وضعیت-و-فرمهای-چندمرحلهای-fsm)
-7. [💳 امور بانکی، کیف‌پول و کارت به کارت](#-امور-بانکی-کیفپول-و-کارت-به-کارت)
-8. [💬 ارسال انواع پیام، فایل و آلبوم رسانه‌ای](#-ارسال-انواع-پیام-فایل-و-آلبوم-رسانهای)
-9. [🔄 تبدیل شناسه چت و شناسه پیر (chat_id ⟷ peer_id)](#-تبدیل-شناسه-چت-و-شناسه-پیر-chat_id--peer_id)
-10. [📸 استوری‌ها، نظرسنجی‌ها و پیام‌های زمان‌بندی‌شده](#-استوریها-نظرسنجیها-و-پیامهای-زمانبندیشده)
-11. [👥 مدیریت پیشرفته گروه‌ها، کانال‌ها و ادمین‌ها](#-مدیریت-پیشرفته-گروهها-کانالها-و-ادمینها)
-12. [📞 تماس‌های صوتی و تصویری گروهی (WebRTC / LiveKit)](#-تماسهای-صوتی-و-تصویری-گروهی-webrtc--livekit)
-13. [🌐 نحوه استفاده از کلیه ۶۹۰ متد وب بله](#-نحوه-استفاده-از-کلیه-۶۹۰-متد-وب-بله)
-14. [🛠️ راهنمای توسعه و مشارکت](#-راهنمای-توسعه-و-مشارکت)
+📚 **وب‌سایت مستندات آنلاین و راهنمای کامل:**  
+👉 **[https://iliasync.github.io/balenova/](https://iliasync.github.io/balenova/)**
 
 ---
 
-## ✨ ویژگی‌های شاخص و مزیت‌ها
+## 🌟 چرا BaleNova؟
 
-- 🔥 **بیش از ۸۳۰ متد پایتونیک مستقل:** هر متدی در وب بله نام پایتونیک اختصاصی با آرگومان‌های صریح، تایپ کامل و Docstring دارد (`app.charge(...)`, `app.get_card_remain(...)`, `app.create_group(...)`).
-- 🦊 **ورود جادویی از مرورگر (`Client.from_browser("auto")`):** خواندن سشن‌های فعال مرورگر فایرفاکس (لینوکس، Snap، Flatpak، ویندوز و مک) بدون نیاز به دریافت کد پیامکی.
-- ⚡ **معماری رویدادمحور و فیلترهای پیشرفته:** شبیه `aiogram 3` با پشتیبانی از عملگرهای منطقی فیلترها (`&`, `|`, `~`)، دستورات متنی (`filters.command`) و وضعیت‌ها (`filters.state`).
-- ⌨️ **سازنده کیبوردهای شیشه‌ای و دکمه‌ای:** با ساختار تمیز چیدمان ردیف‌ها (`row(...)`, `add(...)`)، دکمه‌های وب‌اپ (MiniApp) و کال‌بک داده.
-- 🚦 **سیستم FSM توکار:** ذخیره‌سازی حافظه‌محور مقادیر موقت کاربران بدون نیاز به دیتابیس جداگانه.
-- 💳 **خدمات جامع مالی بله:** کارت‌های ذخیره‌شده (Payvand)، استعلام موجودی، دریافت توکن درگاه انتقال وجه، خرید شارژ، اینترنت و قبوض.
-- 📞 **پشتیبانی اختصاصی از WebRTC / LiveKit:** برقراری تماس گروهی رمزنگاری‌شده صوتی/تصویری.
-- 🌙 **سایت مستندات مدرن با دارک‌مود خودکار:** هماهنگ با تم سیستم‌عامل کاربر با جستجوی سریع.
+* 🚫 **خداحافظی با RPC و خطاهای خام سرور (Zero-RPC):** دیگر نیازی به سر و کله زدن با Protobuf، ساختارهای درهم‌تنیده پیام، یا متدهای ناشناخته نیست. همه چیز در قالب متدهای سرراست و قابل فهم پایتون در دسترس است.
+* 🦊 **شناسایی خودکار سشن فایرفاکس (`Client.from_firefox()`):** اتصال آنی به حساب فعال شما در مرورگر Firefox (لینوکس، ویندوز و مک) بدون نیاز به دریافت کد پیامکی مجدد.
+* ⚡ **پشتیبانی دوگانه از سینتکس Telethon و Pyrogram:**
+  * سبک تلتون: `@app.on(events.NewMessage(pattern=r"^/start", incoming=True))`
+  * سبک پایروگرام: `@app.on_message(filters.command("start") & filters.private)`
+* 💬 **دسترسی سریع و شهودی (Dot-Access):** دسترسی مستقیم به مقادیر پیام بدون باز کردن دیکشنری: `msg.text`, `msg.chat.title`, `msg.from_user.username`, `msg.id`, `msg.is_outgoing`.
+* 🎯 **متدهای کنشی روی خود شیء پیام (Active Record):** پاسخ مستقیم با `await msg.reply("...")`، ویرایش پیام با `await msg.edit("...")`، حذف با `await msg.delete()` و ری‌اکشن با `await msg.react("🔥")`.
+* 🗂️ **دریافت هوشمند گفتگوها (`await app.get_dialogs()`):** بازگرداندن اشیاء سطح بالای `Dialog` شامل آخرین پیام، تعداد پیام‌های خوانده‌نشده، عنوان کانال یا گروه بدون دغدغه تبدیل Peer.
+* 🔍 **پرینت ساختاریافته و زیبا (`print(msg)`):** نمایش شفاف و فرمت‌شده‌ی اشیاء در لاگ‌ها و کنسول دیباگ.
+* 💳 **پشتیبانی جامع از امکانات سوپراپ بله:** کیف‌پول، پاکت هدیه، کارت به کارت، کیبوردهای شیشه‌ای و اینلاین، نظرسنجی و تماس‌های صوتی-تصویری WebRTC/LiveKit.
 
 ---
 
-## 📦 نصب و راه‌اندازی
-
-نصب نسخه پایدار از PyPI:
+## 📦 نصب
 
 ```bash
-pip install --upgrade balenova
+pip install balenova
 ```
 
-اگر نیاز به پشتیبانی از پخش صدای زنده در تماس‌های گروهی (WebRTC Voice) دارید:
-
+یا نصب آخرین نسخه مستقیم از سورس مخزن:
 ```bash
-pip install --upgrade "balenova[voice]"
+pip install git+https://github.com/iliasync/balenova.git
 ```
 
 ---
 
-## 🔑 احراز هویت و ورود هوشمند
+## 🚀 شروع سریع (Quickstart)
 
-### ۱. ورود خودکار از مرورگر (بدون کد پیامکی - Cross-Platform)
-اگر در هر مرورگری (Firefox, Chrome, Edge, Brave, Opera, Vivaldi و...) وارد وب بله شده‌اید، BaleNova به‌صورت خودکار در تمام سیستم‌عامل‌ها سشن را استخراج می‌کند:
-
-- **سیستم‌عامل‌های پشتیبانی‌شده:** Linux (Native, Snap, Flatpak), Windows, macOS, Android (Termux)
-- **مرورگرها:** Firefox, Chrome, Chromium, Brave, Microsoft Edge, Opera, Vivaldi, Arc, LibreWolf, Waterfox
+### ۱. اتصال خودکار از طریق سشن فایرفاکس (بدون کد پیامکی)
 
 ```python
+import asyncio
 from balenova import Client
 
-# جستجو و تشخیص کاملاً خودکار در سیستم‌عامل
-app = Client.from_browser("auto")
+async def main():
+    # اتصال مستقیم به سشن فعال در فایرفاکس شما
+    app = Client.from_firefox()
 
-# یا انتخاب یک مرورگر خاص:
-# app = Client.from_browser("chrome")
-# app = Client.from_browser("firefox")
-# app = Client.from_browser("edge")
-# app = Client.from_browser("brave")
+    async with app:
+        me = await app.get_me()
+        print(f"Logged in as: {me.full_name} (@{me.username})")
 
-app.run_forever()
-```
+        # ارسال پیام به چت شخصی (Saved Messages)
+        msg = await app.send_message(f"{me.id}|1", "سلام از باله‌نوا 🚀")
+        print(f"پیام ارسال شد با شناسه: {msg.id}")
 
-### ۲. ورود با شماره تلفن و کد پیامکی
-در اولین اجرا، شماره تلفن و کد تایید در ترمینال پرسیده شده و سشن در پوشه امن `sessions/` ذخیره می‌گردد:
+        # ویرایش پیام
+        await asyncio.sleep(1)
+        await msg.edit("پیام ویرایش گردید ✅")
 
-```python
-from balenova import Client
-
-app = Client("my_account")
-app.run_forever()
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ---
 
-## ⚡ شروع سریع و ساخت اولین ربات
-
-یک فایل `main.py` بسازید:
+### ۲. ساخت ربات پاسخ‌گو به سبک تلتون (Telethon-Style Events)
 
 ```python
-from balenova import Client, events, filters
+from balenova import Client, events
 
-app = Client.from_browser("auto")
+app = Client("my_bot")
 
-# پاسخ به دستور /start
-@app.on(events.NewMessage, filters.command("start"))
+# دریافت دستور /start با پترن ریجکس و فقط پیام‌های ورودی
+@app.on(events.NewMessage(pattern=r"^/start", incoming=True))
 async def start_handler(event: events.NewMessage):
-    await event.reply("سلام! به بات BaleNova خوش آمدید 🚀")
+    # خروجی پرینت بسیار مرتب و خوانا
+    print(event)
 
-# پاسخ به پیام‌های متنی حاوی کلمه خاص
-@app.on(events.NewMessage, filters.text & filters.contains("قیمت"))
-async def price_handler(event: events.NewMessage):
-    await event.reply("برای استعلام قیمت‌ها دکمه زیر را لمس کنید.")
+    # پاسخ مستقیم و ارسال ری‌اکشن
+    await event.reply(f"درود {event.from_user.first_name}! ربات باله‌نوا آماده است ⚡")
+    await event.react("❤️")
 
-app.run_forever()
+# دریافت دستور پینگ
+@app.on(events.NewMessage(pattern=r"^پینگ$", incoming=True))
+async def ping_handler(event: events.NewMessage):
+    await event.reply("پونگ! 🏓")
+
+# اجرای دائمی کلاینت
+app.run()
 ```
 
 ---
 
-## ⌨️ کیبوردهای شیشه‌ای و پاسخ (Keyboards)
-
-### کیبورد اینلاین شیشه‌ای (InlineKeyboardMarkup)
+### ۳. دریافت لیست گفتگوها و پیام‌های اخیر (Dialogs)
 
 ```python
+import asyncio
+from balenova import Client
+
+async def main():
+    async with Client.from_firefox() as app:
+        # دریافت ۵ گفتگوی اخیر به صورت آبجکت‌های ساخت‌یافته
+        dialogs = await app.get_dialogs(limit=5)
+        
+        for d in dialogs:
+            title = d.chat.title or d.chat.full_name or d.chat.id
+            last = d.top_message.text if d.top_message else "(بدون متن)"
+            print(f"[{d.chat.type.value}] {title} | خوانده‌نشده: {d.unread_count} | آخرین پیام: {last[:30]}")
+
+asyncio.run(main())
+```
+
+---
+
+### ۴. ارسال کیبورد شیشه‌ای و اینلاین (Inline Keyboards)
+
+```python
+import asyncio
+from balenova import Client
 from balenova.keyboards import InlineKeyboardButton, InlineKeyboardMarkup
 
-keyboard = (
-    InlineKeyboardMarkup()
-    .row(
-        InlineKeyboardButton("🌐 وب‌سایت مستندات", url="https://iliasync.github.io/balenova/"),
-        InlineKeyboardButton("⚡ استعلام موجودی", callback_data="check_balance")
-    )
-    .row(
-        InlineKeyboardButton("🎮 اجرای مینی‌اپ", web_app_url="https://app.bale.ai")
-    )
-)
+async def main():
+    async with Client.from_firefox() as app:
+        # ساخت کیبورد شیشه‌ای
+        keyboard = InlineKeyboardMarkup().add(
+            InlineKeyboardButton("🌐 وب‌سایت مستندات", url="https://iliasync.github.io/balenova/"),
+            InlineKeyboardButton("⚡ پشتیبانی", callback_data="support_click"),
+        )
 
-await app.send_message(chat_id, "منوی اصلی خدمات:", reply_markup=keyboard)
+        target_chat = f"{app.user_id}|1"
+        await app.send_message(target_chat, "یکی از گزینه‌های زیر را انتخاب نمایید:", reply_markup=keyboard)
+
+asyncio.run(main())
 ```
 
-### کیبورد پاسخ معمولی (ReplyKeyboardMarkup)
+---
+
+### ۵. ورود با شماره تلفن و کد تایید ترمینالی
 
 ```python
-from balenova.keyboards import KeyboardButton, ReplyKeyboardMarkup
+import asyncio
+from balenova import Client
 
-reply_kb = (
-    ReplyKeyboardMarkup(resize_keyboard=True)
-    .row(
-        KeyboardButton("📱 ارسال شماره من", request_contact=True),
-        KeyboardButton("📍 ارسال لوکیشن", request_location=True)
-    )
-    .row(
-        KeyboardButton("ℹ️ درباره ما"),
-        KeyboardButton("📞 ارتباط با پشتیبانی")
-    )
-)
+async def login_flow():
+    # ساخت کلاینت با نام نشست دلخواه (ذخیره امن در sessions/my_account.session)
+    app = Client("my_account")
+    await app.start()
+    
+    me = await app.get_me()
+    print(f"ورود موفق به حساب: {me.full_name}")
+    await app.close()
 
-await app.send_message(chat_id, "لطفاً یک گزینه را انتخاب کنید:", reply_markup=reply_kb)
+asyncio.run(login_flow())
 ```
 
 ---
 
-## 🚦 ماشین وضعیت و فرم‌های چندمرحله‌ای (FSM)
+## 📂 ساختار ماژولار و مهندسی پروژه (Clean Architecture)
 
-پیاده‌سازی فرم‌های مرحله‌به‌مرحله با معماری دقیق `aiogram`:
-
-```python
-from balenova.fsm import State, StatesGroup
-
-class Registration(StatesGroup):
-    waiting_for_name = State()
-    waiting_for_phone = State()
-
-@app.on(events.NewMessage, filters.command("register"))
-async def start_reg(event: events.NewMessage):
-    fsm = event.get_fsm_context()
-    await fsm.set_state(Registration.waiting_for_name)
-    await event.reply("لطفاً نام و نام خانوادگی خود را ارسال کنید:")
-
-@app.on(events.NewMessage, filters.state(Registration.waiting_for_name))
-async def process_name(event: events.NewMessage):
-    fsm = event.get_fsm_context()
-    await fsm.update_data(full_name=event.text)
-    await fsm.set_state(Registration.waiting_for_phone)
-    await event.reply(f"ممنون {event.text}! حالا شماره تماس خود را ارسال کنید:")
-
-@app.on(events.NewMessage, filters.state(Registration.waiting_for_phone))
-async def process_phone(event: events.NewMessage):
-    fsm = event.get_fsm_context()
-    data = await fsm.get_data()
-    await fsm.clear()  # اتمام فرآیند
-    await event.reply(f"ثبت‌نام تکمیل شد!\nنام: {data['full_name']}\nشماره: {event.text}")
+```
+new library for bale/
+├── src/
+│   └── bale/ (و balenova/)
+│       ├── types/                  # تایپ‌های سطح بالا همراه با متدهای متصل (Active Record)
+│       │   ├── user.py             # User با متدهای .send_message()، .block()، .unblock()
+│       │   ├── chat.py             # Chat با متدهای .send_message()، .send_photo()، .leave()
+│       │   ├── message.py          # Message با دسترسی دات‌اکسس (.text, .from_user, .buttons)
+│       │   ├── dialog.py           # Dialog و DialogsList
+│       │   ├── media.py            # Photo, Video, Audio, Voice, Document
+│       │   ├── keyboard.py         # InlineKeyboardMarkup و ReplyKeyboardMarkup
+│       │   └── events.py           # ChatActionEvent, CallbackQueryEvent, UserTypingEvent
+│       ├── enums.py                # تمامی ثابت‌ها و تایپ‌های عددی (ChatType, ChatAction, ...)
+│       ├── events.py               # رویدادهای Telethon-Style (@app.on(events.NewMessage))
+│       ├── filters.py              # فیلترهای منطقی ترکیبی (& و | و ~) و ریجکس
+│       ├── client.py               # کلاینت قدرتمند آسنکرون با بیش از ۸۳۰ متد
+│       ├── session.py              # ذخیره‌سازی امن سشن و اتصال مستقیم به Firefox
+│       └── transports/             # لایه ارتباطی پایدار WebSocket و gRPC-web
+├── tests/                          # بیش از ۱۳۰ تست خودکار برای تضمین پایداری
+└── docs/                           # مستندات کامل و کاتالوگ متدها
 ```
 
 ---
 
-## 💳 امور بانکی، کیف‌پول و کارت به کارت
+## 🛡️ لایسنس (License)
 
-```python
-# ۱. دریافت لیست کارت‌های بانکی پیوند ذخیره‌شده
-cards = await app.get_payvand_cards()
-
-# ۲. استعلام موجودی کارت بانکی شتابی با رمز دوم
-balance = await app.get_card_balance(
-    card_number="6037997123456789",
-    cvv2="123",
-    expire_date="28/05",
-    pin2="123456"
-)
-print("موجودی قابل برداشت:", balance.availableBalanceAmount)
-
-# ۳. دریافت توکن انتقال وجه کارت به کارت
-token_res = await app.get_card_transfer_token(peer_user_id=123456, description="تسویه فاکتور")
-print("آدرس درگاه بله:", token_res.requestEndPoint)
-
-# ۴. تسویه و برداشت از کیف‌پول بله
-await app.cash_out(amount=100000, iban="IR123456789012345678901234")
-```
-
----
-
-## 💬 ارسال انواع پیام، فایل و آلبوم رسانه‌ای
-
-```python
-# ارسال تصویر همراه با کپشن
-await app.send_photo(chat_id, "banner.png", caption="تصویر اطلاعیه 🖼️")
-
-# ارسال ویدیو با مدت زمان
-await app.send_video(chat_id, "clip.mp4", duration=45, caption="کلیپ آموزشی")
-
-# ارسال صدای ضبط شده (Voice)
-await app.send_voice(chat_id, "voice.ogg", duration=15)
-
-# ارسال فایل زیپ یا پی‌دی‌اف
-await app.send_document(chat_id, "archive.zip")
-
-# ارسال استیکر، فوروارد و پین کردن پیام
-await app.forward_message(from_chat_id, to_chat_id, message_id)
-await app.pin_message(chat_id, message_id)
-await app.message_set_reaction(chat_id, message_id, "❤️")
-```
-
----
-
-## 🎨 قالب‌بندی اختصاصی متن در بله (Bale Markdown)
-
-قالب‌بندی در بله بر اساس استاندارد رسمی [مستندات بله (docs.bale.ai)](https://docs.bale.ai/#%D9%82%D8%A7%D9%84%D8%A8%D8%A8%D9%86%D8%AF%DB%8C-%D9%85%D8%AA%D9%86) پیاده‌سازی شده و توابع کمکی کاربردی برای ساخت متن‌های زیبا در اختیارتان قرار دارد:
-
-```python
-from balenova import bold, italic, link, spoiler, code, code_block
-
-snippet = """def hello():
-    print("Welcome to BaleNova!")
-"""
-
-text = (
-    f"{bold('پیام مهم!')}\n\n"
-    f"این یک متن {italic('کج')} است.\n"
-    f"برای مشاهده سایت: {link('وب‌سایت بله', 'https://bale.ai')}\n"
-    f"نمایش آنی / اسپویلر بله: {spoiler('متن مخفی', 'توضیحات تکمیلی')}\n"
-    f"کد کوتاه: {code('pip install balenova')}\n\n"
-    f"بلاک کد با مشخص کردن زبان:\n"
-    f"{code_block(snippet, language='python')}"
-)
-
-await app.send_message(chat_id, text)
-```
-
----
-
-## 🔄 تبدیل شناسه چت و شناسه پیر (`chat_id` ⟷ `peer_id`)
-
-در پیام‌رسان بله، شناسه‌های گفتگو به دو شیوه شناسه ترکیبی (`chat_id` مانند `'123456|1'` یا `'987654|2'`) و شناسه عددی خالص (`peer_id`) نمایش داده می‌شوند. همچنین در مقایسه با تلگرام (که گروه‌ها با شناسه منفی مانند `-1509600244` و کانال‌ها با پیشوند `-100...` مشخص می‌شوند)، BaleNova متدهای هوشمندی برای تبدیل خودکار دوطرفه و تشخیص نوع شناسه بدون نیاز به اینترنت فراهم کرده است:
-
-<div dir="ltr" markdown="1">
-
-| Method / Function | Input | Output | Description |
-| :--- | :--- | :--- | :--- |
-| `app.toggle_chat_id(identifier)` | `chat_id` or `peer_id` | `peer_id` or `chat_id` | تبدیل هوشمند دوطرفه خودکار بین `chat_id` و `peer_id`. |
-| `app.chat_id_to_peer_id(chat_id)` | `String / Integer / Chat / User` | `Integer` | استخراج شناسه عددی خالص (peer_id) از رشته یا مدل چت. |
-| `app.peer_id_to_chat_id(peer_id, peer_type)` | `peer_id`, `peer_type=1` | `String` | ساخت رشته استاندارد chat_id از شناسه و نوع چت. |
-| `app.parse_chat_id(chat_id)` | `chat_id` | `(peer_id, peer_type)` | تجزیه شناسه به تاپل دو مقداری `(شناسه عددی, نوع پیر)`. |
-
-</div>
-
-**جدول انواع گفتگو در بله (Peer Type):**
-- `1` یا `'private'` / `'user'`: گفتگوی خصوصی دوطرفه
-- `2` یا `'group'`: گروه عادی
-- `3` یا `'channel'`: کانال اطلاع‌رسانی
-- `4` یا `'bot'`: ربات بله
-- `5` یا `'supergroup'`: ابرگروه
-- `6` یا `'thread'`: رشته پیام و تاپیک
-
-```python
-from balenova import Client, ChatType, toggle_chat_id, chat_id_to_peer_id, peer_id_to_chat_id
-
-# ۱. تبدیل هوشمند دوطرفه خودکار (Auto-Detect Two-Way)
-# اگر chat_id بفرستید، peer_id عددی دریافت می‌کنید:
-p1 = Client.toggle_chat_id("123456789|1")     # -> 123456789
-p2 = Client.toggle_chat_id("-100273076292")   # -> 273076292 (کانال تلگرامی/بله)
-p3 = Client.toggle_chat_id(-1509600244)       # -> 1509600244 (گروه تلگرامی/بله)
-
-# اگر peer_id عددی بفرستید، chat_id رشته‌ای دریافت می‌کنید:
-c1 = Client.toggle_chat_id(123456789)                         # -> "123456789|1"
-c2 = Client.toggle_chat_id(987654321, peer_type="group")      # -> "987654321|2"
-c3 = Client.toggle_chat_id(273076292, peer_type="channel", telegram_style=True)  # -> "-100273076292"
-
-# ۲. تبدیل مستقیم chat_id به peer_id عددی
-peer_id = Client.chat_id_to_peer_id("123456789|1")  # -> 123456789
-group_id = Client.chat_id_to_peer_id("987654321|2") # -> 987654321
-
-# ۳. تبدیل مستقیم peer_id به chat_id با نام نوع یا عدد
-user_chat_id = Client.peer_id_to_chat_id(123456789, 1)          # -> "123456789|1"
-group_chat_id = Client.peer_id_to_chat_id(987654321, "group")   # -> "987654321|2"
-channel_chat_id = Client.peer_id_to_chat_id(555666777, ChatType.CHANNEL) # -> "555666777|3"
-
-# ۴. تجزیه سریع به تاپل
-p_id, p_type = Client.parse_chat_id("987654321|2")  # -> (987654321, 2)
-```
-
----
-
-## 📸 استوری‌ها، نظرسنجی‌ها و پیام‌های زمان‌بندی‌شده
-
-```python
-# استوری‌ها: دریافت، ری‌اکشن و آمار بازدید
-stories = await app.get_all_stories()
-await app.react_to_story(story_id="uuid_story", reaction="🔥")
-viewers = await app.get_story_viewers(story_id="uuid_story")
-
-# نظرسنجی: دریافت نتیجه، ثبت رای و بستن
-poll_result = await app.get_poll_result(poll_id=987654)
-await app.vote_poll(poll_id=987654, option_ids=[0])
-await app.close_poll(poll_id=987654)
-
-# پیام‌های زمان‌بندی شده: مشاهده تسک‌ها و لغو
-tasks = await app.load_scheduled_tasks(chat_id)
-await app.cancel_scheduled_tasks(task_ids=[101, 102])
-```
-
----
-
-## 👥 مدیریت پیشرفته گروه‌ها، کانال‌ها و ادمین‌ها
-
-```python
-# ایجاد گروه و کانال جدید
-group = await app.create_group("گروه برنامه‌نویسان", user_ids=[12345, 67890])
-channel = await app.create_channel("کانال رسمی اخبار", about="اطلاع‌رسانی مهم")
-
-# لینک دعوت گروه
-invite_url = await app.export_chat_invite_link(group.id)
-
-# ارتقا، عزل و اخراج اعضا
-await app.promote_chat_member(group.id, user_id=12345)
-await app.remove_user_admin(group.id, user_id=12345)
-await app.kick_user(group.id, user_id=67890)
-await app.set_group_slow_mode(group.id, seconds=15)
-```
-
----
-
-## 📞 تماس‌های صوتی و تصویری گروهی (WebRTC / LiveKit)
-
-اتصال Native به سرورهای کنفرانس تصویری و صوتی بله:
-
-```python
-# ورود به اتاق تماس با پروتکل رسمی LiveKit
-conn = await app.join_group_call_rtc(call_id=1234567, client_name="ربات پاسخگو")
-room = await conn.connect()
-
-# کار با استریم‌های صوت و تصویر با livekit.rtc ...
-
-await room.disconnect()
-await app.leave_group_call(call_id=1234567)
-```
-
----
-
-## 🌐 نحوه استفاده از کلیه ۶۹۰ متد وب بله
-
-کتابخانه به سه شیوه منعطف از تمام متدهای پروتکل پشتیبانی می‌کند:
-
-```python
-# شیوه ۱: متد پایتونیک مستقیم با آرگومان‌های صریح روی کلاینت (بیش از ۸۳۰ متد)
-res = await app.charge(payment_token="tok_123", reference_no="ref_456")
-res = await app.inquiry_bill(bill_type=1, bill_parameters="...")
-
-# شیوه ۲: از طریق متد منعطف rpc
-res = await app.rpc("bank", "GetCardRemain", pan="6037...", cvv2="123", expireDate="28/05", pin2="...")
-
-# شیوه ۳: از طریق namespace رسمی و تایپ‌شده api
-res = await app.api.bank.GetCardRemain(pan="6037...", cvv2="123", expireDate="28/05", pin2="...")
-```
-
-📖 **برای مشاهده پارامترها و نمونه کد تک‌تک ۶۹۰ متد، به [راهنمای جامع ۶۹۰ متد در مستندات رسمی](https://iliasync.github.io/balenova/all_methods_guide/) مراجعه کنید.**
-
----
-
-## 🛠️ راهنمای توسعه و مشارکت
-
-```bash
-git clone https://github.com/iliasync/balenova.git
-cd balenova
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev,docs]"
-
-# اجرای تست‌ها
-pytest
-
-# بررسی تایپ‌ها و استایل
-mypy src
-ruff check .
-```
-
----
-
-## 📄 مجوز و لایسنس
-
-این پروژه تحت مجوز آزاد [MIT License](LICENSE) منتشر شده است. استفاده در پروژه‌های تجاری و شخصی کاملاً مجاز است.
-
-</div>
+این پروژه تحت مجوز معتبر **MIT License** به صورت متن‌باز منتشر شده است.

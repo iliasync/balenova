@@ -6,7 +6,7 @@ import builtins
 import inspect
 import json
 import re
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -170,6 +170,7 @@ forwarded = Filter(
     ),
     "forwarded",
 )
+poll = Filter(lambda _client, message: message.poll is not None, "poll")
 
 # Uppercase aliases make migration from libraries with class-style filters easy.
 Text = text
@@ -228,13 +229,120 @@ def chat_type(kind: str) -> Filter:
     )
 
 
-def regex(pattern: str, *, flags: int = 0) -> Filter:
-    """Match a regular expression against message text/content."""
-    compiled = re.compile(pattern, flags)
+def _clean_peer_str(val: int | str) -> str:
+    s = str(val).split("|")[0]
+    if s.startswith("-100") and len(s) > 4:
+        return s[4:]
+    if s.startswith("-"):
+        return s[1:]
+    return s
+
+
+def chats(peer_ids: int | str | Iterable[int | str]) -> Filter:
+    """Match messages from specific chats (by peer ID or 'id|type' format)."""
+    raw_items = [peer_ids] if isinstance(peer_ids, (int, str)) else list(peer_ids)
+    clean_items = {_clean_peer_str(item) for item in raw_items}
+
+    def predicate(_client: Client, message: Message) -> bool:
+        cid = str(message.chat.peer_id)
+        cid_full = str(message.chat.id).split("|")[0]
+        return cid in clean_items or cid_full in clean_items
+
+    return Filter(predicate, f"chats({raw_items})")
+
+
+def users(user_ids: int | str | Iterable[int | str]) -> Filter:
+    """Match messages from specific users (by ID)."""
+    raw_items = [user_ids] if isinstance(user_ids, (int, str)) else list(user_ids)
+    items = {int(item) for item in raw_items}
     return Filter(
-        lambda _client, message: compiled.search(message.content) is not None,
-        f"regex({pattern})",
+        lambda _client, message: message.sender_id in items,
+        f"users({items})",
     )
+
+
+def regex(pattern: str | re.Pattern[str], *, flags: int = 0) -> Filter:
+    """Match a regular expression against message text/content and bind match."""
+    compiled = re.compile(pattern, flags) if isinstance(pattern, str) else pattern
+
+    def predicate(_client: Client, message: Message) -> bool:
+        match = compiled.search(message.content)
+        if match is not None:
+            message.matches = match
+            return True
+        return False
+
+    return Filter(predicate, f"regex({getattr(pattern, 'pattern', pattern)})")
+
+
+def commands(
+    names: str | Iterable[str],
+    prefix: str = "/",
+) -> Filter:
+    """Match multiple command aliases (e.g. ['start', 'help'])."""
+    aliases = [names] if isinstance(names, str) else list(names)
+    expected = {f"{prefix}{name}".casefold() for name in aliases}
+
+    def predicate(_client: Client, message: Message) -> bool:
+        if not message.text:
+            return False
+        parts = message.text.strip().split()
+        if not parts:
+            return False
+        cmd = parts[0].casefold().split("@", 1)[0]
+        return cmd in expected
+
+    return Filter(predicate, f"commands({aliases})")
+
+
+def compile_filters(
+    custom_func: Any = None,
+    *,
+    incoming_flag: bool | None = None,
+    outgoing_flag: bool | None = None,
+    outcoming_flag: bool | None = None,
+    chats_filter: int | str | Iterable[int | str] | None = None,
+    users_filter: int | str | Iterable[int | str] | None = None,
+    commands_filter: str | Iterable[str] | None = None,
+    regex_pattern: str | re.Pattern[str] | None = None,
+    **extra_kwargs: Any,
+) -> Filter | None:
+    """Compile multiple Telethon-style filter arguments into a single Filter."""
+    flts: list[Filter] = []
+
+    if incoming_flag is True:
+        flts.append(incoming)
+    if outgoing_flag is True or outcoming_flag is True:
+        flts.append(outgoing)
+    if incoming_flag is False:
+        flts.append(outgoing)
+    if outgoing_flag is False or outcoming_flag is False:
+        flts.append(incoming)
+
+    if chats_filter is not None:
+        flts.append(chats(chats_filter))
+
+    if users_filter is not None:
+        flts.append(users(users_filter))
+
+    if commands_filter is not None:
+        flts.append(commands(commands_filter))
+
+    if regex_pattern is not None:
+        flts.append(regex(regex_pattern))
+
+    if custom_func is not None:
+        if isinstance(custom_func, Filter):
+            flts.append(custom_func)
+        elif callable(custom_func):
+            flts.append(create(custom_func, "custom_func"))
+
+    if not flts:
+        return None
+    res = flts[0]
+    for next_flt in flts[1:]:
+        res = res & next_flt
+    return res
 
 
 def command(

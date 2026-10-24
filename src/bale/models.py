@@ -1,497 +1,37 @@
-"""High-level objects returned by the Bale user-session client."""
+"""Data models and serialization helpers for the Bale platform."""
 
 from __future__ import annotations
 
-import base64
-import json
-from dataclasses import dataclass, field, fields
-from enum import Enum, IntEnum
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
-from google.protobuf.json_format import MessageToDict
-from google.protobuf.message import Message as ProtoMessage
-
-from bale.errors import ClientStateError
+from bale.enums import (
+    CallMode,
+    CallRecordQuality,
+    ChatType,
+    GiftOpening,
+    GivingType,
+    MessageEntityType,
+    PeerSource,
+    PrivacyStatus,
+    PrivacyType,
+    ReportKind,
+)
+from bale.types.base import Serializable, model_to_dict, model_to_json
+from bale.types.chat import Chat
+from bale.types.entities import MessageEntity
+from bale.types.message import Message, MessageButton, OtherMessage
+from bale.types.user import User
+from bale.types.wallet import (
+    DefaultResponse,
+    GiftPacket,
+    PacketResponse,
+    Wallet,
+    WalletResponse,
+    Winner,
+)
 
 if TYPE_CHECKING:
-    from bale.client import Client
-
-
-class Serializable:
-    """Convenience conversion helpers shared by public response models."""
-
-    def to_dict(self, *, include_raw: bool = False) -> dict[str, Any]:
-        return cast(dict[str, Any], model_to_dict(self, include_raw=include_raw))
-
-    def to_json(self, *, include_raw: bool = False, indent: int | None = 2) -> str:
-        return json.dumps(
-            self.to_dict(include_raw=include_raw),
-            ensure_ascii=False,
-            indent=indent,
-            sort_keys=True,
-        )
-
-    def as_dict(self, *, include_raw: bool = False) -> dict[str, Any]:
-        """Alias for :meth:`to_dict` with a discoverable Pythonic name."""
-        return self.to_dict(include_raw=include_raw)
-
-    def as_json(self, *, include_raw: bool = False, indent: int | None = 2) -> str:
-        """Alias for :meth:`to_json` suitable for generic serializers."""
-        return self.to_json(include_raw=include_raw, indent=indent)
-
-
-def model_to_dict(value: Any, *, include_raw: bool = False) -> Any:
-    """Convert a Bale model (including nested models) to JSON-safe values."""
-    if isinstance(value, Enum):
-        return value.value
-    if isinstance(value, ProtoMessage):
-        return MessageToDict(
-            value,
-            preserving_proto_field_name=True,
-            use_integers_for_enums=True,
-        )
-    if isinstance(value, bytes):
-        return base64.b64encode(value).decode("ascii")
-    if isinstance(value, Serializable):
-        return {
-            item.name: model_to_dict(getattr(value, item.name), include_raw=include_raw)
-            for item in fields(cast(Any, value))
-            if not item.name.startswith("_") and (include_raw or item.name != "raw")
-        }
-    if isinstance(value, dict):
-        return {
-            str(key): model_to_dict(item, include_raw=include_raw)
-            for key, item in value.items()
-        }
-    if isinstance(value, (list, tuple, set)):
-        return [model_to_dict(item, include_raw=include_raw) for item in value]
-    return value
-
-
-def model_to_json(
-    value: Any, *, include_raw: bool = False, indent: int | None = 2
-) -> str:
-    """Serialize a model or response value as readable JSON."""
-    return json.dumps(
-        model_to_dict(value, include_raw=include_raw),
-        ensure_ascii=False,
-        indent=indent,
-        sort_keys=True,
-    )
-
-
-class ChatType(str, Enum):
-    PRIVATE = "private"
-    GROUP = "group"
-    CHANNEL = "channel"
-    BOT = "bot"
-    SUPERGROUP = "supergroup"
-    THREAD = "thread"
-    UNKNOWN = "unknown"
-
-
-class GivingType(IntEnum):
-    SAME = 0
-    RANDOM = 1
-
-
-class GiftOpening(IntEnum):
-    ALREADY_RECEIVED = 0
-    SOLD_OUT = 1
-    GIFT_CREATOR = 2
-    SUCCESSFUL = 3
-    PENDING = 4
-
-
-class ReportKind(IntEnum):
-    UNKNOWN = 0
-    SCAM = 1
-    INAPPROPRIATE_CONTENT = 2
-    OTHER = 3
-    VIOLENCE = 4
-    SPAM = 5
-    FALSE_INFORMATION = 6
-
-
-class PeerSource(IntEnum):
-    UNKNOWN = 0
-    DIALOGS = 1
-    VITRINE = 2
-    MARKET = 3
-    PRIVACY_BAR = 4
-
-
-class PrivacyType(IntEnum):
-    INVITE = 0
-    PRESENCE = 1
-    MONEY_TRANSFER = 2
-
-
-class PrivacyStatus(IntEnum):
-    EVERYONE = 0
-    CONTACTS = 1
-    NOBODY = 2
-
-
-class CallMode(IntEnum):
-    UNKNOWN = 0
-    PRIVATE = 1
-    GROUP = 2
-    MULTI_PEER = 3
-    CHANNEL_LIVE = 4
-
-
-class CallRecordQuality(IntEnum):
-    NOT_SPECIFIED = 0
-    LOW = 1
-    MEDIUM = 2
-    HIGH = 3
-    ULTRA = 4
-    ULTRA_PLUS = 5
-
-
-@dataclass(slots=True)
-class User(Serializable):
-    id: int
-    username: str | None = None
-    name: str | None = None
-    is_bot: bool = False
-    _client: Client | None = field(default=None, repr=False, compare=False)
-
-    @property
-    def full_name(self) -> str:
-        return self.name or ""
-
-    def bind(self, client: Client) -> User:
-        self._client = client
-        return self
-
-
-@dataclass(slots=True)
-class Chat(Serializable):
-    peer_id: int
-    peer_type: int
-    title: str | None = None
-    username: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
-    type: ChatType = ChatType.UNKNOWN
-    access_hash: int = 0
-    is_member: bool = False
-    can_send_message: bool = False
-    permissions: dict[str, Any] = field(default_factory=dict)
-    _client: Client | None = field(default=None, repr=False, compare=False)
-
-    def __post_init__(self) -> None:
-        if self.type is ChatType.UNKNOWN:
-            self.type = peer_type_to_chat_type(self.peer_type)
-
-    @property
-    def id(self) -> str:
-        return f"{self.peer_id}|{self.peer_type}"
-
-    @property
-    def full_name(self) -> str:
-        return " ".join(filter(None, (self.first_name, self.last_name))) or (
-            self.title or ""
-        )
-
-    def bind(self, client: Client) -> Chat:
-        self._client = client
-        return self
-
-    async def send(self, text: str) -> Message:
-        return await self._require_client().send_message(self.id, text)
-
-    async def load_history(self, limit: int = 20, from_date: int = -1) -> list[Message]:
-        return await self._require_client().load_history(self.id, from_date, limit)
-
-    async def send_gift(
-        self,
-        amount: int,
-        message: str,
-        *,
-        gift_count: int = 1,
-        giving_type: GivingType = GivingType.SAME,
-        show_amounts: bool = True,
-        token: str | None = None,
-    ) -> DefaultResponse:
-        return await self._require_client().send_gift(
-            self.id,
-            amount,
-            message,
-            gift_count=gift_count,
-            giving_type=giving_type,
-            show_amounts=show_amounts,
-            token=token,
-        )
-
-    send_giftpacket = send_gift
-
-    async def report(
-        self, reason: str | None = None, kind: ReportKind = ReportKind.SPAM
-    ) -> Any:
-        return await self._require_client().report_chat(self.id, reason, kind)
-
-    def _require_client(self) -> Client:
-        if self._client is None:
-            raise ClientStateError("Chat is not bound to a client")
-        return self._client
-
-
-@dataclass(slots=True)
-class GiftPacket(Serializable):
-    count: int = 0
-    total_amount: int = 0
-    giving_type: GivingType = GivingType.SAME
-    token: str | None = None
-    message: str | None = None
-    owner_id: int | None = None
-    show_amounts: bool = False
-
-
-@dataclass(slots=True)
-class Message(Serializable):
-    rid: int | str
-    date: int
-    author: User
-    chat: Chat
-    text: str | None = None
-    caption: str | None = None
-    gift: GiftPacket | None = None
-    replied_to: Message | None = None
-    raw: dict[str, Any] = field(default_factory=dict, repr=False)
-    _client: Client | None = field(default=None, repr=False, compare=False)
-
-    @property
-    def id(self) -> str:
-        return f"{self.rid}|{self.date}"
-
-    @property
-    def message_id(self) -> int | str:
-        return self.rid
-
-    @property
-    def sender_id(self) -> int:
-        return self.author.id
-
-    @property
-    def is_outgoing(self) -> bool:
-        """Whether this message was sent by the currently connected account.
-
-        Bale identifies the author by account ID, so messages sent from another
-        device/session of the same account are also correctly classified as
-        outgoing. The protocol does not expose a reliable device/session ID.
-        """
-        if self._client is None or self._client.user is None:
-            return False
-        own_id = self._client.user.id
-        if self.author.id == own_id:
-            return True
-        # Saved Messages is a private dialog whose peer is the account itself.
-        # Some edited-message updates omit sender_uid (decoded as zero), but no
-        # other account can author a message in this dialog.
-        return bool(
-            self.author.id == 0
-            and self.chat.peer_type == 1
-            and self.chat.peer_id == own_id
-        )
-
-    @property
-    def is_incoming(self) -> bool:
-        """Whether this message was authored by another account."""
-        return not self.is_outgoing
-
-    @property
-    def content(self) -> str:
-        return self.text or self.caption or ""
-
-    def bind(self, client: Client) -> Message:
-        self._client = client
-        self.author.bind(client)
-        self.chat.bind(client)
-        if self.replied_to:
-            self.replied_to.bind(client)
-        return self
-
-    async def answer(self, text: str, *, reply_markup: Any = None) -> Message:
-        return await self._require_client().send_message(
-            self.chat.id, text, reply_markup=reply_markup
-        )
-
-    respond = answer
-
-    async def reply(self, text: str, *, reply_markup: Any = None) -> Message:
-        return await self._require_client().send_message(
-            self.chat.id, text, self, reply_markup=reply_markup
-        )
-
-    async def edit_text(self, text: str) -> DefaultResponse:
-        return await self._require_client().edit_message_text(
-            self.chat.id, self.id, text
-        )
-
-    async def delete(self, just_me: bool = False) -> DefaultResponse:
-        return await self._require_client().delete_message(
-            self.chat.id, self.id, just_me
-        )
-
-    async def seen(self) -> DefaultResponse:
-        return await self._require_client().seen_chat(self.chat.id, self.date)
-
-    async def download(self) -> bytes:
-        return await self._require_client().download_media(self)
-
-    async def clear_chat(self) -> DefaultResponse:
-        return await self._require_client().clear_chat(self.chat.id)
-
-    async def delete_chat(self) -> DefaultResponse:
-        return await self._require_client().delete_chat(self.chat.id)
-
-    async def load_history(self, limit: int = 20, from_date: int = -1) -> list[Message]:
-        return await self._require_client().load_history(self.chat.id, from_date, limit)
-
-    async def pin(self, just_mine: bool = False) -> DefaultResponse:
-        return await self._require_client().pin_message(
-            self.chat.id, self.id, just_mine
-        )
-
-    async def unpin(self) -> DefaultResponse:
-        return await self._require_client().unpin_message(self.chat.id, self.id)
-
-    async def unpin_all(self) -> DefaultResponse:
-        return await self._require_client().unpin_all(self.chat.id)
-
-    async def pin_in_group(self) -> DefaultResponse:
-        return await self._require_client().pin_group_message(self.chat.id, self.id)
-
-    async def unpin_in_group(self) -> DefaultResponse:
-        return await self._require_client().unpin_group_message(self.chat.id, self.id)
-
-    async def unpin_all_in_group(self) -> DefaultResponse:
-        return await self._require_client().remove_group_pins(self.chat.id)
-
-    async def load_pinned_messages(self) -> list[Message]:
-        return await self._require_client().load_pinned_messages(self.chat.id)
-
-    async def load_full_chat(self) -> dict[str, Any] | None:
-        return await self._require_client().load_full_chat(self.chat.id)
-
-    async def react(self, code: str) -> dict[str, Any]:
-        return await self._require_client().message_set_reaction(
-            self.chat.id, self.id, code
-        )
-
-    async def remove_reaction(self, code: str) -> dict[str, Any]:
-        return await self._require_client().message_remove_reaction(
-            self.chat.id, self.id, code
-        )
-
-    async def click(self, data: str) -> dict[str, Any]:
-        """Trigger an inline callback using data from a message button."""
-        return await self._require_client().click_inline_button(
-            self.chat.id, self.id, data
-        )
-
-    async def forward(self, chat_id: str) -> DefaultResponse:
-        return await self._require_client().forward_message(
-            chat_id, self.chat.id, self.id
-        )
-
-    async def copy(self, chat_id: str) -> Message:
-        return await self._require_client().copy_message(chat_id, self.chat.id, self.id)
-
-    async def open_gift(self, receiver_token: str | None = None) -> PacketResponse:
-        return await self._require_client().open_gift(self, receiver_token)
-
-    open_packet = open_gift
-
-    async def report(
-        self, reason: str | None = None, kind: ReportKind = ReportKind.SPAM
-    ) -> DefaultResponse:
-        return await self._require_client().report_message(
-            self.chat.id, self, reason, kind
-        )
-
-    def get_fsm_context(self) -> Any:
-        """Return the FSMContext bound to this message's chat and author."""
-        return self._require_client().get_fsm_context(self.chat.id, self.author.id)
-
-    def _require_client(self) -> Client:
-        if self._client is None:
-            raise ClientStateError("Message is not bound to a client")
-        return self._client
-
-
-@dataclass(frozen=True, slots=True)
-class DefaultResponse(Serializable):
-    seq: int | None = None
-    date: int | None = None
-    state: bytes | None = None
-    seq_big: int | None = None
-    ext: dict[str, Any] = field(default_factory=dict)
-
-
-class MessageEntityType(str, Enum):
-    MENTION = "mention"
-    BOT_COMMAND = "bot_command"
-    HASHTAG = "hashtag"
-    URL = "url"
-    BOLD = "bold"
-    ITALIC = "italic"
-    CODE = "code"
-    PRE = "pre"
-    TEXT_LINK = "text_link"
-
-
-@dataclass(frozen=True, slots=True)
-class MessageEntity(Serializable):
-    type: str | MessageEntityType
-    offset: int
-    length: int
-    url: str | None = None
-    user: User | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class OtherMessage(Serializable):
-    date: int
-    message_id: int | str
-    seq: int | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class Winner(Serializable):
-    id: int
-    amount: int = 0
-    date: int | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class PacketResponse(Serializable):
-    receivers: tuple[Winner, ...] = ()
-    status: GiftOpening = GiftOpening.ALREADY_RECEIVED
-    opened_count: int = 0
-    win_amount: int = 0
-    rank: int = 0
-
-
-@dataclass(frozen=True, slots=True)
-class Wallet(Serializable):
-    token: str
-    is_merchant: bool = False
-    app: str | None = None
-    balance: int = 0
-    level: int = 0
-    pan: str | None = None
-    account: str | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class WalletResponse(Serializable):
-    wallet: Wallet | None = None
-    first_name: str | None = None
-    last_name: str | None = None
+    pass
 
 
 def peer_type_to_chat_type(peer_type: int) -> ChatType:
@@ -578,18 +118,7 @@ def peer_id_to_chat_id(
     *,
     telegram_style: bool = False,
 ) -> str:
-    """Format peer_id and peer_type into standard Bale chat_id string.
-
-    Supports optional telegram_style (-100... / -...).
-
-    Examples:
-        >>> peer_id_to_chat_id(123456, 1)
-        '123456|1'
-        >>> peer_id_to_chat_id(987654, 'group')
-        '987654|2'
-        >>> peer_id_to_chat_id(273076292, 'channel', telegram_style=True)
-        '-100273076292'
-    """
+    """Format peer_id and peer_type into standard Bale chat_id string."""
     numeric_id = chat_id_to_peer_id(peer_id)
     resolved_type = chat_type_to_peer_type(peer_type)
     if telegram_style:
@@ -602,14 +131,7 @@ def peer_id_to_chat_id(
 
 
 def parse_chat_id(chat_id: int | str | User | Chat) -> tuple[int, int]:
-    """Parse any chat identifier into a (peer_id, peer_type) tuple.
-
-    Auto-detects:
-        - Bale format: '123456|1' -> (123456, 1)
-        - Telegram channels (-100...): -100273076292 -> (273076292, 3)
-        - Telegram groups (-...): -1509600244 -> (1509600244, 2)
-        - Positive integer / string: 123456 -> (123456, 1)
-    """
+    """Parse any chat identifier into a (peer_id, peer_type) tuple."""
     if isinstance(chat_id, Chat):
         return chat_id.peer_id, chat_id.peer_type
     if isinstance(chat_id, User):
@@ -641,26 +163,7 @@ def toggle_chat_id(
     peer_type: int | str | ChatType = 1,
     telegram_style: bool = False,
 ) -> int | str:
-    """Two-way smart converter between chat_id and peer_id.
-
-    Auto-detects input type:
-        - If input is a Bale chat_id (e.g. '123456|1') or Telegram ID (-100...),
-          it converts it to a raw numeric peer_id (int).
-        - If input is a raw numeric peer_id (e.g. 123456),
-          it converts it to a formatted chat_id string (str).
-
-    Examples:
-        >>> toggle_chat_id('123456|1')
-        123456
-        >>> toggle_chat_id('-100273076292')
-        273076292
-        >>> toggle_chat_id(123456)
-        '123456|1'
-        >>> toggle_chat_id(987654, peer_type='group')
-        '987654|2'
-        >>> toggle_chat_id(273076292, peer_type='channel', telegram_style=True)
-        '-100273076292'
-    """
+    """Two-way smart converter between chat_id and peer_id."""
     if isinstance(identifier, (Chat, User)):
         return identifier.peer_id if isinstance(identifier, Chat) else identifier.id
 
@@ -671,16 +174,13 @@ def toggle_chat_id(
         if stripped.startswith("-"):
             return chat_id_to_peer_id(stripped)
         if stripped.isdigit():
-            # Positive digits string: treat as raw peer_id and convert to chat_id
             return peer_id_to_chat_id(
                 int(stripped), peer_type, telegram_style=telegram_style
             )
 
     if isinstance(identifier, int):
         if identifier < 0:
-            # Negative int is Telegram-style group/channel -> extract peer_id
             return chat_id_to_peer_id(identifier)
-        # Positive int is raw peer_id -> convert to chat_id string
         return peer_id_to_chat_id(identifier, peer_type, telegram_style=telegram_style)
 
     raise ValueError(f"Cannot toggle identifier: {identifier!r}")
@@ -836,3 +336,45 @@ def _wrapped(value: Any, default: Any = None) -> Any:
 
 def _string(value: Any) -> str | None:
     return value if isinstance(value, str) and value else None
+
+
+__all__ = [
+    "CallMode",
+    "CallRecordQuality",
+    "Chat",
+    "ChatType",
+    "DefaultResponse",
+    "GiftOpening",
+    "GiftPacket",
+    "GivingType",
+    "Message",
+    "MessageButton",
+    "MessageEntity",
+    "MessageEntityType",
+    "OtherMessage",
+    "PacketResponse",
+    "PeerSource",
+    "PrivacyStatus",
+    "PrivacyType",
+    "ReportKind",
+    "Serializable",
+    "User",
+    "Wallet",
+    "WalletResponse",
+    "Winner",
+    "chat_id_to_peer_id",
+    "chat_type_to_peer_type",
+    "convert_chat_id",
+    "model_to_dict",
+    "model_to_json",
+    "parse_chat_id",
+    "peer_id_to_chat_id",
+    "peer_type_to_chat_type",
+    "toggle_chat_id",
+    "wrap_default",
+    "wrap_group",
+    "wrap_message",
+    "wrap_packet_response",
+    "wrap_user",
+    "wrap_wallet_response",
+]

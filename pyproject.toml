@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "balenova"
-version = "0.4.4"
+version = "0.5.0"
 description = "A friendly Python client for Bale accounts"
 readme = "README.md"
 requires-python = ">=3.10"

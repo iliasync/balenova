@@ -25,6 +25,19 @@ class InlineKeyboardButton:
             data["web_app"] = {"url": self.web_app_url}
         return data
 
+    def __repr__(self) -> str:
+        attrs = [f"text={self.text!r}"]
+        if self.callback_data is not None:
+            attrs.append(f"callback_data={self.callback_data!r}")
+        if self.url is not None:
+            attrs.append(f"url={self.url!r}")
+        if self.web_app_url is not None:
+            attrs.append(f"web_app_url={self.web_app_url!r}")
+        return f"InlineKeyboardButton({', '.join(attrs)})"
+
+    def __str__(self) -> str:
+        return repr(self)
+
 
 @dataclass(slots=True)
 class InlineKeyboardMarkup:
@@ -51,6 +64,12 @@ class InlineKeyboardMarkup:
             }
         }
 
+    def __repr__(self) -> str:
+        return f"InlineKeyboardMarkup({self.inline_keyboard!r})"
+
+    def __str__(self) -> str:
+        return repr(self)
+
 
 @dataclass(slots=True)
 class KeyboardButton:
@@ -67,6 +86,17 @@ class KeyboardButton:
         if self.request_location:
             data["request_location"] = {"value": True}
         return data
+
+    def __repr__(self) -> str:
+        attrs = [f"text={self.text!r}"]
+        if self.request_contact:
+            attrs.append("request_contact=True")
+        if self.request_location:
+            attrs.append("request_location=True")
+        return f"KeyboardButton({', '.join(attrs)})"
+
+    def __str__(self) -> str:
+        return repr(self)
 
 
 @dataclass(slots=True)
@@ -96,6 +126,12 @@ class ReplyKeyboardMarkup:
             }
         }
 
+    def __repr__(self) -> str:
+        return f"ReplyKeyboardMarkup({self.keyboard!r})"
+
+    def __str__(self) -> str:
+        return repr(self)
+
 
 @dataclass(slots=True)
 class ReplyKeyboardRemove:
@@ -105,3 +141,9 @@ class ReplyKeyboardRemove:
 
     def to_dict(self) -> dict[str, Any]:
         return {"reply_keyboard_remove": {"remove_keyboard": self.remove_keyboard}}
+
+    def __repr__(self) -> str:
+        return "ReplyKeyboardRemove()"
+
+    def __str__(self) -> str:
+        return repr(self)

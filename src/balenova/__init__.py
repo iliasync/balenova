@@ -1,6 +1,6 @@
 """BaleNova: a friendly Python client for Bale accounts."""
 
-from bale import events, filters
+from bale import enums, events, filters, types
 from bale.api import ProtocolAPI
 from bale.client import Client
 from bale.errors import (
@@ -68,7 +68,7 @@ from bale.rtc import (
 from bale.services import ALL_RPCS, SERVICE_CLASSES
 from bale.session import Session
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 BaleClient = Client
 
 __all__ = [
@@ -130,6 +130,7 @@ __all__ = [
     "chat_type_to_peer_type",
     "convert_chat_id",
     "decode_livekit_join_request",
+    "enums",
     "events",
     "filters",
     "model_to_dict",
@@ -139,4 +140,5 @@ __all__ = [
     "pb",
     "peer_id_to_chat_id",
     "toggle_chat_id",
+    "types",
 ]

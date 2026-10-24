@@ -91,10 +91,21 @@ class WebSocketTransport:
                 _metadata("session_id", session_id),
             ]
         }
+        browser_user_agent = (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        )
+        headers = {
+            "Cookie": f"access_token={self.access_token}",
+            "Accept-Language": "fa,en-US;q=0.9,en;q=0.8",
+            "User-Agent": browser_user_agent,
+        }
         self._socket = await connect(
             self.uri,
             origin=Origin(self.origin),
-            additional_headers={"Cookie": f"access_token={self.access_token}"},
+            additional_headers=headers,
+            user_agent_header=browser_user_agent,
             compression=None,
         )
         self._reader_task = asyncio.create_task(self._reader(), name="bale-ws-reader")

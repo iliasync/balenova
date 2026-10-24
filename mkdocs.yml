@@ -10,29 +10,39 @@ theme:
   language: fa
   direction: rtl
   palette:
-    # پالت روشن (پیش‌فرض سیستم)
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/weather-night
-        name: تغییر به حالت تاریک (Dark Mode)
-    # پالت تاریک
+    # پالت تاریک (پیش‌فرض جذاب‌تر و مدرن‌تر)
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: light-blue
+      accent: cyan
       toggle:
         icon: material/weather-sunny
         name: تغییر به حالت روشن (Light Mode)
+    # پالت روشن
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: light-blue
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: تغییر به حالت تاریک (Dark Mode)
   features:
     - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
+    - navigation.path
     - navigation.top
     - search.highlight
     - search.suggest
+    - search.share
     - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+extra_css:
+  - stylesheets/custom.css
 
 plugins:
   - search
@@ -52,25 +62,48 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - tables
   - toc:
       permalink: true
 
 nav:
-  - خانه: index.md
-  - شروع سریع: USAGE.md
-  - پیام‌ها و رسانه: messaging.md
-  - کیبوردها و FSM: fsm_keyboards.md
-  - امور بانکی و مینی‌اپ‌ها: banking_miniapps.md
-  - استوری، نظرسنجی و زمان‌بندی: stories_polls_schedule.md
-  - مدیریت گروه‌ها و کانال‌ها: group_management.md
-  - مرجع بیش از ۸۳۰ متد پایتونیک: pythonic_rpc_methods.md
-  - راهنمای جامع ۶۹۰ متد پروتکل: all_methods_guide.md
-  - API سطح‌بالا: api.md
-  - ۸۰ RPC بازیابی‌شده: recovered-rpcs.md
-  - مرجع کامل RPCها: rpc-reference.md
-  - تماس و RTC: CALL_RTC_PROTOCOL.md
-  - ممیزی وب: WEB_PROTOCOL_AUDIT.md
+  - شروع کار:
+    - معرفی و معماری: index.md
+    - نصب و احراز هویت: installation.md
+    - ساخت ربات و سیستم رویدادها: bot_development.md
+    - ماشین وضعیت و فرم‌ها (FSM): fsm.md
+    - مدیریت خطاها و استثناها: errors.md
+  - انواع داده و مدل‌ها:
+    - کاتالوگ مدل‌ها و کلاس‌های داده: types.md
+    - کیبوردها و تعاملات دکمه‌ای: keyboards.md
+  - مرجع متدها (به سبک تلگرام):
+    - پیام‌ها و رسانه‌ها: methods_messages.md
+    - گفت‌وگوها، گروه‌ها و کانال‌ها: methods_chats.md
+    - کاربران و مخاطبین: methods_users.md
+    - امور بانکی، کیف پول و پاکت هدیه: methods_wallet.md
+    - استوری، نظرسنجی و زمان‌بندی: methods_stories_polls.md
+    - تماس‌های صوتی و تصویری (WebRTC): methods_calls.md
+    - امنیت، نشست‌ها و حریم خصوصی: methods_settings.md
+  - سناریوهای عملی و پروژه‌ها:
+    - کوک‌بوک و کدهای آماده ربات: cookbook.md
+    - پرسش‌های متداول (FAQ): faq.md
+  - پروتکل و زیرساخت (پیشرفته):
+    - ممیزی پروتکل وب: WEB_PROTOCOL_AUDIT.md
+    - پروتکل تماس لایوکیت: CALL_RTC_PROTOCOL.md
+    - مرجع ۶۹۰ متد پروتکل: all_methods_guide.md
+    - مرجع کامل RPCها: rpc-reference.md
+    - ۸۰ RPC بازیابی‌شده: recovered-rpcs.md
+    - کاتالوگ متدهای پایتونیک: pythonic_rpc_methods.md
+  - آرشیو یادداشت‌های فنی:
+    - راهنمای شروع سریع پیشین: USAGE.md
+    - رابط کاربری سطح پایین API: api.md
+    - یادداشت‌های پیام‌رسانی: messaging.md
+    - مدیریت پیشین گروه‌ها: group_management.md
+    - امور بانکی و مینی‌اپ‌ها (نسخه ۱): banking_miniapps.md
+    - کیبوردهای FSM پیشین: fsm_keyboards.md
+    - استوری و نظرسنجی (نسخه ۱): stories_polls_schedule.md
 
 extra:
   generator: false

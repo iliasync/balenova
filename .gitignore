@@ -16,4 +16,10 @@ sessions/
 .private/
 graphify-out/
 AGENTS.md
+*.session
+*.session.session
+*.sqlite
+*.sqlite3
+*.db
+MULTI_ACCOUNT_BOT_PLAN.md
 
